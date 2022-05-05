@@ -8,6 +8,7 @@ const db = require('ocore/db.js');
 const marketDB = require('./db');
 const { getStateVars } = require('./utils');
 const { justsayingHandler, responseHandler } = require('./handlers');
+const webserver = require('./webserver');
 
 lightWallet.setLightVendorHost(conf.hub);
 
@@ -47,6 +48,7 @@ async function start() {
 
   eventBus.once('refresh_light_done', async () => {
     await marketDB.api.refreshSymbols();
+    webserver.start();
     // apiIsStarted = true;
     // await initHistoryAABalances();
     // await api.start()

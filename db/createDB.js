@@ -9,7 +9,7 @@ exports.create = async function () {
 		UNIQUE(category)
 	)`);
 
-  await db.query(`CREATE TABLE IF NOT EXISTS trades (
+  await db.query(`CREATE TABLE IF NOT EXISTS trade_events (
 		aa_address CHAR(32) NOT NULL,
 		response_unit CHAR(44) PRIMARY KEY NOT NULL,
     yes_amount INTEGER DEFAULT 0,
@@ -18,6 +18,10 @@ exports.create = async function () {
     supply_yes INTEGER DEFAULT 0,
     supply_no INTEGER DEFAULT 0,
     supply_draw INTEGER DEFAULT 0,
+		yes_price REAL DEFAULT 1,
+		no_price REAL DEFAULT 1,
+		draw_price REAL DEFAULT 1,
+		reserve INTEGER DEFAULT 0,
 		coef REAL DEFAULT 1,
 		type VARCHAR(40),
 		timestamp TIMESTAMP NOT NULL,
@@ -56,7 +60,9 @@ exports.create = async function () {
 		no_decimals INTEGER DEFAULT 0,
 		draw_decimals INTEGER DEFAULT 0,
 		reserve_symbol CHAR(44),
-		reserve_decimals INTEGER DEFAULT 0
+		reserve_decimals INTEGER DEFAULT 0,
+		FOREIGN KEY(aa_address) REFERENCES markets(aa_address),
+		UNIQUE (aa_address)
 	)`);
 //FOREIGN KEY(aa_address) REFERENCES markets(aa_address), 		UNIQUE (aa_address)
 }

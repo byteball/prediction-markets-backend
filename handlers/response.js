@@ -1,6 +1,7 @@
 const dag = require('aabot/dag.js');
 const mutex = require('ocore/mutex.js')
 const marketDB = require('../db');
+const { getStateVarsForPrefixes } = require('../utils');
 
 exports.responseHandler = async function (objResponse) {
   const unlock = await mutex.lock('responseHandler');
@@ -12,6 +13,7 @@ exports.responseHandler = async function (objResponse) {
   const responseVars = objResponse.response.responseVars || {};
   const joint = await dag.readJoint(trigger_unit);
   const payload = joint.unit.messages.find(m => m.app === 'data').payload;
+  const aa_address = objResponse.aa_address;
 
   if (('prediction_address' in responseVars)) {
     if (joint && joint.unit && joint.unit.messages) {
@@ -29,6 +31,28 @@ exports.responseHandler = async function (objResponse) {
 
   if (responseVars.draw_asset) {
     await marketDB.api.saveMarketAsset(payload.to || objResponse.aa_address, 'draw', payload.draw_asset || responseVars.draw_asset)
+  }
+
+  if (responseVars && ('next_coef' in responseVars) && ('arb_profit_tax' in responseVars) && ('fee' in responseVars)) {
+    const existsAmountInPayload = 'yes_amount' in payload || 'no_amount' in payload || 'draw_amount' in payload;
+
+    await marketDB.api.saveTradeEvent({
+      aa_address: aa_address,
+      type: ('type' in payload) ? 'buy_by_type' : (existsAmountInPayload ? 'buy' : 'redeem'),
+      supply_yes: responseVars.supply_yes,
+      supply_no: responseVars.supply_no,
+      supply_draw: responseVars.supply_draw || 0,
+      yes_amount: responseVars.yes_amount,
+      no_amount: responseVars.no_amount,
+      draw_amount: responseVars.draw_amount || 0,
+      yes_price: responseVars.yes_price || 0,
+      no_price: responseVars.no_price || 0,
+      draw_price: responseVars.draw_price || 0,
+      coef: responseVars.next_coef,
+      reserve: responseVars.next_reserve,
+      timestamp: objResponse.timestamp,
+      response_unit: objResponse.response_unit
+    })
   }
 
   return unlock()
