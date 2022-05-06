@@ -15,8 +15,8 @@ exports.token_registry_aa_address = process.env.testnet ? "O6H6ZIFI57X3PLTYHOCVY
 
 exports.supported_reserve_assets = process.env.testnet == "1" ? {
   GBYTE: 'base',
-  ETH3: 'tZgXWTAv+1v1Ow4pMEVFFNlZAobGxMm2kIcr2dVR68c=',
-  USDC3: 'lwvZjepKoGSiMIDalxi2GB8Pd+nK86Qsnsn1Ng7TAJE='
+  ETH: 'tZgXWTAv+1v1Ow4pMEVFFNlZAobGxMm2kIcr2dVR68c=',
+  USDC: 'lwvZjepKoGSiMIDalxi2GB8Pd+nK86Qsnsn1Ng7TAJE='
 } : {};
 
 console.error('finished server conf');

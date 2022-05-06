@@ -22,7 +22,7 @@ exports.create = async function () {
 		no_price REAL DEFAULT 1,
 		draw_price REAL DEFAULT 1,
 		reserve INTEGER DEFAULT 0,
-		reserve_to_usd_rate REAL DEFAULT 1,
+		reserve_to_usd_rate REAL,
 		coef REAL DEFAULT 1,
 		type VARCHAR(40),
 		timestamp TIMESTAMP NOT NULL,

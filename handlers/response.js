@@ -1,7 +1,6 @@
 const dag = require('aabot/dag.js');
 const mutex = require('ocore/mutex.js')
 const marketDB = require('../db');
-const { getStateVarsForPrefixes } = require('../utils');
 
 exports.responseHandler = async function (objResponse) {
   const unlock = await mutex.lock('responseHandler');
@@ -12,7 +11,8 @@ exports.responseHandler = async function (objResponse) {
   const trigger_unit = objResponse.trigger_unit;
   const responseVars = objResponse.response.responseVars || {};
   const joint = await dag.readJoint(trigger_unit);
-  const payload = joint.unit.messages.find(m => m.app === 'data').payload;
+  const msg = joint.unit.messages.find(m => m.app === 'data');
+  const payload = msg ? msg.payload : {};
   const aa_address = objResponse.aa_address;
 
   if (('prediction_address' in responseVars)) {
