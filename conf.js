@@ -13,4 +13,10 @@ exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
 exports.forward_aa = "E4BAASPOCW6WHXSUOY2XEKXKA42RRD5I";
 exports.token_registry_aa_address = process.env.testnet ? "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ" : "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
 
+exports.supported_reserve_assets = process.env.testnet == "1" ? {
+  GBYTE: 'base',
+  ETH3: 'tZgXWTAv+1v1Ow4pMEVFFNlZAobGxMm2kIcr2dVR68c=',
+  USDC3: 'lwvZjepKoGSiMIDalxi2GB8Pd+nK86Qsnsn1Ng7TAJE='
+} : {};
+
 console.error('finished server conf');

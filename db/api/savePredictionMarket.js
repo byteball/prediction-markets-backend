@@ -1,9 +1,13 @@
 const db = require('ocore/db.js');
 const mutex = require('ocore/mutex.js');
 const wallet_general = require('ocore/wallet_general.js');
+const conf = require('ocore/conf.js');
 
 exports.savePredictionMarket = async function (aa_address, params) {
   const unlock = await mutex.lock(aa_address);
+
+  // ignore if unknown reserve
+  if (params.reserve_asset && !Object.values(conf.supported_reserve_assets).includes(params.reserve_asset)) return unlock();
 
   await wallet_general.addWatchedAddress(aa_address, null, console.log);
 
@@ -24,7 +28,7 @@ exports.savePredictionMarket = async function (aa_address, params) {
     allow_draw
   } = params || {};
 
-  const lowCategory = String(category).toLowerCase().trim();
+  const lowCategory = category && String(category).toLowerCase().trim();
   let id;
 
   if (lowCategory) {
@@ -32,7 +36,7 @@ exports.savePredictionMarket = async function (aa_address, params) {
 
     if (!row) {
       const res = await db.query("INSERT INTO categories (category) VALUES (?)", [lowCategory]);
-      
+
       id = res.insertId;
     } else {
       id = row.category_id;
@@ -59,9 +63,9 @@ exports.savePredictionMarket = async function (aa_address, params) {
     ];
 
     await db.query("INSERT INTO markets (aa_address, event, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, end_of_trading_period, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data]);
-    // network.addLightWatchedAa(aa_address, null, console.log);
+
   } else {
-    return await unlock("Error params")
+    return await unlock("Error params");
   }
 
   return await unlock();

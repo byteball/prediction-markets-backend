@@ -4,6 +4,8 @@ const CORS = require('fastify-cors');
 const fastifySensible = require('fastify-sensible');
 
 const marketsController = require('./controllers/marketsController.js');
+const categoriesController = require('./controllers/categoriesController.js');
+const reserveAssetsController = require('./controllers/reserveAssetsController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -17,6 +19,8 @@ fastifyInstance.register(fastifySensible);
 // Declare routes
 fastifyInstance.get('/markets/:page', marketsController);
 fastifyInstance.get('/markets', marketsController);
+fastifyInstance.get('/categories', categoriesController);
+fastifyInstance.get('/reserve_assets', reserveAssetsController);
 
 // Run the server
 exports.start = async () => {
