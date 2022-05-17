@@ -36,7 +36,7 @@ exports.responseHandler = async function (objResponse) {
   if (responseVars && ('next_coef' in responseVars) && ('arb_profit_tax' in responseVars) && ('fee' in responseVars)) {
     const existsAmountInPayload = 'yes_amount' in payload || 'no_amount' in payload || 'draw_amount' in payload;
 
-    await marketDB.api.saveTradeEvent({
+    const tradeData = {
       aa_address: aa_address,
       type: ('type' in payload) ? 'buy_by_type' : (existsAmountInPayload ? 'buy' : 'redeem'),
       supply_yes: responseVars.supply_yes,
@@ -52,7 +52,11 @@ exports.responseHandler = async function (objResponse) {
       reserve: responseVars.next_reserve,
       timestamp: objResponse.timestamp,
       response_unit: objResponse.response_unit
-    })
+    };
+
+    await marketDB.api.saveTradeEvent(tradeData)
+
+    await marketDB.api.makeCandles(tradeData)
   }
 
   return unlock()

@@ -49,9 +49,7 @@ async function start() {
   eventBus.once('refresh_light_done', async () => {
     await marketDB.api.refreshSymbols();
     webserver.start();
-    // apiIsStarted = true;
-    // await initHistoryAABalances();
-    // await api.start()
+    console.error('webserver has been started');
   });
 }
 

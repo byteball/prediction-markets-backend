@@ -1,3 +1,4 @@
+const conf = require('ocore/conf.js');
 const lightWallet = require('ocore/light_wallet.js');
 
 const { tokenRegistryResponseHandler } = require("./tokenRegistry");

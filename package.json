@@ -13,6 +13,7 @@
 		"fastify-sensible": "^3.2.0",
 		"lodash": "^4.17.21",
 		"moment": "^2.29.3",
+		"node-cron": "^3.0.0",
 		"ocore": "git+https://github.com/byteball/ocore.git",
 		"request": "^2.88.2"
 	},

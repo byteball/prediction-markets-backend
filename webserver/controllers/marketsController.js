@@ -1,27 +1,67 @@
-const { groupBy } = require('lodash');
-const moment = require('moment');
+const { default: axios } = require('axios');
+const { isInteger } = require('lodash');
 const db = require('ocore/db.js');
+const conf = require('ocore/conf.js');
 
 const marketDB = require('../../db');
-const limit = 10;
+const limit = 1000;
+
+let cacheRate = {
+  lastUpdate: 0,
+  data: {}
+}
 
 module.exports = async (request, reply) => {
+  const pageInParams = request.params.page;
 
-  let page = request.params.page || 1;
-
-  if (typeof page !== 'number') page = 1;
+  const page = (isInteger(pageInParams) && pageInParams > 0) ? request.params.page : 1;
 
   const offset = (page - 1) * limit;
 
-  let rows = await db.query(`SELECT * FROM markets_assets LEFT JOIN markets ON markets_assets.aa_address = markets.aa_address LIMIT ${limit} OFFSET ${offset}`);
-  const pricesType = rows.length > 10 // TODO: fix it
-  const gettersTradeEvents = rows.map((row, i) => marketDB.api.getAllTradeEventsByMarketAddress(row.aa_address).then(data => {
-    const sortData = groupBy(data, (row) => moment.unix(row.timestamp).format('MMMM DD YYYY h'))
-    rows[i].trade_events = data;
-    console.error('sortData', sortData);
-  }));
+  let rows;
 
-  await Promise.all(gettersTradeEvents);
+  try {
+    rows = await db.query(`SELECT * FROM markets LEFT JOIN categories USING (category_id) LEFT JOIN markets_assets USING (aa_address) ORDER BY markets.end_of_trading_period DESC, markets.total_reserve DESC LIMIT ${limit} OFFSET ${offset}`);
+  } catch {
+    console.error("get markets error");
+    reply.send([]);
+  }
 
-  reply.send(JSON.stringify(rows));
+  try {
+    const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }));
+    const gettersCandle = rows.map((row, i) => marketDB.api.getCandles(row.aa_address, 'hourly').then(data => rows[i].candles = data));
+
+    await Promise.all(gettersActualData);
+    await Promise.all(gettersCandle);
+  } catch (e) {
+    console.error('error in getters', e)
+  }
+
+
+  if (Object.keys(cacheRate.data).length === 0 || cacheRate.lastUpdate < Date.now() - (1800 * 1000)) {
+    try {
+      const data = await axios.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${Object.keys(conf.supported_reserve_assets).join(",")}&tsyms=USD`).then(({ data }) => {
+        const res = {};
+
+        Object.entries(data).forEach(([name, value]) => res[conf.supported_reserve_assets[name]] = value);
+
+        return res;
+      }).catch((err) => console.error(err));
+
+      cacheRate = {
+        data,
+        lastUpdate: Date.now()
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  try {
+    const filteredRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset].USD - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset].USD)
+
+    reply.send(filteredRows);
+  } catch (e) {
+    console.error(e)
+  }
 }
