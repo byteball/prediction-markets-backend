@@ -29,7 +29,7 @@ module.exports = async (request, reply) => {
 
   try {
     const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }));
-    const gettersCandle = rows.map((row, i) => marketDB.api.getCandles(row.aa_address, 'hourly').then(data => rows[i].candles = data));
+    const gettersCandle = rows.map((row, i) => marketDB.api.getCandles(row.aa_address, 'hourly', true).then(data => rows[i].candles = data));
 
     await Promise.all(gettersActualData);
     await Promise.all(gettersCandle);

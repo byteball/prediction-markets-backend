@@ -25,6 +25,7 @@ fastifyInstance.get('/categories', categoriesController);
 fastifyInstance.get('/reserve_assets', reserveAssetsController);
 fastifyInstance.get('/daily_candles/:address', dailyCandlesController);
 fastifyInstance.get('/category/:address', marketCategoryController);
+
 // Run the server
 exports.start = async () => {
   try {

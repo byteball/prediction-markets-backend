@@ -1,7 +1,10 @@
 const marketDB = require('../../db');
 
 module.exports = async (_, reply) => {
-  const categories = await marketDB.api.getAllCategories();
-
-  reply.send(JSON.stringify(categories));
+  try {
+    const categories = await marketDB.api.getAllCategories();
+    return reply.send(categories);
+  } catch {
+    return reply.internalServerError();
+  }
 }

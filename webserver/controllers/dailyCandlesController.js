@@ -1,18 +1,17 @@
+const { isValidAddress } = require('ocore/validation_utils');
 const marketDB = require('../../db');
 
 module.exports = async (request, reply) => {
   const aa_address = request.params.address;
 
-  if (!aa_address) return 'ERROR' // TODO: Исправить используя библиотеку компонентов
-
-  let candles;
+  if (!aa_address || !isValidAddress(aa_address)) return reply.badRequest();
 
   try {
-    candles = await marketDB.api.getCandles(aa_address, "daily");
-  } catch (e) {
-    console.error('get daily candles error', e);
-  }
+    const candles = await marketDB.api.getCandles(aa_address, "daily");
 
-  reply.send(JSON.stringify(candles));
+    return reply.send(candles);
+  } catch (e) {
+    return reply.internalServerError();
+  }
 }
 

@@ -10,7 +10,7 @@ exports.tokenRegistryResponseHandler = async function (objResponse) {
 
   if (s2aVarName && updatedStateVars[s2aVarName]) {
     const asset = updatedStateVars[s2aVarName].value;
-    if (!asset) return;
+    if (!asset || !updatedStateVars[`a2s_${asset}`]) return;
 
     const symbol = updatedStateVars[`a2s_${asset}`].value;
     if (!symbol) return;
