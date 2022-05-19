@@ -2,6 +2,7 @@ const { default: axios } = require('axios');
 const { isInteger } = require('lodash');
 const db = require('ocore/db.js');
 const conf = require('ocore/conf.js');
+const moment = require('moment');
 
 const marketDB = require('../../db');
 const limit = 1000;
@@ -46,7 +47,7 @@ module.exports = async (request, reply) => {
         Object.entries(data).forEach(([name, value]) => res[conf.supported_reserve_assets[name]] = value);
 
         return res;
-      }).catch((err) => console.error(err));
+      });
 
       cacheRate = {
         data,
@@ -58,9 +59,23 @@ module.exports = async (request, reply) => {
   }
 
   try {
-    const filteredRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset].USD - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset].USD)
 
-    reply.send(filteredRows);
+    const actualMarkets = [];
+    const oldMarkets = [];
+    
+    const now = moment.utc().unix();
+
+    const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset].USD - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset].USD)
+    
+    sortedRows.forEach(row => {
+      if (now >= row.end_of_trading_period) {
+        oldMarkets.push(row);
+      } else {
+        actualMarkets.push(row);
+      }
+    });
+
+    reply.send([...actualMarkets, ...oldMarkets]);
   } catch (e) {
     console.error(e)
   }

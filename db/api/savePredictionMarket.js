@@ -2,6 +2,7 @@ const db = require('ocore/db.js');
 const mutex = require('ocore/mutex.js');
 const wallet_general = require('ocore/wallet_general.js');
 const conf = require('ocore/conf.js');
+
 const { saveMarketAsset } = require('./saveMarketAsset');
 
 exports.savePredictionMarket = async function (aa_address, params) {

@@ -79,8 +79,7 @@ exports.create = async function () {
 		reserve_to_usd_rate REAL,
 		start_timestamp TIMESTAMP NOT NULL,
 		UNIQUE (aa_address, start_timestamp)
-	)`); //PRIMARY KEY(aa_address, start_timestamp),
-	// 		end_timestamp TIMESTAMP NOT NULL
+	)`);
 
 	await db.query(`CREATE TABLE IF NOT EXISTS daily_candles (
 		aa_address CHAR(32) NOT NULL,
