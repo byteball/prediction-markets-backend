@@ -39,15 +39,16 @@ async function discoverMarketsAas() {
 
 async function start() {
   await marketDB.create();
-  await discoverMarketsAas()
   addWatchedAas();
 
   eventBus.on('connected', addWatchedAas);
 
   lightWallet.refreshLightClientHistory();
 
-  eventBus.once('refresh_light_done', async () => {
+  lightWallet.waitUntilHistoryRefreshDone(async ()=> {
+    await discoverMarketsAas()
     await marketDB.api.refreshSymbols();
+
     webserver.start();
     console.error('webserver has been started');
   });
