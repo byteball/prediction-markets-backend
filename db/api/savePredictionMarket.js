@@ -5,7 +5,7 @@ const conf = require('ocore/conf.js');
 
 const { saveMarketAsset } = require('./saveMarketAsset');
 
-exports.savePredictionMarket = async function (aa_address, params) {
+exports.savePredictionMarket = async function (aa_address, params, timestamp) {
   const unlock = await mutex.lock(aa_address);
 
   // ignore if unknown reserve
@@ -64,8 +64,8 @@ exports.savePredictionMarket = async function (aa_address, params) {
       id
     ];
 
-    await db.query("INSERT INTO markets (aa_address, event, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, end_of_trading_period, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data]);
-    await saveMarketAsset(aa_address, 'reserve', reserve_asset || "base");
+    await db.query("INSERT INTO markets (aa_address, event, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, end_of_trading_period, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, category_id, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
+    await saveMarketAsset(aa_address, 'reserve', reserve_asset || "base", );
   } else {
     return await unlock("Error params");
   }

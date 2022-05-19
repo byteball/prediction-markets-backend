@@ -10,6 +10,7 @@ exports.responseHandler = async function (objResponse) {
 
   const trigger_unit = objResponse.trigger_unit;
   const responseVars = objResponse.response.responseVars || {};
+  const timestamp = objResponse.timestamp;
   const joint = await dag.readJoint(trigger_unit);
   const msg = joint.unit.messages.find(m => m.app === 'data');
   const payload = msg ? msg.payload : {};
@@ -17,7 +18,7 @@ exports.responseHandler = async function (objResponse) {
 
   if (('prediction_address' in responseVars)) {
     if (joint && joint.unit && joint.unit.messages) {
-      await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload);
+      await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp);
     }
   }
 
@@ -50,7 +51,7 @@ exports.responseHandler = async function (objResponse) {
       draw_price: responseVars.draw_price || 0,
       coef: responseVars.next_coef,
       reserve: responseVars.next_reserve,
-      timestamp: objResponse.timestamp,
+      timestamp,
       response_unit: objResponse.response_unit
     };
 

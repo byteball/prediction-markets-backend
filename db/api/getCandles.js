@@ -39,7 +39,7 @@ exports.getCandles = async function (aa_address, type, onlyYesPrices = false) {
   // 4th step: fill empty candles
   rows = rows.reverse();
 
-  for (let currentTs = start; currentTs <= end; currentTs += step_length) {
+  for (let currentTs = start; currentTs < end; currentTs += step_length) {
     if (rows[currentRowIndex] && rows[currentRowIndex].start_timestamp === currentTs) {
       // we have a candle with this timestamp
       data.push({ ...rows[currentRowIndex], start_timestamp: currentTs });

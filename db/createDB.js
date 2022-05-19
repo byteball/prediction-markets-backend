@@ -45,6 +45,7 @@ exports.create = async function () {
 		arb_profit_tax REAL DEFAULT 0.9,
 		category_id INTEGER,
 		total_reserve INTEGER DEFAULT 0,
+		timestamp TIMESTAMP NOT NULL,
 		FOREIGN KEY(category_id) REFERENCES categories(category_id),
 		UNIQUE (aa_address)
 	)`);

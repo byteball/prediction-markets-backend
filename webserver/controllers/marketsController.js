@@ -18,7 +18,8 @@ module.exports = async (request, reply) => {
   const page = (isInteger(pageInParams) && pageInParams > 0) ? request.params.page : 1;
 
   const offset = (page - 1) * limit;
-
+  const now = moment.utc().unix();
+  
   let rows;
 
   try {
@@ -62,8 +63,6 @@ module.exports = async (request, reply) => {
 
     const actualMarkets = [];
     const oldMarkets = [];
-    
-    const now = moment.utc().unix();
 
     const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset].USD - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset].USD)
     
