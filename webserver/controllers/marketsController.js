@@ -19,7 +19,7 @@ module.exports = async (request, reply) => {
 
   const offset = (page - 1) * limit;
   const now = moment.utc().unix();
-  
+
   let rows;
 
   try {
@@ -31,7 +31,7 @@ module.exports = async (request, reply) => {
 
   try {
     const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }));
-    const gettersCandle = rows.map((row, i) => marketDB.api.getCandles(row.aa_address, 'hourly', true).then(data => rows[i].candles = data));
+    const gettersCandle = rows.map((row, i) => marketDB.api.getCandles({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true }).then(data => rows[i].candles = data));
 
     await Promise.all(gettersActualData);
     await Promise.all(gettersCandle);
@@ -65,7 +65,7 @@ module.exports = async (request, reply) => {
     const oldMarkets = [];
 
     const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset].USD - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset].USD)
-    
+
     sortedRows.forEach(row => {
       if (now >= row.end_of_trading_period) {
         oldMarkets.push(row);

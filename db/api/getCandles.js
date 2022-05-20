@@ -1,10 +1,10 @@
 const moment = require('moment');
 const db = require('ocore/db.js');
 
-exports.getCandles = async function (aa_address, type, onlyYesPrices = false) {
+exports.getCandles = async function ({ aa_address, type, onlyYesPrices = false, limit: customLimit}) {
   if (type !== 'daily' && type !== 'hourly') throw 'unknown type';
 
-  const limit = type === 'hourly' ? 24 : 30 * 6;
+  const limit = customLimit ? customLimit : type === 'hourly' ? 24 : 30 * 6;
   const step_length = type === 'hourly' ? 3600 : 24 * 3600; // hour in seconds OR day in seconds
 
   const end = moment.utc().startOf(type === 'hourly' ? "hour" : 'day').add(1, type === 'hourly' ? "h" : 'd').unix();
