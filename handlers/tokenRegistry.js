@@ -15,7 +15,7 @@ exports.tokenRegistryResponseHandler = async function (objResponse) {
     const symbol = updatedStateVars[`a2s_${asset}`].value;
     if (!symbol) return;
 
-    const decimals = decimalsVarName ? updatedStateVars[decimalsVarName].value : 0;
+    const decimals = (decimalsVarName && updatedStateVars[decimalsVarName] !== undefined) ? updatedStateVars[decimalsVarName].value : 0;
 
     const [markets_assets] = await db.query("SELECT * FROM markets_assets WHERE yes_asset=? OR no_asset=? OR draw_asset=?", [asset, asset, asset]);
 
