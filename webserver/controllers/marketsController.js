@@ -42,10 +42,13 @@ module.exports = async (request, reply) => {
 
   if (Object.keys(cacheRate.data).length === 0 || cacheRate.lastUpdate < Date.now() - (1800 * 1000)) {
     try {
-      const data = await axios.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${Object.keys(conf.supported_reserve_assets).join(",")}&tsyms=USD`).then(({ data }) => {
+      const data = await axios.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${Object.values(conf.supported_reserve_assets).map(({ symbol }) => symbol).join(",")}&tsyms=USD`).then(({ data }) => {
         const res = {};
 
-        Object.entries(data).forEach(([name, value]) => res[conf.supported_reserve_assets[name]] = value);
+        Object.entries(data).forEach(([name, value]) => {
+          const assetBySymbol = Object.entries(conf.supported_reserve_assets).find(([_, { symbol }]) => symbol === name)[0];
+          res[assetBySymbol] = value.USD;
+        });
 
         return res;
       });
@@ -64,7 +67,7 @@ module.exports = async (request, reply) => {
     const actualMarkets = [];
     const oldMarkets = [];
 
-    const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset].USD - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset].USD)
+    const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
 
     sortedRows.forEach(row => {
       if (now >= row.end_of_trading_period) {

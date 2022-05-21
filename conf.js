@@ -14,9 +14,18 @@ exports.forward_aa = "E4BAASPOCW6WHXSUOY2XEKXKA42RRD5I";
 exports.token_registry_aa_address = process.env.testnet ? "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ" : "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
 
 exports.supported_reserve_assets = process.env.testnet == "1" ? {
-  GBYTE: 'base',
-  ETH: 'tZgXWTAv+1v1Ow4pMEVFFNlZAobGxMm2kIcr2dVR68c=',
-  USDC: 'lwvZjepKoGSiMIDalxi2GB8Pd+nK86Qsnsn1Ng7TAJE='
+  base: {
+    symbol: "GBYTE",
+    decimals: 9
+  }, 
+  'tZgXWTAv+1v1Ow4pMEVFFNlZAobGxMm2kIcr2dVR68c=': {
+    symbol: "ETH",
+    decimals: 8
+  },
+  'lwvZjepKoGSiMIDalxi2GB8Pd+nK86Qsnsn1Ng7TAJE=': {
+    symbol: "USDC",
+    decimals: 4
+  }
 } : {};
 
 console.error('finished server conf');
