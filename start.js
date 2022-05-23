@@ -4,9 +4,10 @@ const eventBus = require('ocore/event_bus.js');
 const lightWallet = require('ocore/light_wallet.js');
 const wallet_general = require('ocore/wallet_general.js');
 const db = require('ocore/db.js');
+const dag = require('aabot/dag.js');
 
 const marketDB = require('./db');
-const { getStateVars } = require('./utils');
+
 const { justsayingHandler, responseHandler } = require('./handlers');
 const webserver = require('./webserver');
 
@@ -28,7 +29,7 @@ async function watchMarketAa(objAa) {
 }
 
 async function discoverMarketsAas() {
-  const factoryStateVars = await getStateVars(conf.factory_aa);
+  const factoryStateVars = await dag.readAAStateVars(conf.factory_aa);
   const allMarkets = Object.keys(factoryStateVars).map((name) => name.replace("prediction_", ""));
   const rows = await db.query("SELECT aa_address FROM markets");
   const knownAaAddresses = rows.map(obj => obj.aa_address);
@@ -45,7 +46,7 @@ async function start() {
 
   lightWallet.refreshLightClientHistory();
 
-  lightWallet.waitUntilHistoryRefreshDone(async ()=> {
+  lightWallet.waitUntilHistoryRefreshDone(async () => {
     await discoverMarketsAas()
     await marketDB.api.refreshSymbols();
 
