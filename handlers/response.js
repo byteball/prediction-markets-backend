@@ -60,5 +60,9 @@ exports.responseHandler = async function (objResponse) {
     await marketDB.api.makeCandles(tradeData)
   }
 
+  if (responseVars.result) {
+    await marketDB.api.saveMarketResult(aa_address, responseVars.result)
+  }
+
   return unlock()
 };

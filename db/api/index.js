@@ -7,6 +7,7 @@ const { getMarketParams } = require("./getMarketParams");
 const { makeCandles } = require("./makeCandles");
 const { refreshSymbols } = require("./refreshSymbols");
 const { saveMarketAsset } = require("./saveMarketAsset");
+const { saveMarketResult } = require("./saveMarketResult");
 const { savePredictionMarket } = require("./savePredictionMarket");
 const { saveSymbolForAsset } = require("./saveSymbolForAsset");
 const { saveTradeEvent } = require("./saveTradeEvent");
@@ -23,5 +24,6 @@ module.exports = {
   getCandles,
   makeCandles,
   getActualMarketInfo,
-  getCategoryByAddress
+  getCategoryByAddress,
+  saveMarketResult
 }
