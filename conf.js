@@ -28,4 +28,6 @@ exports.supported_reserve_assets = process.env.testnet == "1" ? {
   }
 } : {};
 
+exports.footballDataApiKey = '';
+
 console.error('finished server conf');
