@@ -54,7 +54,7 @@ class FootballDataService {
   }
 
   async init() {
-    let newData = {};
+    let newData = [];
 
     try {
       const competitionList = [2001, 2002, 2003, 2013, 2014, 2015, 2019];
@@ -62,17 +62,16 @@ class FootballDataService {
       const competitionsGetter = competitionList.map((id) => this.getMatchesByCompetition(id).then((data) => {
         const championship = this.getChampionshipByCompetitionId(id);
 
-        if (!(championship in newData)) newData[championship] = [];
-
         data.forEach(matchObject => {
           const feed_name = this.getFeedNameByMatches(championship, matchObject);
 
           if (feed_name) {
-            newData[championship].push({
+            newData.push({
               feed_name,
               event: `Will ${matchObject.homeTeam.name} win ${matchObject.awayTeam.name} ${moment.utc(matchObject.utcDate).format('ll')}?`,
-              ts: moment.utc(matchObject.utcDate).unix(),
-              expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation
+              end_of_trading_period: moment.utc(matchObject.utcDate).unix(),
+              expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation,
+              allow_draw: true
             })
           }
         });
@@ -80,7 +79,7 @@ class FootballDataService {
 
       await Promise.all(competitionsGetter);
 
-      this.calendar = newData;
+      this.calendar = newData.sort((a, b) => a.end_of_trading_period - b.end_of_trading_period).slice(0, 30);
     } catch (err) {
       console.error('Football data error: ', err);
     }
