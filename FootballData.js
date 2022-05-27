@@ -60,7 +60,12 @@ class FootballDataService {
           const feed_name = this.getFeedNameByMatches(championship, matchObject);
 
           if (feed_name) {
-            newData[championship].push({ feed_name, event: `Will ${matchObject.homeTeam.name} win ${matchObject.awayTeam.name} ${moment.utc(matchObject.utcDate).format('ll')}?`, ts: moment.utc(matchObject.utcDate).unix() })
+            newData[championship].push({
+              feed_name,
+              event: `Will ${matchObject.homeTeam.name} win ${matchObject.awayTeam.name} ${moment.utc(matchObject.utcDate).format('ll')}?`,
+              ts: moment.utc(matchObject.utcDate).unix(),
+              expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation
+            })
           }
         });
       }));
