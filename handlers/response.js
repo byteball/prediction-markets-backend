@@ -19,6 +19,7 @@ exports.responseHandler = async function (objResponse) {
   if (('prediction_address' in responseVars)) {
     if (joint && joint.unit && joint.unit.messages) {
       await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp);
+      await marketDB.api.saveReserveSymbol(responseVars.prediction_address, payload.reserve_asset);
     }
   }
 

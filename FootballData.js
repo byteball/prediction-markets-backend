@@ -79,7 +79,7 @@ class FootballDataService {
 
       await Promise.all(competitionsGetter);
 
-      this.calendar = newData.sort((a, b) => a.end_of_trading_period - b.end_of_trading_period).slice(0, 30);
+      this.calendar = newData.sort((a, b) => a.end_of_trading_period - b.end_of_trading_period).slice(0, 15);
     } catch (err) {
       console.error('Football data error: ', err);
     }
