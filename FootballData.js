@@ -4,6 +4,8 @@ const moment = require('moment');
 
 const abbreviations = require('./abbreviations.json');
 
+const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
+
 class FootballDataService {
   constructor() {
     this.calendar = {};
@@ -17,6 +19,12 @@ class FootballDataService {
 
   getCalendar() {
     return this.calendar;
+  }
+
+  updater() {
+    if (!this.intervalId) {
+      this.intervalId = setInterval(this.init.bind(this), UPDATE_INTERVAL);
+    }
   }
 
   async getMatchesByCompetition(competitionId) {
@@ -74,8 +82,10 @@ class FootballDataService {
 
       this.calendar = newData;
     } catch (err) {
-      console.error('data', err);
+      console.error('Football data error: ', err);
     }
+
+    if (!this.intervalId) this.updater();
   }
 }
 
