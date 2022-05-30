@@ -1,15 +1,18 @@
 const conf = require('ocore/conf.js');
 const { default: axios } = require("axios");
 const moment = require('moment');
-
+const marketDB = require('./db')
 const abbreviations = require('./abbreviations.json');
 
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
 
-class FootballDataService {
+class SportDataService {
   constructor() {
-    this.calendar = {};
-    this.api = axios.create({
+    this.calendar = {
+      soccer: []
+    };
+
+    this.footballApi = axios.create({
       baseURL: `https://api.football-data.org/v2`,
       headers: {
         ['X-Auth-Token']: conf.footballDataApiKey
@@ -23,12 +26,12 @@ class FootballDataService {
 
   updater() {
     if (!this.intervalId) {
-      this.intervalId = setInterval(this.init.bind(this), UPDATE_INTERVAL);
+      this.intervalId = setInterval(this.updateSoccerCalendar.bind(this), UPDATE_INTERVAL);
     }
   }
 
-  async getMatchesByCompetition(competitionId) {
-    return await this.api.get(`competitions/${competitionId}/matches`).then((({ data: { matches } }) => matches.filter(({ status }) => status === 'SCHEDULED')))
+  async getSoccerMatchesByCompetition(competitionId) {
+    return await this.footballApi.get(`competitions/${competitionId}/matches`).then((({ data: { matches } }) => matches.filter(({ status }) => status === 'SCHEDULED'))).catch((err) => console.error('error calendar', err))
   }
 
   getFeedNameByMatches(championship, matchObj) {
@@ -40,7 +43,7 @@ class FootballDataService {
     return `${championship}_${homeTeam}_${awayTeam}_${moment.utc(matchObj.utcDate).format("YYYY-MM-DD")}`
   }
 
-  getChampionshipByCompetitionId(competitionId) {
+  getChampionshipBySoccerCompetitionId(competitionId) {
     if (competitionId === 2001) return 'CL';
     if (competitionId === 2002) return 'BL1';
     if (competitionId === 2003) return 'DED';
@@ -49,18 +52,17 @@ class FootballDataService {
     if (competitionId === 2015) return 'L1';
     if (competitionId === 2019) return 'SA';
     if (competitionId === 2021) return 'PL';
-
     return null;
   }
 
-  async init() {
+  async getSoccerCalendar() {
     let newData = [];
 
     try {
       const competitionList = [2001, 2002, 2003, 2013, 2014, 2015, 2019];
 
-      const competitionsGetter = competitionList.map((id) => this.getMatchesByCompetition(id).then((data) => {
-        const championship = this.getChampionshipByCompetitionId(id);
+      const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data) => {
+        const championship = this.getChampionshipBySoccerCompetitionId(id);
 
         data.forEach(matchObject => {
           const feed_name = this.getFeedNameByMatches(championship, matchObject);
@@ -68,7 +70,7 @@ class FootballDataService {
           if (feed_name) {
             newData.push({
               feed_name,
-              event: `Will ${matchObject.homeTeam.name} win ${matchObject.awayTeam.name} ${moment.utc(matchObject.utcDate).format('ll')}?`,
+              event: `${matchObject.homeTeam.name} vs ${matchObject.awayTeam.name} for ${moment.utc(matchObject.utcDate).format('ll')}`,
               end_of_trading_period: moment.utc(matchObject.utcDate).unix(),
               expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation,
               allow_draw: true
@@ -79,13 +81,25 @@ class FootballDataService {
 
       await Promise.all(competitionsGetter);
 
-      this.calendar = newData.sort((a, b) => a.end_of_trading_period - b.end_of_trading_period).slice(0, 15);
+      return newData;
     } catch (err) {
       console.error('Football data error: ', err);
     }
+  }
+
+  async updateSoccerCalendar() {
+    const feedNamesOfExistingSportMarkets = await marketDB.api.getAllMarkets().then((markets) => markets.filter(({ oracle }) => oracle === conf.sportOracleAddress).map(({ feed_name }) => feed_name));
+    const now = moment.utc().unix();
+    const soccerCalendar = await this.getSoccerCalendar();
+
+    this.calendar.soccer = soccerCalendar.filter(({ feed_name, end_of_trading_period }) => !feedNamesOfExistingSportMarkets.includes(feed_name) && ((end_of_trading_period - now) >= 24 * 3600)).slice(0, 15).sort((a, b) => a.end_of_trading_period - b.end_of_trading_period);
+  }
+
+  async init() {
+    await this.updateSoccerCalendar();
 
     if (!this.intervalId) this.updater();
   }
 }
 
-exports.footballDataService = new FootballDataService();
+exports.sportDataService = new SportDataService();

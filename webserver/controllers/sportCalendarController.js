@@ -1,5 +1,5 @@
-const { footballDataService } = require("../../FootballData");
+const { sportDataService } = require("../../SportData");
 
 module.exports = async (_, reply) => {
-  reply.send(footballDataService.getCalendar());
+  reply.send(sportDataService.getCalendar());
 }

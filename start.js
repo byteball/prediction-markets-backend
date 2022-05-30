@@ -10,7 +10,7 @@ const marketDB = require('./db');
 
 const { justsayingHandler, responseHandler } = require('./handlers');
 const webserver = require('./webserver');
-const { footballDataService } = require('./FootballData');
+const { sportDataService } = require('./SportData');
 
 lightWallet.setLightVendorHost(conf.hub);
 
@@ -50,7 +50,7 @@ async function start() {
   lightWallet.waitUntilHistoryRefreshDone(async () => {
     await discoverMarketsAas()
     await marketDB.api.refreshSymbols();
-    await footballDataService.init();
+    await sportDataService.init();
 
     webserver.start();
     console.error('webserver has been started');
