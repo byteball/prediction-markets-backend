@@ -31,7 +31,7 @@ class SportDataService {
   }
 
   async getSoccerMatchesByCompetition(competitionId) {
-    return await this.footballApi.get(`competitions/${competitionId}/matches`).then((({ data: { matches } }) => matches.filter(({ status }) => status === 'SCHEDULED'))).catch((err) => console.error('error calendar', err))
+    return await this.footballApi.get(`competitions/${competitionId}/matches?status=SCHEDULED`).then(({ data: { matches } }) => matches);
   }
 
   getFeedNameByMatches(championship, matchObj) {
@@ -73,7 +73,8 @@ class SportDataService {
               event: `${matchObject.homeTeam.name} vs ${matchObject.awayTeam.name} for ${moment.utc(matchObject.utcDate).format('ll')}`,
               end_of_trading_period: moment.utc(matchObject.utcDate).unix(),
               expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation,
-              allow_draw: true
+              yes_team: matchObject.homeTeam.name,
+              no_team: matchObject.awayTeam.name
             })
           }
         });
