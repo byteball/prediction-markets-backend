@@ -4,7 +4,9 @@ const db = require('ocore/db.js');
 const conf = require('ocore/conf.js');
 const moment = require('moment');
 
+const abbreviations = require('../../abbreviations.json');
 const marketDB = require('../../db');
+
 const limit = 1000;
 
 let cacheRate = {
@@ -32,6 +34,24 @@ module.exports = async (request, reply) => {
   try {
     const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }));
     const gettersCandle = rows.map((row, i) => marketDB.api.getCandles({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true }).then(data => rows[i].candles = data));
+
+    rows.map((row, i) => {
+      if (row.oracle === conf.sportOracleAddress) {
+        const [championship, yes_team, no_team, date] = row.feed_name.split("_");
+        if (championship && yes_team && no_team && date) {
+          const yes_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === yes_team);
+          const no_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === no_team);
+
+          if (yes_abbreviation) {
+            rows[i].yes_crests = `https://crests.football-data.org/${yes_abbreviation[0]}.svg`
+          }
+
+          if (no_abbreviation) {
+            rows[i].no_crests = `https://crests.football-data.org/${no_abbreviation[0]}.svg`
+          }
+        }
+      }
+    });
 
     await Promise.all(gettersActualData);
     await Promise.all(gettersCandle);
