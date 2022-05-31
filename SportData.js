@@ -75,8 +75,9 @@ class SportDataService {
               expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation,
               yes_team: matchObject.homeTeam.name,
               no_team: matchObject.awayTeam.name,
-              yes_crest: `https://crests.football-data.org/${matchObject.homeTeam.id}.svg`,
-              no_crest: `https://crests.football-data.org/${matchObject.awayTeam.id}.svg`
+              yes_team_id: matchObject.homeTeam.id,
+              no_team_id: matchObject.awayTeam.id,
+              oracle: conf.sportOracleAddress
             })
           }
         });

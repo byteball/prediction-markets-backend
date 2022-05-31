@@ -43,11 +43,13 @@ module.exports = async (request, reply) => {
           const no_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === no_team);
 
           if (yes_abbreviation) {
-            rows[i].yes_crest = `https://crests.football-data.org/${yes_abbreviation[0]}.svg`
+            rows[i].yes_team_id = yes_abbreviation[0];
+            rows[i].yes_team = yes_abbreviation[1].name;
           }
 
           if (no_abbreviation) {
-            rows[i].no_crest = `https://crests.football-data.org/${no_abbreviation[0]}.svg`
+            rows[i].no_team_id = no_abbreviation[0];
+            rows[i].no_team = no_abbreviation[1].name;
           }
         }
       }
