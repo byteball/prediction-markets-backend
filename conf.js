@@ -17,10 +17,6 @@ exports.supported_reserve_assets = process.env.testnet == "1" ? {
   base: {
     symbol: "GBYTE",
     decimals: 9
-  }, 
-  'tZgXWTAv+1v1Ow4pMEVFFNlZAobGxMm2kIcr2dVR68c=': {
-    symbol: "ETH",
-    decimals: 8
   },
   'lwvZjepKoGSiMIDalxi2GB8Pd+nK86Qsnsn1Ng7TAJE=': {
     symbol: "USDC",
