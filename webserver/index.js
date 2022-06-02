@@ -22,7 +22,6 @@ fastifyInstance.register(fastifySensible);
 
 // Declare routes
 fastifyInstance.get('/markets/:page?', marketsController);
-// fastifyInstance.get('/markets', marketsController);
 fastifyInstance.get('/categories', categoriesController);
 fastifyInstance.get('/reserve_assets', reserveAssetsController);
 fastifyInstance.get('/daily_candles/:address', dailyCandlesController);

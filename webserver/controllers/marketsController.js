@@ -40,8 +40,11 @@ module.exports = async (request, reply) => {
   const now = moment.utc().unix();
 
   let rows;
-
+  let count = 0;
   try {
+    const countRow = await db.query(`SELECT COUNT(aa_address) FROM markets ${filterByType(type, championship)}`);
+    count = countRow[0]['COUNT(aa_address)'];
+
     rows = await db.query(`SELECT * FROM markets LEFT JOIN categories USING (category_id) LEFT JOIN markets_assets USING (aa_address) ${filterByType(type, championship)} ORDER BY markets.end_of_trading_period DESC, markets.total_reserve DESC LIMIT ${limit} OFFSET ${offset}`);
   } catch {
     console.error("get markets error");
@@ -116,7 +119,7 @@ module.exports = async (request, reply) => {
       }
     });
 
-    reply.send([...actualMarkets, ...oldMarkets]);
+    reply.send({ data: [...actualMarkets, ...oldMarkets], max_count: count });
   } catch (e) {
     console.error(e)
   }
