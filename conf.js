@@ -26,5 +26,6 @@ exports.supported_reserve_assets = process.env.testnet == "1" ? {
 
 exports.footballDataApiKey = process.env.footballDataApiKey;
 exports.sportOracleAddress = 'EI3FGZ2662IGAKOOJ2Q4NKNLIJYEQQY3';
+exports.currencyOracleAddress = 'F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N';
 
 console.error('finished server conf');

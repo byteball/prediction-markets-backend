@@ -7,25 +7,42 @@ const moment = require('moment');
 const abbreviations = require('../../abbreviations.json');
 const marketDB = require('../../db');
 
-const limit = 1000;
+const limit = 10;
 
 let cacheRate = {
   lastUpdate: 0,
   data: {}
 }
 
+const filterByCategory = (category, championship) => {
+  let query = '';
+
+  if (category === 'currency') {
+    query = `WHERE markets.oracle='${conf.currencyOracleAddress}'`;
+  } else if (category === 'soccer') {
+    query = `WHERE markets.oracle='${conf.sportOracleAddress}'`
+
+    if (championship) {
+      query += ` AND upper(feed_name) like '${championship}%'`;
+    }
+  }
+
+  return query;
+}
+
 module.exports = async (request, reply) => {
   const pageInParams = request.params.page;
-
-  const page = (isInteger(pageInParams) && pageInParams > 0) ? request.params.page : 1;
-
+  const query = request.query;
+  const page = (isInteger(Number(pageInParams)) && pageInParams > 0) ? request.params.page : 1;
+  const category = query.category;
+  const championship = (query.championship || '').replace(/[^a-z0-9]/gi, '');
   const offset = (page - 1) * limit;
   const now = moment.utc().unix();
 
   let rows;
 
   try {
-    rows = await db.query(`SELECT * FROM markets LEFT JOIN categories USING (category_id) LEFT JOIN markets_assets USING (aa_address) ORDER BY markets.end_of_trading_period DESC, markets.total_reserve DESC LIMIT ${limit} OFFSET ${offset}`);
+    rows = await db.query(`SELECT * FROM markets LEFT JOIN categories USING (category_id) LEFT JOIN markets_assets USING (aa_address) ${filterByCategory(category, championship)} ORDER BY markets.end_of_trading_period DESC, markets.total_reserve DESC LIMIT ${limit} OFFSET ${offset}`);
   } catch {
     console.error("get markets error");
     reply.send([]);

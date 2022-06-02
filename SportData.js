@@ -3,12 +3,17 @@ const { default: axios } = require("axios");
 const moment = require('moment');
 const marketDB = require('./db')
 const abbreviations = require('./abbreviations.json');
+const { uniq } = require('lodash');
 
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
 
 class SportDataService {
   constructor() {
     this.calendar = {
+      soccer: []
+    };
+
+    this.championships = {
       soccer: []
     };
 
@@ -20,8 +25,16 @@ class SportDataService {
     });
   }
 
-  getCalendar() {
-    return this.calendar;
+  getCalendar(sport, championship, page) {
+    const limit = 10;
+
+    const offset = (page - 1) * limit;
+
+    return (this.calendar[sport] || []).filter(({ championship: c }) => championship === c).slice(offset, offset + limit);
+  }
+
+  getChampionships(sport) {
+    return this.championships[sport] || [];
   }
 
   updater() {
@@ -35,7 +48,7 @@ class SportDataService {
   }
 
   getFeedNameByMatches(championship, matchObj) {
-    if (!abbreviations.soccer[matchObj.homeTeam.id] || !abbreviations.soccer[matchObj.awayTeam.id]) return null;
+    if (!abbreviations.soccer[matchObj.homeTeam.id] || !abbreviations.soccer[matchObj.awayTeam.id] || !matchObj.utcDate) return null;
 
     const homeTeam = abbreviations.soccer[matchObj.homeTeam.id].abbreviation;
     const awayTeam = abbreviations.soccer[matchObj.awayTeam.id].abbreviation;
@@ -60,7 +73,6 @@ class SportDataService {
 
     try {
       const competitionList = [2001, 2002, 2003, 2013, 2014, 2015, 2019];
-
       const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data) => {
         const championship = this.getChampionshipBySoccerCompetitionId(id);
 
@@ -77,7 +89,8 @@ class SportDataService {
               no_team: matchObject.awayTeam.name,
               yes_team_id: matchObject.homeTeam.id,
               no_team_id: matchObject.awayTeam.id,
-              oracle: conf.sportOracleAddress
+              oracle: conf.sportOracleAddress,
+              championship
             })
           }
         });
@@ -95,8 +108,12 @@ class SportDataService {
     const feedNamesOfExistingSportMarkets = await marketDB.api.getAllMarkets().then((markets) => markets.filter(({ oracle }) => oracle === conf.sportOracleAddress).map(({ feed_name }) => feed_name));
     const now = moment.utc().unix();
     const soccerCalendar = await this.getSoccerCalendar();
+    const existCompetitions = feedNamesOfExistingSportMarkets.map((feed_name) => feed_name.split("_")[0]);
 
     this.calendar.soccer = soccerCalendar.filter(({ feed_name, end_of_trading_period }) => !feedNamesOfExistingSportMarkets.includes(feed_name) && ((end_of_trading_period - now) >= 24 * 3600)).slice(0, 15).sort((a, b) => a.end_of_trading_period - b.end_of_trading_period);
+    this.calendar.soccer.forEach(({ feed_name }) => existCompetitions.push(feed_name.split("_")[0]));
+
+    this.championships.soccer = uniq(existCompetitions);
   }
 
   async init() {
