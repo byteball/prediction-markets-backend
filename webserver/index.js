@@ -21,14 +21,14 @@ fastifyInstance.register(CORS);
 fastifyInstance.register(fastifySensible);
 
 // Declare routes
-fastifyInstance.get('/markets/:page', marketsController);
-fastifyInstance.get('/markets', marketsController);
+fastifyInstance.get('/markets/:page?', marketsController);
+// fastifyInstance.get('/markets', marketsController);
 fastifyInstance.get('/categories', categoriesController);
 fastifyInstance.get('/reserve_assets', reserveAssetsController);
 fastifyInstance.get('/daily_candles/:address', dailyCandlesController);
 fastifyInstance.get('/category/:address', marketCategoryController);
 fastifyInstance.get('/calendar/:sport/:championship/:page', sportCalendarController);
-fastifyInstance.get('/championships/:sport', championshipsController)
+fastifyInstance.get('/championships/:sport?', championshipsController)
 
 // Run the server
 exports.start = async () => {

@@ -26,15 +26,25 @@ class SportDataService {
   }
 
   getCalendar(sport, championship, page) {
-    const limit = 10;
+    const limit = conf.limitMarketsOnPage;
 
     const offset = (page - 1) * limit;
 
     return (this.calendar[sport] || []).filter(({ championship: c }) => championship === c).slice(offset, offset + limit);
   }
 
+  getCalendarLength(sport, championship) {
+    if (this.calendar[sport]) {
+      if (this.calendar[sport]) {
+        return this.calendar[sport].filter(({ championship: c }) => c === championship).length
+      }
+    }
+    
+    return 0
+  }
+
   getChampionships(sport) {
-    return this.championships[sport] || [];
+    return sport ? (this.championships[sport] || []) : this.championships;
   }
 
   updater() {
