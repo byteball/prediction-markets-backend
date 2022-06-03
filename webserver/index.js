@@ -10,6 +10,7 @@ const dailyCandlesController = require('./controllers/dailyCandlesController.js'
 const marketCategoryController = require('./controllers/marketCategoryController.js');
 const sportCalendarController = require('./controllers/sportCalendarController.js');
 const championshipsController = require('./controllers/championshipsController.js');
+const sportTeamController = require('./controllers/sportTeamController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -27,7 +28,8 @@ fastifyInstance.get('/reserve_assets', reserveAssetsController);
 fastifyInstance.get('/daily_candles/:address', dailyCandlesController);
 fastifyInstance.get('/category/:address', marketCategoryController);
 fastifyInstance.get('/calendar/:sport/:championship/:page', sportCalendarController);
-fastifyInstance.get('/championships/:sport?', championshipsController)
+fastifyInstance.get('/championships/:sport?', championshipsController);
+fastifyInstance.get('/team/:sport/:abbreviation', sportTeamController);
 
 // Run the server
 exports.start = async () => {
