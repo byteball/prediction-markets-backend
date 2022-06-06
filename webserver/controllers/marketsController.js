@@ -6,6 +6,7 @@ const moment = require('moment');
 
 const abbreviations = require('../../abbreviations.json');
 const marketDB = require('../../db');
+const { sportDataService } = require('../../SportData');
 
 const limit = conf.limitMarketsOnPage;
 
@@ -74,6 +75,10 @@ module.exports = async (request, reply) => {
             rows[i].no_team_id = no_abbreviation[0];
             rows[i].no_team = no_abbreviation[1].name;
           }
+          const championshipInfo = sportDataService.getChampionshipInfo('soccer', championship);
+          
+          rows[i].league_emblem = championshipInfo.emblem || null;
+          rows[i].league = championshipInfo.name || null;
         }
       }
     });

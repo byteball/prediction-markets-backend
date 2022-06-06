@@ -18,7 +18,7 @@ class SportDataService {
     };
 
     this.footballApi = axios.create({
-      baseURL: `https://api.football-data.org/v2`,
+      baseURL: `https://api.football-data.org`,
       headers: {
         ['X-Auth-Token']: conf.footballDataApiKey
       }
@@ -30,7 +30,7 @@ class SportDataService {
 
     const offset = (page - 1) * limit;
 
-    return (this.calendar[sport] || []).filter(({ championship: c }) => championship === c).slice(offset, offset + limit);
+    return (this.calendar[sport] || []).filter(({ championship: c }) => championship === 'all' || championship === c).slice(offset, offset + limit);
   }
 
   getCalendarLength(sport, championship) {
@@ -39,7 +39,7 @@ class SportDataService {
         return this.calendar[sport].filter(({ championship: c }) => c === championship).length
       }
     }
-    
+
     return 0
   }
 
@@ -54,7 +54,7 @@ class SportDataService {
   }
 
   async getSoccerMatchesByCompetition(competitionId) {
-    return await this.footballApi.get(`competitions/${competitionId}/matches?status=SCHEDULED`).then(({ data: { matches } }) => matches);
+    return await this.footballApi.get(`/v4/competitions/${competitionId}/matches?status=SCHEDULED`).then(({ data }) => data);
   }
 
   getFeedNameByMatches(championship, matchObj) {
@@ -83,10 +83,12 @@ class SportDataService {
 
     try {
       const competitionList = [2001, 2002, 2003, 2013, 2014, 2015, 2019];
-      const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data) => {
+      const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data = {}) => {
+        const { competition, matches } = data;
+
         const championship = this.getChampionshipBySoccerCompetitionId(id);
 
-        data.forEach(matchObject => {
+        matches.forEach(matchObject => {
           const feed_name = this.getFeedNameByMatches(championship, matchObject);
 
           if (feed_name) {
@@ -100,7 +102,9 @@ class SportDataService {
               yes_team_id: matchObject.homeTeam.id,
               no_team_id: matchObject.awayTeam.id,
               oracle: conf.sportOracleAddress,
-              championship
+              championship,
+              league_emblem: competition.emblem,
+              league: competition.name
             })
           }
         });
@@ -114,6 +118,22 @@ class SportDataService {
     }
   }
 
+  getChampionshipInfo(sport, championship) {
+    if (this.championships[sport]) {
+      const championshipInfo = this.championships[sport].find(({ code }) => code === championship);
+
+      return championshipInfo || {}
+    } else {
+      return null;
+    }
+  }
+
+  async getSoccerChampionshipsInfo() {
+    const soccerChampionshipsData = await this.footballApi.get('/v4/competitions');
+
+    return soccerChampionshipsData.data.competitions;
+  }
+
   async updateSoccerCalendar() {
     const feedNamesOfExistingSportMarkets = await marketDB.api.getAllMarkets().then((markets) => markets.filter(({ oracle }) => oracle === conf.sportOracleAddress).map(({ feed_name }) => feed_name));
     const now = moment.utc().unix();
@@ -123,7 +143,20 @@ class SportDataService {
     this.calendar.soccer = soccerCalendar.filter(({ feed_name, end_of_trading_period }) => !feedNamesOfExistingSportMarkets.includes(feed_name) && ((end_of_trading_period - now) >= 24 * 3600)).slice(0, 15).sort((a, b) => a.end_of_trading_period - b.end_of_trading_period);
     this.calendar.soccer.forEach(({ feed_name }) => existCompetitions.push(feed_name.split("_")[0]));
 
-    this.championships.soccer = uniq(existCompetitions);
+    const soccerChampionships = uniq(existCompetitions);
+
+    const championshipsInfo = await this.getSoccerChampionshipsInfo();
+
+    this.championships.soccer = soccerChampionships.map((leagueName) => {
+      const info = championshipsInfo.find(({ code }) => code === leagueName) || {};
+
+      return ({
+        code: leagueName,
+        name: info.name || null,
+        emblem: info.emblem || null
+      })
+    })
+
   }
 
   async init() {
