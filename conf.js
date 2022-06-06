@@ -6,7 +6,7 @@ exports.bLight = true;
 exports.bNoPassphrase = true;
 exports.webPort = null;
 
-exports.webserverPort = 3005;
+exports.webserverPort = 3001;
 exports.testnet = process.env.testnet == "1";
 exports.factory_aa = "X57IVRKVCRTBZM6KMYL6RCRG4P4MWJZN";
 exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
