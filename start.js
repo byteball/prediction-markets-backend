@@ -50,7 +50,7 @@ async function start() {
   lightWallet.waitUntilHistoryRefreshDone(async () => {
     await discoverMarketsAas()
     await marketDB.api.refreshSymbols();
-    await sportDataService.init();
+    // await sportDataService.init();
 
     webserver.start();
     console.error('webserver has been started');
