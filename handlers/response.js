@@ -35,12 +35,14 @@ exports.responseHandler = async function (objResponse) {
     await marketDB.api.saveMarketAsset(payload.to || objResponse.aa_address, 'draw', payload.draw_asset || responseVars.draw_asset)
   }
 
-  if (responseVars && ('next_coef' in responseVars) && ('arb_profit_tax' in responseVars) && ('fee' in responseVars)) {
+  const isAddLiquidity = !('arb_profit_tax' in responseVars);
+
+  if (responseVars && ('next_coef' in responseVars) && ('arb_profit_tax' in responseVars || isAddLiquidity)) {
     const existsAmountInPayload = 'yes_amount' in payload || 'no_amount' in payload || 'draw_amount' in payload;
 
     const tradeData = {
       aa_address: aa_address,
-      type: ('type' in payload) ? 'buy_by_type' : (existsAmountInPayload ? 'buy' : 'redeem'),
+      type: isAddLiquidity ? 'add_liquidity' : ('type' in payload) ? 'buy_by_type' : (existsAmountInPayload ? 'buy' : 'redeem'),
       supply_yes: responseVars.supply_yes,
       supply_no: responseVars.supply_no,
       supply_draw: responseVars.supply_draw || 0,

@@ -1,5 +1,5 @@
 {
-	"name": "prediction-markets-backend-3",
+	"name": "prediction-markets-backend",
 	"version": "0.0.1",
 	"scripts": {
 		"start": "node start.js oswap-stats 1>log 2>errlog &"
