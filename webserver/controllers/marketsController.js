@@ -26,10 +26,12 @@ const filterByType = (type, championship) => {
 		if (championship) {
 			query += ` AND upper(feed_name) like '${championship}%'`;
 		}
+	} else if (type === 'misc') {
+		query = `WHERE markets.oracle != '${conf.currencyOracleAddress}' AND markets.oracle != '${conf.sportOracleAddress}'`;
 	}
 
 	// include only allowed reserve assets
-	query += ` ${(type === 'currency' || type === 'soccer') ? 'AND' : "WHERE"} (${Object.keys(conf.supported_reserve_assets).map((asset, index) => `${index ? 'OR' : ''} markets.reserve_asset='${asset}'`).join(' ')})`;
+	query += ` ${(type === 'currency' || type === 'soccer' || type === 'misc') ? 'AND' : "WHERE"} (${Object.keys(conf.supported_reserve_assets).map((asset, index) => `${index ? 'OR' : ''} markets.reserve_asset='${asset}'`).join(' ')})`;
 
 	return query;
 }
