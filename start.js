@@ -11,6 +11,7 @@ const marketDB = require('./db');
 const { justsayingHandler, responseHandler } = require('./handlers');
 const webserver = require('./webserver');
 const { sportDataService } = require('./SportData');
+const { wait } = require('./utils/wait');
 
 lightWallet.setLightVendorHost(conf.hub);
 
@@ -29,7 +30,7 @@ async function watchMarketAa(objAa) {
   });
 }
 
-async function discoverMarketsAas() {
+async function discoverMarketAas() {
   const factoryStateVars = await dag.readAAStateVars(conf.factory_aa);
   const allMarkets = Object.keys(factoryStateVars).map((name) => name.replace("prediction_", ""));
   const rows = await db.query("SELECT aa_address FROM markets");
@@ -47,14 +48,18 @@ async function start() {
 
   lightWallet.refreshLightClientHistory();
 
-  lightWallet.waitUntilHistoryRefreshDone(async () => {
-    await discoverMarketsAas()
-    await marketDB.api.refreshSymbols();
-    await sportDataService.init();
+  await lightWallet.waitUntilHistoryRefreshDone();
+  
+  await wait(60 * 1000);
+  
+  await discoverMarketAas()
+  await marketDB.api.refreshSymbols();
 
-    webserver.start();
-    console.error('webserver has been started');
-  });
+  await sportDataService.init();
+
+  webserver.start();
+  console.error('webserver has been started');
+
 }
 
 eventBus.on('aa_response', responseHandler);

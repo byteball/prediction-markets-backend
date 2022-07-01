@@ -45,10 +45,9 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
     }
   }
 
-  if (aa_address && event && oracle && feed_name !== undefined && datafeed_value !== undefined) {
+  if (aa_address && oracle && feed_name !== undefined && datafeed_value !== undefined) {
     const data = [
       aa_address,
-      event,
       oracle,
       feed_name,
       reserve_asset ? reserve_asset : "base",
@@ -64,7 +63,7 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
       id
     ];
 
-    await db.query("INSERT INTO markets (aa_address, event, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, end_of_trading_period, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, category_id, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
+    await db.query("INSERT INTO markets (aa_address, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, end_of_trading_period, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, category_id, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
 
     await saveMarketAsset(aa_address, 'reserve', reserve_asset || "base");
   } else {

@@ -9,7 +9,7 @@ exports.create = async function () {
 		UNIQUE(category)
 	)`);
 
-	await db.query(`CREATE TABLE IF NOT EXISTS trade_events (
+	await db.query(`CREATE TABLE IF NOT EXISTS trades (
 		aa_address CHAR(32) NOT NULL,
 		response_unit CHAR(44) PRIMARY KEY NOT NULL,
 		yes_amount INTEGER DEFAULT 0,
@@ -30,7 +30,6 @@ exports.create = async function () {
 	
 	await db.query(`CREATE TABLE IF NOT EXISTS markets (
 		aa_address CHAR(32) NOT NULL,
-		event CHAR(128) NOT NULL,
 		oracle CHAR(32) NOT NULL,
 		comparison CHAR(2) NOT NULL,
 		feed_name CHAR(32) NOT NULL,
@@ -51,7 +50,7 @@ exports.create = async function () {
 		UNIQUE (aa_address)
 	)`);
 
-	await db.query(`CREATE TABLE IF NOT EXISTS markets_assets (
+	await db.query(`CREATE TABLE IF NOT EXISTS market_assets (
 		aa_address CHAR(32),
 		yes_asset CHAR(44),
 		no_asset CHAR(44),
@@ -69,7 +68,7 @@ exports.create = async function () {
 		UNIQUE (aa_address)
 	)`);
 
-	await db.query(`CREATE TABLE IF NOT EXISTS hourly_candles (
+	await db.query(`CREATE TABLE IF NOT EXISTS hourly_closes (
 		aa_address CHAR(32) NOT NULL,
 		yes_price REAL DEFAULT 0,
 		no_price REAL DEFAULT 0,
@@ -84,7 +83,7 @@ exports.create = async function () {
 		UNIQUE (aa_address, start_timestamp)
 	)`);
 
-	await db.query(`CREATE TABLE IF NOT EXISTS daily_candles (
+	await db.query(`CREATE TABLE IF NOT EXISTS daily_closes (
 		aa_address CHAR(32) NOT NULL,
 		yes_price REAL DEFAULT 0,
 		no_price REAL DEFAULT 0,
@@ -100,11 +99,13 @@ exports.create = async function () {
 		UNIQUE (aa_address, start_timestamp)
 	)`);
 
-	await db.query(`CREATE TRIGGER IF NOT EXISTS update_reserve_total AFTER INSERT ON trade_events
+	await db.query(`CREATE TRIGGER IF NOT EXISTS update_reserve_total AFTER INSERT ON trades
 		BEGIN
 			UPDATE markets SET total_reserve=new.reserve WHERE aa_address = new.aa_address;
 		END;
 	`)
+
+	await db.query('CREATE UNIQUE INDEX IF NOT EXISTS index_assets on market_assets (yes_asset, no_asset, draw_asset);')
 
 	console.error('db installed');
 }

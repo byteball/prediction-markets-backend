@@ -11,12 +11,12 @@ exports.saveMarketAsset = async function (aa_address, type, asset) {
 
   if (!row) return  null //await unlock('unknown address');
   
-  const [row2] = await db.query("SELECT * FROM markets_assets WHERE aa_address=?", [aa_address]);
+  const [row2] = await db.query("SELECT * FROM market_assets WHERE aa_address=?", [aa_address]);
 
   if (row2) {
-    await db.query(`UPDATE markets_assets SET ${type}_asset=? WHERE aa_address=?`, [asset, aa_address]);
+    await db.query(`UPDATE market_assets SET ${type}_asset=? WHERE aa_address=?`, [asset, aa_address]);
   } else {
-    await db.query(`INSERT INTO markets_assets (aa_address, ${type}_asset) VALUES (?, ?)`, [aa_address, asset]);
+    await db.query(`INSERT INTO market_assets (aa_address, ${type}_asset) VALUES (?, ?)`, [aa_address, asset]);
   }
 
   // return await unlock();

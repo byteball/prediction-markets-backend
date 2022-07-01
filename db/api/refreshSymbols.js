@@ -4,7 +4,7 @@ const { saveReserveSymbol } = require('./saveReserveSymbol');
 const db = require('ocore/db.js');
 
 exports.refreshSymbols = async function refreshSymbols() {
-  const rows = await db.query("SELECT * FROM markets_assets LEFT JOIN markets ON markets_assets.aa_address = markets.aa_address");
+  const rows = await db.query("SELECT * FROM market_assets LEFT JOIN markets ON market_assets.aa_address = markets.aa_address");
 
   for (var i = 0; i < rows.length; i++) {
     await saveSymbolForAsset(rows[i].yes_asset);

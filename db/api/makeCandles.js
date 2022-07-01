@@ -10,7 +10,7 @@ exports.makeCandles = async function ({ aa_address, timestamp, yes_price, no_pri
   const params = await getMarketParams(aa_address);
   const reserve_to_usd_rate = await getUSDPriceByAsset(params.reserve_asset, timestamp);
 
-  db.query("REPLACE INTO hourly_candles (aa_address, yes_price, no_price, draw_price, supply_yes, supply_no, supply_draw, reserve, start_timestamp, reserve_to_usd_rate, coef) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+  db.query("REPLACE INTO hourly_closes (aa_address, yes_price, no_price, draw_price, supply_yes, supply_no, supply_draw, reserve, start_timestamp, reserve_to_usd_rate, coef) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
     aa_address,
     yes_price,
     no_price,
@@ -24,7 +24,7 @@ exports.makeCandles = async function ({ aa_address, timestamp, yes_price, no_pri
     coef
   ]);
 
-  db.query("REPLACE INTO daily_candles (aa_address, yes_price, no_price, draw_price, supply_yes, supply_no, supply_draw, reserve, start_timestamp, reserve_to_usd_rate, coef) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+  db.query("REPLACE INTO daily_closes (aa_address, yes_price, no_price, draw_price, supply_yes, supply_no, supply_draw, reserve, start_timestamp, reserve_to_usd_rate, coef) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
     aa_address,
     yes_price,
     no_price,

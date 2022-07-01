@@ -50,7 +50,7 @@ module.exports = async (request, reply) => {
 	try {
 		const countRow = await db.query(`SELECT COUNT(aa_address) FROM markets ${filterByType(type, championship)}`);
 		count = countRow[0]['COUNT(aa_address)'];
-		rows = await db.query(`SELECT * FROM markets LEFT JOIN categories USING (category_id) LEFT JOIN markets_assets USING (aa_address) ${filterByType(type, championship)}`);
+		rows = await db.query(`SELECT * FROM markets LEFT JOIN categories USING (category_id) LEFT JOIN market_assets USING (aa_address) ${filterByType(type, championship)}`);
 	} catch {
 		console.error("get markets error");
 		reply.send([]);

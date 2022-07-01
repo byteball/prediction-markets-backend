@@ -5,10 +5,10 @@ const createDB = require('./createDB');
 	await db.query("DROP TABLE markets");
 	await db.query("DROP TABLE categories");
 	await db.query("DROP TABLE trades");
-	await db.query("DROP TABLE markets_assets");
-	await db.query("DROP TABLE trade_events");
-	await db.query("DROP TABLE hourly_candles");
-	await db.query("DROP TABLE daily_candles");
+	await db.query("DROP TABLE market_assets");
+	await db.query("DROP TABLE trades");
+	await db.query("DROP TABLE hourly_closes");
+	await db.query("DROP TABLE daily_closes");
 	await db.query("DROP TRIGGER update_reserve_total");
 	
 	await createDB.create(); 
