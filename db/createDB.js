@@ -3,12 +3,6 @@ const db = require('ocore/db.js');
 exports.create = async function () {
 	console.error("will create tables if not exist");
 
-	await db.query(`CREATE TABLE IF NOT EXISTS categories (
-		category_id INTEGER PRIMARY KEY AUTOINCREMENT,
-		category VARCHAR(20) NOT NULL,
-		UNIQUE(category)
-	)`);
-
 	await db.query(`CREATE TABLE IF NOT EXISTS trades (
 		aa_address CHAR(32) NOT NULL,
 		response_unit CHAR(44) PRIMARY KEY NOT NULL,
@@ -42,11 +36,9 @@ exports.create = async function () {
 		issue_fee REAL DEFAULT 0.01,
 		redeem_fee REAL DEFAULT 0.02,
 		arb_profit_tax REAL DEFAULT 0.9,
-		category_id INTEGER,
 		total_reserve INTEGER DEFAULT 0,
 		result CHAR(4),
 		timestamp TIMESTAMP NOT NULL,
-		FOREIGN KEY(category_id) REFERENCES categories(category_id),
 		UNIQUE (aa_address)
 	)`);
 

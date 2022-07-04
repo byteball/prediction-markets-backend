@@ -14,8 +14,6 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
   await wallet_general.addWatchedAddress(aa_address, null, console.log);
 
   const {
-    category,
-    event,
     oracle,
     feed_name,
     reserve_asset,
@@ -29,21 +27,6 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
     arb_profit_tax,
     allow_draw
   } = params || {};
-
-  const lowCategory = category && String(category).toLowerCase().trim();
-  let id;
-
-  if (lowCategory) {
-    const [row] = await db.query("SELECT * FROM categories WHERE category=?", [lowCategory]);
-
-    if (!row) {
-      const res = await db.query("INSERT INTO categories (category) VALUES (?)", [lowCategory]);
-
-      id = res.insertId;
-    } else {
-      id = row.category_id;
-    }
-  }
 
   if (aa_address && oracle && feed_name !== undefined && datafeed_value !== undefined) {
     const data = [
@@ -59,11 +42,10 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
       issue_fee !== undefined ? issue_fee : 0.01,
       redeem_fee !== undefined ? redeem_fee : 0.02,
       arb_profit_tax !== undefined ? arb_profit_tax : 0.9,
-      !!allow_draw,
-      id
+      !!allow_draw
     ];
 
-    await db.query("INSERT INTO markets (aa_address, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, end_of_trading_period, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, category_id, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
+    await db.query("INSERT INTO markets (aa_address, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, end_of_trading_period, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
 
     await saveMarketAsset(aa_address, 'reserve', reserve_asset || "base");
   } else {

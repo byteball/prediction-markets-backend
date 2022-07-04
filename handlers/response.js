@@ -60,7 +60,7 @@ exports.responseHandler = async function (objResponse) {
 
     await marketDB.api.saveTradeEvent(tradeData)
 
-    await marketDB.api.makeCandles(tradeData)
+    await marketDB.api.makeCloses(tradeData)
   }
 
   if (responseVars.result) {

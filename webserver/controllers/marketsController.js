@@ -32,6 +32,8 @@ const filterByType = (type, championship) => {
 
 	// include only allowed reserve assets
 	query += ` ${(type === 'currency' || type === 'soccer' || type === 'misc') ? 'AND' : "WHERE"} (${Object.keys(conf.supported_reserve_assets).map((asset, index) => `${index ? 'OR' : ''} markets.reserve_asset='${asset}'`).join(' ')})`;
+    
+	query += ` AND market_assets.yes_symbol IS NOT NULL AND market_assets.no_symbol IS NOT NULL AND (markets.allow_draw == 0 OR market_assets.draw_symbol IS NOT NULL)`
 
 	return query;
 }
@@ -48,9 +50,9 @@ module.exports = async (request, reply) => {
 	let rows;
 	let count = 0;
 	try {
-		const countRow = await db.query(`SELECT COUNT(aa_address) FROM markets ${filterByType(type, championship)}`);
+		const countRow = await db.query(`SELECT COUNT(aa_address) FROM markets LEFT JOIN market_assets USING (aa_address) ${filterByType(type, championship)}`);
 		count = countRow[0]['COUNT(aa_address)'];
-		rows = await db.query(`SELECT * FROM markets LEFT JOIN categories USING (category_id) LEFT JOIN market_assets USING (aa_address) ${filterByType(type, championship)}`);
+		rows = await db.query(`SELECT * FROM markets LEFT JOIN market_assets USING (aa_address) ${filterByType(type, championship)}`);
 	} catch {
 		console.error("get markets error");
 		reply.send([]);
@@ -58,7 +60,7 @@ module.exports = async (request, reply) => {
 
 	try {
 		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }));
-		const gettersCandle = rows.map((row, i) => marketDB.api.getCandles({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true }).then(data => rows[i].candles = data));
+		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true }).then(data => rows[i].candles = data));
 
 		rows.forEach((row, i) => {
 			if (row.oracle === conf.sportOracleAddress) {

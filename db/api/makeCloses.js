@@ -3,7 +3,7 @@ const db = require('ocore/db.js');
 const { getUSDPriceByAsset } = require('../../utils/getUSDPriceByAsset');
 const { getMarketParams } = require('./getMarketParams');
 
-exports.makeCandles = async function ({ aa_address, timestamp, yes_price, no_price, draw_price, supply_yes, supply_no, supply_draw, reserve, coef }) {
+exports.makeCloses = async function ({ aa_address, timestamp, yes_price, no_price, draw_price, supply_yes, supply_no, supply_draw, reserve, coef }) {
   const start_hourly_timestamp = moment.unix(timestamp).utc().startOf("hour").unix();
   const start_day_timestamp = moment.unix(timestamp).utc().startOf("day").unix();
 

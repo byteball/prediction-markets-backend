@@ -4,10 +4,8 @@ const CORS = require('fastify-cors');
 const fastifySensible = require('fastify-sensible');
 
 const marketsController = require('./controllers/marketsController.js');
-const categoriesController = require('./controllers/categoriesController.js');
 const reserveAssetsController = require('./controllers/reserveAssetsController.js');
 const dailyCandlesController = require('./controllers/dailyCandlesController.js');
-const marketCategoryController = require('./controllers/marketCategoryController.js');
 const sportCalendarController = require('./controllers/sportCalendarController.js');
 const championshipsController = require('./controllers/championshipsController.js');
 const sportTeamController = require('./controllers/sportTeamController.js');
@@ -23,10 +21,8 @@ fastifyInstance.register(fastifySensible);
 
 // Declare routes
 fastifyInstance.get('/markets/:page?', marketsController);
-fastifyInstance.get('/categories', categoriesController);
 fastifyInstance.get('/reserve_assets', reserveAssetsController);
 fastifyInstance.get('/daily_candles/:address', dailyCandlesController);
-fastifyInstance.get('/category/:address', marketCategoryController);
 fastifyInstance.get('/calendar/:sport/:championship/:page', sportCalendarController);
 fastifyInstance.get('/championships/:sport?', championshipsController);
 fastifyInstance.get('/team/:sport/:abbreviation', sportTeamController);

@@ -3,7 +3,6 @@ const createDB = require('./createDB');
 
 (async () => {
 	await db.query("DROP TABLE markets");
-	await db.query("DROP TABLE categories");
 	await db.query("DROP TABLE trades");
 	await db.query("DROP TABLE market_assets");
 	await db.query("DROP TABLE trades");

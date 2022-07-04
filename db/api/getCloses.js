@@ -1,7 +1,7 @@
 const moment = require('moment');
 const db = require('ocore/db.js');
 
-exports.getCandles = async function ({ aa_address, type, onlyYesPrices = false, limit: customLimit}) {
+exports.getCloses = async function ({ aa_address, type, onlyYesPrices = false, limit: customLimit}) {
   if (type !== 'daily' && type !== 'hourly') throw 'unknown type';
 
   const limit = customLimit ? customLimit : type === 'hourly' ? 24 : 30 * 6;
@@ -12,18 +12,18 @@ exports.getCandles = async function ({ aa_address, type, onlyYesPrices = false, 
   let start = end - step_length * limit;
 
   // 1st step: select all candles in period
-  let rows = await db.query(`SELECT * FROM ${type}_candles WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
+  let rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
 
   // 2nd step: If there was no trading for the selected period, then we look for the most recent trading event and take its date
   if (!rows[0]) {
-    rows = await db.query(`SELECT * FROM ${type}_candles WHERE aa_address=? ORDER BY start_timestamp DESC LIMIT 1`, [aa_address]);
+    rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? ORDER BY start_timestamp DESC LIMIT 1`, [aa_address]);
 
     // If the market has no trading events return empty array
     if (!rows[0]) return []
 
     rows[0].start_timestamp = start;
   } else if (rows[0].start_timestamp !== start) { // 3rd step: Find the first element, if there was one before
-    const [lastRow] = await db.query(`SELECT * FROM ${type}_candles WHERE aa_address=? AND start_timestamp < ? ORDER BY start_timestamp DESC LIMIT 1`, [aa_address, start]);
+    const [lastRow] = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp < ? ORDER BY start_timestamp DESC LIMIT 1`, [aa_address, start]);
 
     if (lastRow) {
       lastRow.start_timestamp = start;
