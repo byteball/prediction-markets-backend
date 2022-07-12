@@ -50,9 +50,8 @@ module.exports = async (request, reply) => {
 	let rows;
 	let count = 0;
 	try {
-		const countRow = await db.query(`SELECT COUNT(aa_address) FROM markets LEFT JOIN market_assets USING (aa_address) ${filterByType(type, championship)}`);
-		count = countRow[0]['COUNT(aa_address)'];
 		rows = await db.query(`SELECT * FROM markets LEFT JOIN market_assets USING (aa_address) ${filterByType(type, championship)}`);
+		count = rows.length;
 	} catch {
 		console.error("get markets error");
 		reply.send([]);

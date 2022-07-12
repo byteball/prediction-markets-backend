@@ -1,5 +1,13 @@
 const db = require('ocore/db.js');
 
-exports.getAllMarkets = function () {
-  return db.query('SELECT * from markets');
+const filter = ({oracle}) => {
+  if (oracle) {
+    return `WHERE oracle='${oracle}';`
+  } else {
+    return '';
+  }
+}
+
+exports.getAllMarkets = function (oracle) {
+  return db.query(`SELECT * from markets ${filter({ oracle })}`);
 }

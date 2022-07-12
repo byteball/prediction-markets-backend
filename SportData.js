@@ -94,7 +94,6 @@ class SportDataService {
           if (feed_name) {
             newData.push({
               feed_name,
-              event: `${matchObject.homeTeam.name} vs ${matchObject.awayTeam.name} for ${moment.utc(matchObject.utcDate).format('ll')}`,
               end_of_trading_period: moment.utc(matchObject.utcDate).unix(),
               expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation,
               yes_team: matchObject.homeTeam.name,

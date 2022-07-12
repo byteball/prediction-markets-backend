@@ -10,6 +10,9 @@ module.exports = async (request, reply) => {
   try {
     // use hourly candles if 7 days from creation have not passed
     const params = await marketDB.api.getMarketParams(aa_address);
+    
+    if (!params) return reply.notFound();
+
     const now = moment.utc().unix();
     const sevenDaysAlreadyPassed = now > (params.end_of_trading_period + 3600 * 24 * 7);
 
