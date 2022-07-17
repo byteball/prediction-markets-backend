@@ -94,7 +94,7 @@ class SportDataService {
           if (feed_name) {
             newData.push({
               feed_name,
-              end_of_trading_period: moment.utc(matchObject.utcDate).unix(),
+              event_date: moment.utc(matchObject.utcDate).unix(),
               expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation,
               yes_team: matchObject.homeTeam.name,
               no_team: matchObject.awayTeam.name,
@@ -139,7 +139,7 @@ class SportDataService {
     const soccerCalendar = await this.getSoccerCalendar();
     const existCompetitions = feedNamesOfExistingSportMarkets.map((feed_name) => feed_name.split("_")[0]);
 
-    this.calendar.soccer = soccerCalendar.filter(({ feed_name, end_of_trading_period }) => !feedNamesOfExistingSportMarkets.includes(feed_name) && ((end_of_trading_period - now) >= 24 * 3600)).slice(0, 15).sort((a, b) => a.end_of_trading_period - b.end_of_trading_period);
+    this.calendar.soccer = soccerCalendar.filter(({ feed_name, event_date }) => !feedNamesOfExistingSportMarkets.includes(feed_name) && ((event_date - now) >= 24 * 3600)).slice(0, 15).sort((a, b) => a.event_date - b.event_date);
     this.calendar.soccer.forEach(({ feed_name }) => existCompetitions.push(feed_name.split("_")[0]));
 
     const soccerChampionships = uniq(existCompetitions);

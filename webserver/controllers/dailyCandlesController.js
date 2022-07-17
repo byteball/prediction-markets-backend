@@ -14,7 +14,7 @@ module.exports = async (request, reply) => {
     if (!params) return reply.notFound();
 
     const now = moment.utc().unix();
-    const sevenDaysAlreadyPassed = now > (params.end_of_trading_period + 3600 * 24 * 7);
+    const sevenDaysAlreadyPassed = now > (params.event_date + 3600 * 24 * 7);
 
     const candles = await marketDB.api.getCloses({ aa_address, type: sevenDaysAlreadyPassed ? "daily" : 'hourly', limit: !sevenDaysAlreadyPassed ? 3600 * 24 * 7 : undefined });
 

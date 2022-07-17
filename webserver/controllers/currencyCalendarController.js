@@ -45,8 +45,8 @@ module.exports = async (request, reply) => {
     const currentUTCTime = moment.utc().unix();
 
 
-    currencyMarkets.forEach(({ feed_name, end_of_trading_period }) => {
-        if (currentUTCTime <= end_of_trading_period) {
+    currencyMarkets.forEach(({ feed_name, event_date }) => {
+        if (currentUTCTime <= event_date) {
             takenPairs.push(feed_name);
         }
     });
@@ -57,14 +57,14 @@ module.exports = async (request, reply) => {
     const limit = conf.limitMarketsOnPage;
     const offset = (page - 1) * limit;
 
-    const end_of_trading_period_list = [moment.utc().hour() >= 23 ? 3600 * 24 : moment.utc().add(1, 'day').hours(0).minutes(0).seconds(0).unix(), currentUTCTime + 3600 * 24 * 2, currentUTCTime + 3600 * 24 * 7, currentUTCTime + 3600 * 24 * 14, currentUTCTime + 3600 * 24 * 30]
+    const event_date_list = [moment.utc().hour() >= 23 ? 3600 * 24 : moment.utc().add(1, 'day').hours(0).minutes(0).seconds(0).unix(), currentUTCTime + 3600 * 24 * 2, currentUTCTime + 3600 * 24 * 7, currentUTCTime + 3600 * 24 * 14, currentUTCTime + 3600 * 24 * 30]
     const waiting_period_list = [3600 * 2, 3600 * 6, 3600 * 9, 3600 * 12, 3600 * 24]
 
 
     const prepareData = shuffle(freePairs.slice(offset, offset + limit)).map((feed_name, index) => ({
         oracle: conf.currencyOracleAddress,
         feed_name,
-        end_of_trading_period: end_of_trading_period_list[index],
+        event_date: event_date_list[index],
     }));
 
     const data = [];
