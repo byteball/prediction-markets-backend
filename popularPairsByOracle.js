@@ -16,8 +16,5 @@ exports.popularPairsByOracle = {
         "BNB_USD",
         "MATIC_USD",
         "MATIC_BTC"
-    ],
-    'H74QL4ZCDD5KTFOGGZQ37YJSOO3N34JI' : [
-        'TWOOGE_GBYTE'
     ]
 }
