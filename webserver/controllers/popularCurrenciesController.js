@@ -1,8 +1,8 @@
-const { popularPairs } = require("../../popularPairs");
+const { popularPairsByOracle } = require("../../popularPairsByOracle");
 
 module.exports = async (_, reply) => {
 	try {
-		reply.send(popularPairs);
+		reply.send(popularPairsByOracle);
 	} catch (e) {
 		console.error('popularCurrenciesController error', e);
 	}

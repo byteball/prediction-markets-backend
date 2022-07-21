@@ -35,7 +35,7 @@ exports.supported_reserve_assets = process.env.testnet == "1" ? {
 
 exports.footballDataApiKey = process.env.footballDataApiKey;
 exports.sportOracleAddress = process.env.testnet === '1' ? 'MDKKPO375Q5M3GDET2X4H4ZNSO37OIIZ' : 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW';
-exports.currencyOracleAddress = 'F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N';
+exports.currencyOracleAddresses = ['F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N', 'H74QL4ZCDD5KTFOGGZQ37YJSOO3N34JI'];
 exports.limitMarketsOnPage = 5;
 
 console.error('finished server conf');

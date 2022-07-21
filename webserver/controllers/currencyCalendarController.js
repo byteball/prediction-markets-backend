@@ -4,7 +4,7 @@ const moment = require('moment');
 const { dag } = require("aabot");
 
 const marketDB = require('../../db');
-const { popularPairs } = require("../../popularPairs");
+const { popularPairsByOracle } = require("../../popularPairsByOracle");
 
 const getDecimals = (value) => {
     const valueStr = String(value);
@@ -12,8 +12,8 @@ const getDecimals = (value) => {
     return (~(valueStr + "").indexOf(".") ? (valueStr + "").split(".")[1].length : 0)
 }
 
-const getRate = async (feed_name) => {
-    return await dag.getDataFeed(conf.currencyOracleAddress, feed_name);
+const getRate = async (oracle, feed_name) => {
+    return await dag.getDataFeed(oracle, feed_name);
 }
 
 
@@ -21,7 +21,7 @@ module.exports = async (request, reply) => {
     const pageInParams = request.params.page;
     const currency = request.params.currency;
 
-    const currencyMarkets = await marketDB.api.getAllMarkets(conf.currencyOracleAddress);
+    const currencyMarkets = await marketDB.api.getAllMarkets(conf.currencyOracleAddresses);
 
     const takenTimeByPairs = {};
     const currentUTCTime = moment.utc().unix();
@@ -36,7 +36,18 @@ module.exports = async (request, reply) => {
         }
     });
 
-    const freePairs = popularPairs.filter((feed_name) => !currency || feed_name.startsWith(currency));
+    const freePairs = [];
+
+    Object.entries(popularPairsByOracle).forEach(([oracle, pairs]) => {
+        pairs.forEach((feed_name) => {
+            if (!currency || feed_name.startsWith(currency)) {
+                freePairs.push({
+                    feed_name,
+                    oracle
+                })
+            }
+        })
+    });
 
     const page = (isInteger(Number(pageInParams)) && pageInParams > 0) ? request.params.page : 1;
     const limit = conf.limitMarketsOnPage;
@@ -46,14 +57,14 @@ module.exports = async (request, reply) => {
 
     const rates = {};
 
-    const rateGetters = freePairs.map((feed_name) => getRate(feed_name).then((rate) => rates[feed_name] = rate));
+    const rateGetters = freePairs.map(({ oracle, feed_name }) => getRate(oracle, feed_name).then((rate) => rates[feed_name] = rate));
 
     await Promise.all(rateGetters);
 
-    freePairs.forEach(async (feed_name) => {
+    freePairs.forEach(async ({ feed_name, oracle }) => {
         const commonData = {
             feed_name,
-            oracle: conf.currencyOracleAddress
+            oracle
         }
 
         const currentRate = rates[feed_name];
@@ -136,7 +147,6 @@ module.exports = async (request, reply) => {
 
     reply.send({
         data: data.slice(offset, offset + limit),
-        count: data.length,
-        popularPairs
+        count: data.length
     });
 }

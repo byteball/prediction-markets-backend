@@ -28,7 +28,7 @@ fastifyInstance.get('/daily_closes/:address', dailyCandlesController);
 fastifyInstance.get('/calendar/currency/:currency/:page', currencyCalendarController);
 fastifyInstance.get('/calendar/:sport/:championship/:page', sportCalendarController);
 fastifyInstance.get('/championships/:sport?', championshipsController);
-fastifyInstance.get('/popular_pairs', popularCurrenciesController);
+fastifyInstance.get('/popular_oracle_pairs', popularCurrenciesController);
 fastifyInstance.get('/team/:sport/:abbreviation', sportTeamController);
 
 // Run the server
