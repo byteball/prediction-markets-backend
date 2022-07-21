@@ -39,7 +39,7 @@ exports.create = async function () {
 		arb_profit_tax REAL DEFAULT 0.9,
 		total_reserve INTEGER DEFAULT 0,
 		result CHAR(4),
-		timestamp TIMESTAMP NOT NULL,
+		created_at TIMESTAMP NOT NULL,
 		UNIQUE (aa_address)
 	)`);
 
