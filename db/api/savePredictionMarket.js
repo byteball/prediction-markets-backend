@@ -20,12 +20,13 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
     comparison,
     datafeed_value,
     datafeed_draw_value,
-    end_of_trading_period,
+    event_date,
     waiting_period_length,
     issue_fee,
     redeem_fee,
     arb_profit_tax,
-    allow_draw
+    allow_draw,
+    quiet_period
   } = params || {};
 
   if (aa_address && oracle && feed_name !== undefined && datafeed_value !== undefined) {
@@ -37,15 +38,16 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
       comparison ? comparison : "==",
       datafeed_value,
       datafeed_draw_value,
-      end_of_trading_period,
+      event_date,
       waiting_period_length !== undefined ? waiting_period_length : 5 * 24 * 3600,
       issue_fee !== undefined ? issue_fee : 0.01,
       redeem_fee !== undefined ? redeem_fee : 0.02,
       arb_profit_tax !== undefined ? arb_profit_tax : 0.9,
-      !!allow_draw
+      !!allow_draw,
+      quiet_period !== undefined ? quiet_period : 0
     ];
 
-    await db.query("INSERT INTO markets (aa_address, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, end_of_trading_period, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
+    await db.query("INSERT INTO markets (aa_address, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, event_date, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, quiet_period, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
 
     await saveMarketAsset(aa_address, 'reserve', reserve_asset || "base");
   } else {

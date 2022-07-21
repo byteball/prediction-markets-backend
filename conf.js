@@ -8,10 +8,10 @@ exports.webPort = null;
 
 exports.webserverPort = 3001;
 exports.testnet = process.env.testnet == "1";
-exports.factory_aa = "VXPFR7MK3TMLQ2OZ3ISVQR5JDPGLJYNE";
+exports.factory_aa = "XJHGU42ZLOE2C43OVTC5SHINBANZ5Y4H";
 exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
 exports.forward_aa = "E4BAASPOCW6WHXSUOY2XEKXKA42RRD5I";
-exports.token_registry_aa_address = process.env.testnet ? "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ" : "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
+exports.token_registry_aa_address = "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
 
 exports.supported_reserve_assets = process.env.testnet == "1" ? {
   base: {
@@ -26,12 +26,16 @@ exports.supported_reserve_assets = process.env.testnet == "1" ? {
   base: {
     symbol: "GBYTE",
     decimals: 9
+  },
+  'S/oCESzEO8G2hvQuI6HsyPr0foLfKwzs+GU73nO9H40=': {
+    symbol: "USDC",
+    decimals: 4
   }
 };
 
 exports.footballDataApiKey = process.env.footballDataApiKey;
-exports.sportOracleAddress = 'MDKKPO375Q5M3GDET2X4H4ZNSO37OIIZ';
-exports.currencyOracleAddress = 'F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N';
+exports.sportOracleAddress = process.env.testnet === '1' ? 'MDKKPO375Q5M3GDET2X4H4ZNSO37OIIZ' : 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW';
+exports.currencyOracleAddresses = ['F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N'];
 exports.limitMarketsOnPage = 5;
 
 console.error('finished server conf');

@@ -49,7 +49,7 @@ async function start() {
   lightWallet.refreshLightClientHistory();
 
   await lightWallet.waitUntilHistoryRefreshDone();
-  
+
   await wait(60 * 1000);
   
   await discoverMarketAas()

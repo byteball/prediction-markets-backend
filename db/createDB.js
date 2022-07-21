@@ -31,14 +31,15 @@ exports.create = async function () {
 		allow_draw BOOLEAN NOT NULL,
 		datafeed_value CHAR(128) NOT NULL,
 		datafeed_draw_value CHAR(128),
-		end_of_trading_period INT NOT NULL,
+		event_date INT NOT NULL,
+		quiet_period INTEGER DEFAULT 0,
 		waiting_period_length INT NOT NULL,
 		issue_fee REAL DEFAULT 0.01,
 		redeem_fee REAL DEFAULT 0.02,
 		arb_profit_tax REAL DEFAULT 0.9,
 		total_reserve INTEGER DEFAULT 0,
 		result CHAR(4),
-		timestamp TIMESTAMP NOT NULL,
+		created_at TIMESTAMP NOT NULL,
 		UNIQUE (aa_address)
 	)`);
 

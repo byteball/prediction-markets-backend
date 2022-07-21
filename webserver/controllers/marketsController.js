@@ -19,7 +19,7 @@ const filterByType = (type, championship) => {
 	let query = '';
 
 	if (type === 'currency') {
-		query = `WHERE markets.oracle='${conf.currencyOracleAddress}'`;
+		query = `WHERE markets.oracle='${conf.currencyOracleAddresses[0]}' ${conf.currencyOracleAddresses.slice(1, conf.currencyOracleAddresses.length).map((oracle) => `OR markets.oracle = '${oracle}'`)}`;
 	} else if (type === 'soccer') {
 		query = `WHERE markets.oracle='${conf.sportOracleAddress}'`
 
@@ -27,12 +27,12 @@ const filterByType = (type, championship) => {
 			query += ` AND upper(feed_name) like '${championship}%'`;
 		}
 	} else if (type === 'misc') {
-		query = `WHERE markets.oracle != '${conf.currencyOracleAddress}' AND markets.oracle != '${conf.sportOracleAddress}'`;
+		query = `WHERE markets.oracle != '${conf.currencyOracleAddresses[0]}' ${conf.currencyOracleAddresses.slice(1, conf.currencyOracleAddresses.length).map((oracle) => `AND markets.oracle != '${oracle}'`)} AND markets.oracle != '${conf.sportOracleAddress}'`;
 	}
 
 	// include only allowed reserve assets
 	query += ` ${(type === 'currency' || type === 'soccer' || type === 'misc') ? 'AND' : "WHERE"} (${Object.keys(conf.supported_reserve_assets).map((asset, index) => `${index ? 'OR' : ''} markets.reserve_asset='${asset}'`).join(' ')})`;
-    
+
 	query += ` AND market_assets.yes_symbol IS NOT NULL AND market_assets.no_symbol IS NOT NULL AND (markets.allow_draw == 0 OR market_assets.draw_symbol IS NOT NULL)`
 
 	return query;
@@ -129,14 +129,27 @@ module.exports = async (request, reply) => {
 		const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
 
 		sortedRows.forEach(row => {
-			if (now >= row.end_of_trading_period) {
+			if (now >= row.event_date) {
 				oldMarkets.push(row);
 			} else {
 				actualMarkets.push(row);
 			}
 		});
 
-		reply.send({ data: [...actualMarkets, ...oldMarkets].slice(offset, offset + limit), max_count: count });
+		// add APY
+		const data = [...actualMarkets, ...oldMarkets].slice(offset, offset + limit).map((allData) => {
+			const { coef, issue_fee, created_at } = allData;
+			const elapsed_seconds = moment.utc().unix() - created_at;
+
+			const apy = coef !== 1 ? Number(((coef * (1 - issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(2) : 0;
+
+			return ({
+				...allData,
+				apy
+			})
+		});
+
+		reply.send({ data, max_count: count });
 	} catch (e) {
 		console.error(e)
 	}
