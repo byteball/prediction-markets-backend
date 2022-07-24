@@ -50,6 +50,8 @@ async function start() {
 
   await lightWallet.waitUntilHistoryRefreshDone();
 
+  await dag.loadAA(conf.token_registry_aa_address);
+  
   await wait(60 * 1000);
   
   await discoverMarketAas()
