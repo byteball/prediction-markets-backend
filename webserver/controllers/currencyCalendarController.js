@@ -6,12 +6,6 @@ const { dag } = require("aabot");
 const marketDB = require('../../db');
 const { popularPairsByOracle } = require("../../popularPairsByOracle");
 
-const getDecimals = (value) => {
-    const valueStr = String(value);
-
-    return (~(valueStr + "").indexOf(".") ? (valueStr + "").split(".")[1].length : 0)
-}
-
 const getRate = async (oracle, feed_name) => {
     return await dag.getDataFeed(oracle, feed_name);
 }
@@ -25,6 +19,37 @@ module.exports = async (request, reply) => {
 
     const takenTimeByPairs = {};
     const currentUTCTime = moment.utc().unix();
+    const waiting_period_length = 3600;
+
+    const calcQuietPeriod = (eventDataInUnix) => {
+        const differ = Math.abs(eventDataInUnix - currentUTCTime);
+
+        if (differ >= 2 * 30 * 24 * 3600) { // 2 months
+            return 3 * 24 * 3600;
+        } else if (differ >= 30 * 24 * 3600) { // 1 month
+            return 2 * 24 * 3600;
+        } else if (differ >= 14 * 24 * 3600) { // 2 weeks
+            return 24 * 3600;
+        } else if (differ >= 7 * 24 * 3600) { // 1 week
+            return 12 * 3600;
+        } else if (differ >= 2 * 24 * 3600) { // 2 days
+            return 6 * 3600;
+        } else if (differ >= 24 * 3600) { // 1 day
+            return 3 * 3600;
+        } else if (differ >= 12 * 3600) { // 12 hours
+            return 2 * 3600;
+        } else if (differ >= 6 * 3600) { // 6 hours
+            return 3600;
+        } else if (differ >= 3 * 3600) {// 3 hours
+            return 1800;
+        } else if (differ >= 2 * 3600) { // 2 hours
+            return 900;
+        } else if (differ >= 3600) { // 1 hour
+            return 450;
+        } else { // less 1 hours
+            return 0;
+        }
+    }
 
     currencyMarkets.forEach(({ feed_name, event_date, quiet_period = 0 }) => {
         if (currentUTCTime <= (event_date - quiet_period)) {
@@ -36,12 +61,12 @@ module.exports = async (request, reply) => {
         }
     });
 
-    const freePairs = [];
+    const popularPairs = [];
 
     Object.entries(popularPairsByOracle).forEach(([oracle, pairs]) => {
         pairs.forEach((feed_name) => {
-            if (!currency || feed_name.startsWith(currency)) {
-                freePairs.push({
+            if (currency && feed_name.startsWith(currency)) {
+                popularPairs.push({
                     feed_name,
                     oracle
                 })
@@ -57,91 +82,107 @@ module.exports = async (request, reply) => {
 
     const rates = {};
 
-    const rateGetters = freePairs.map(({ oracle, feed_name }) => getRate(oracle, feed_name).then((rate) => rates[feed_name] = rate));
+    const rateGetters = popularPairs.map(({ oracle, feed_name }) => getRate(oracle, feed_name).then((rate) => rates[feed_name] = rate));
 
     await Promise.all(rateGetters);
 
-    freePairs.forEach(async ({ feed_name, oracle }) => {
+    popularPairs.forEach(async ({ feed_name, oracle }) => {
+
         const commonData = {
             feed_name,
-            oracle
+            oracle,
+            comparison: '>',
+            expect_datafeed_value: rates[feed_name],
+            waiting_period_length
         }
 
-        const currentRate = rates[feed_name];
+        const takenTime = (takenTimeByPairs[feed_name] || []).map((ts) => ts);
 
-        const decimalsOfRate = getDecimals(currentRate);
+        const currentYear = moment.utc().year();
+        const currentMonth = moment.utc().month();
+        const currentDay = moment.utc().date();
+        const currentHour = moment.utc().hour();
 
-        const samples = [sample([1, -1]), sample([1, -1]), sample([1, -1]), sample([1, -1]), sample([1, -1]), sample([1, -1])];
+        // expires today
+        const todayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(1, 'd').unix();
 
-        const expectDecimals = currentRate > 1 ? min([decimalsOfRate, 4]) : decimalsOfRate;
-        const takenTime = (takenTimeByPairs[feed_name] || []).map((ts) => ts - currentUTCTime);
-
-        if (!takenTime.find((t) => t <= 24 * 3600)) {
+        if (!takenTime.includes(todayMarketDate) && currentHour <= 20) {
             data.push({
                 ...commonData,
-                event_date: moment.utc().hour() >= 23 ? 3600 * 24 : moment.utc().add(1, 'day').hours(0).minutes(0).seconds(0).unix(),
-                quiet_period: moment.utc().hour() >= 23 ? 3600 : 1800,
-                waiting_period_length: 3600 * 2,
-                expect_datafeed_value: +Number(currentRate + samples[0] * 0.02 * currentRate).toFixed(expectDecimals),
-                comparison: samples[0] > 0 ? '>' : '<'
+                event_date: todayMarketDate,
+                quiet_period: calcQuietPeriod(todayMarketDate)
             })
+
+            takenTime.push(todayMarketDate);
         }
 
-        if (!takenTime.find((t) => (t > 24 * 3600) && (t <= 3600 * 24 * 2))) {
+        // expires tomorrow
+        const nextDayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(1, 'd').hours(23).unix();
+
+        if (!takenTime.includes(nextDayMarketDate)) {
             data.push({
                 ...commonData,
-                event_date: currentUTCTime + 3600 * 24 * 2,
-                quiet_period: 3600 * 3,
-                waiting_period_length: 3600 * 6,
-                expect_datafeed_value: +Number(currentRate + samples[1] * 0.03 * currentRate).toFixed(expectDecimals),
-                comparison: samples[1] > 0 ? '>' : '<'
+                event_date: nextDayMarketDate,
+                quiet_period: calcQuietPeriod(nextDayMarketDate)
             })
+
+            takenTime.push(nextDayMarketDate);
         }
 
-        if (!takenTime.find((t) => (t > 2 * 24 * 3600) && (t <= 3600 * 24 * 7))) {
+        // expires next Wednesday
+        const nextWeekWednesdayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(1, 'w').day(3).hours(23).unix();
+
+        if (!takenTime.includes(nextWeekWednesdayMarketDate)) {
             data.push({
                 ...commonData,
-                event_date: currentUTCTime + 3600 * 24 * 7,
-                quiet_period: 3600 * 8,
-                waiting_period_length: 3600 * 9,
-                expect_datafeed_value: +Number(currentRate + samples[2] * 0.06 * currentRate).toFixed(expectDecimals),
-                comparison: samples[2] > 0 ? '>' : '<'
+                event_date: nextWeekWednesdayMarketDate,
+                quiet_period: calcQuietPeriod(nextWeekWednesdayMarketDate)
             })
+
+            takenTime.push(nextWeekWednesdayMarketDate);
         }
 
-        if (!takenTime.find((t) => (t > 7 * 24 * 3600) && (t <= 3600 * 24 * 14))) {
+        // expires in 2 weeks on Wednesday
+        const wednesdayInTwoWeeksMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(2, 'w').day(3).hours(23).unix();
+
+        if (!takenTime.includes(wednesdayInTwoWeeksMarketDate)) {
             data.push({
                 ...commonData,
-                event_date: currentUTCTime + 3600 * 24 * 14,
-                quiet_period: 3600 * 12,
-                waiting_period_length: 3600 * 12,
-                expect_datafeed_value: +Number(currentRate + samples[3] * 0.08 * currentRate).toFixed(expectDecimals),
-                comparison: samples[3] > 0 ? '>' : '<'
+                event_date: wednesdayInTwoWeeksMarketDate,
+                quiet_period: calcQuietPeriod(wednesdayInTwoWeeksMarketDate)
             })
+
+            takenTime.push(wednesdayInTwoWeeksMarketDate);
         }
 
-        if (!takenTime.find((t) => (t > 14 * 24 * 3600) && (t <= 3600 * 24 * 30))) {
+        // expires next month
+        const nextMonthMarketDate = moment.utc([currentYear, currentMonth, 1]).add(1, 'month').unix();
+
+        if (!takenTime.includes(nextMonthMarketDate)) {
             data.push({
                 ...commonData,
-                event_date: currentUTCTime + 3600 * 24 * 30,
-                quiet_period: 3600 * 24,
-                waiting_period_length: 3600 * 24,
-                expect_datafeed_value: +Number(currentRate + samples[4] * 0.1 * currentRate).toFixed(expectDecimals),
-                comparison: samples[4] > 0 ? '>' : '<'
+                event_date: nextMonthMarketDate,
+                quiet_period: calcQuietPeriod(nextMonthMarketDate),
+                waiting_period_length
             })
+
+            takenTime.push(nextMonthMarketDate);
         }
 
-        if (!takenTime.find((t) => (t > 30 * 24 * 3600) && (t <= 3600 * 24 * 60))) {
+        // expires in two months
+        const afterTwoMonthsMarketDate = moment.utc([currentYear, currentMonth, 1]).add(2, 'month').unix();
+
+        if (!takenTime.includes(afterTwoMonthsMarketDate)) {
             data.push(
                 {
                     ...commonData,
-                    event_date: currentUTCTime + 3600 * 24 * 60,
-                    quiet_period: 3600 * 48,
-                    waiting_period_length: 3600 * 24,
-                    expect_datafeed_value: +Number(currentRate + samples[5] * 0.12 * currentRate).toFixed(expectDecimals),
-                    comparison: samples[5] > 0 ? '>' : '<'
+                    event_date: afterTwoMonthsMarketDate,
+                    quiet_period: calcQuietPeriod(afterTwoMonthsMarketDate),
+                    waiting_period_length
                 }
             );
+
+            takenTime.push(afterTwoMonthsMarketDate);
         }
     });
 
