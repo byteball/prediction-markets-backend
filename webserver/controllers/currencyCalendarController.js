@@ -117,7 +117,7 @@ module.exports = async (request, reply) => {
         }
 
         // expires tomorrow
-        const nextDayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(1, 'd').unix();
+        const nextDayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(2, 'd').unix();
 
         if (!takenTime.includes(nextDayMarketDate)) {
             data.push({
