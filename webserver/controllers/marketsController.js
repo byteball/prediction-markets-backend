@@ -138,7 +138,7 @@ module.exports = async (request, reply) => {
 
 		// add APY
 		const data = [...actualMarkets, ...oldMarkets].slice(offset, offset + limit).map((allData) => {
-			const { coef, issue_fee, created_at } = allData;
+			const { coef = 1, issue_fee, created_at } = allData;
 			const elapsed_seconds = moment.utc().unix() - created_at;
 
 			const apy = coef !== 1 ? Number(((coef * (1 - issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(2) : 0;
