@@ -117,7 +117,7 @@ module.exports = async (request, reply) => {
         }
 
         // expires tomorrow
-        const nextDayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(1, 'd').hours(23).unix();
+        const nextDayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(1, 'd').unix();
 
         if (!takenTime.includes(nextDayMarketDate)) {
             data.push({
@@ -130,7 +130,7 @@ module.exports = async (request, reply) => {
         }
 
         // expires next Wednesday
-        const nextWeekWednesdayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(1, 'w').day(3).hours(23).unix();
+        const nextWeekWednesdayMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(1, 'w').day(3).unix();
 
         if (!takenTime.includes(nextWeekWednesdayMarketDate)) {
             data.push({
@@ -143,7 +143,7 @@ module.exports = async (request, reply) => {
         }
 
         // expires in 2 weeks on Wednesday
-        const wednesdayInTwoWeeksMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(2, 'w').day(3).hours(23).unix();
+        const wednesdayInTwoWeeksMarketDate = moment.utc([currentYear, currentMonth, currentDay]).add(2, 'w').day(3).unix();
 
         if (!takenTime.includes(wednesdayInTwoWeeksMarketDate)) {
             data.push({
@@ -187,7 +187,7 @@ module.exports = async (request, reply) => {
     });
 
     reply.send({
-        data: data.slice(offset, offset + limit),
+        data: data.sort((a, b)=> a.event_date - b.event_date).slice(offset, offset + limit),
         count: data.length
     });
 }
