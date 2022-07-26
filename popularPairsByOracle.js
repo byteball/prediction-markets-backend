@@ -11,7 +11,6 @@ exports.popularPairsByOracle = {
         "DAI_USD",
         "DAI_BTC",
         "DOGE_USD",
-        "WBTC_USD",
         "BNB_BTC",
         "BNB_USD",
         "MATIC_USD",
