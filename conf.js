@@ -8,11 +8,17 @@ exports.webPort = null;
 
 exports.webserverPort = 3001;
 exports.testnet = process.env.testnet == "1";
-exports.factory_aa = "XJHGU42ZLOE2C43OVTC5SHINBANZ5Y4H";
 exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
-exports.forward_aa = "E4BAASPOCW6WHXSUOY2XEKXKA42RRD5I";
 exports.token_registry_aa_address = "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
 
+exports.bSingleAddress = true;
+exports.bWantNewPeers = true;
+
+// custom
+exports.factory_aa = "XJHGU42ZLOE2C43OVTC5SHINBANZ5Y4H";
+exports.forward_aa = "E4BAASPOCW6WHXSUOY2XEKXKA42RRD5I";
+exports.deviceName = 'Prediction markets';
+exports.enableCommitter = false;
 exports.supported_reserve_assets = process.env.testnet == "1" ? {
   base: {
     symbol: "GBYTE",

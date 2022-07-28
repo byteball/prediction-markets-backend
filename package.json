@@ -7,6 +7,7 @@
 	"dependencies": {
 		"aabot": "git+https://github.com/byteball/aabot.git",
 		"axios": "^0.24.0",
+		"cli-color": "^2.0.3",
 		"dotenv": "^8.2.0",
 		"fastify": "^3.29.0",
 		"fastify-cors": "^6.1.0",

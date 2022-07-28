@@ -1,14 +1,23 @@
 const db = require('ocore/db.js');
 const conf = require('ocore/conf.js');
+const moment = require('moment');
 
-const filter = ({ oracles }) => {
+const filter = ({ oracles, waitingResult }) => {
+  let whereAlreadyAdded = false;
+  let query = ''
   if (oracles) {
-    return `WHERE markets.oracle == '${conf.currencyOracleAddresses[0]}' ${conf.currencyOracleAddresses.slice(1, conf.currencyOracleAddresses.length).map((oracle) => `OR markets.oracle == '${oracle}'`)}`
-  } else {
-    return '';
+    query += `WHERE (markets.oracle == '${conf.currencyOracleAddresses[0]}' ${conf.currencyOracleAddresses.slice(1, conf.currencyOracleAddresses.length).map((oracle) => `OR markets.oracle == '${oracle})'`)}`
+    whereAlreadyAdded = true;
   }
+
+  if (waitingResult) {
+    const now = moment.utc().unix();
+    query += ` ${whereAlreadyAdded ? 'AND' : 'WHERE'} markets.result IS NULL AND markets.event_date < ${now} AND markets.event_date + markets.waiting_period_length > ${now}`
+  }
+
+  return query;
 }
 
-exports.getAllMarkets = function (oracles) {
-  return db.query(`SELECT * from markets ${filter({ oracles })}`);
+exports.getAllMarkets = function ({ oracles, waitingResult }) {
+  return db.query(`SELECT * FROM markets ${filter({ oracles, waitingResult })}`);
 }

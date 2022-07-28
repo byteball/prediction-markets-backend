@@ -12,6 +12,7 @@ const { justsayingHandler, responseHandler } = require('./handlers');
 const webserver = require('./webserver');
 const { sportDataService } = require('./SportData');
 const { wait } = require('./utils/wait');
+const ResultCommitter = require('./resultCommiter');
 
 lightWallet.setLightVendorHost(conf.hub);
 
@@ -51,9 +52,9 @@ async function start() {
   await lightWallet.waitUntilHistoryRefreshDone();
 
   await dag.loadAA(conf.token_registry_aa_address);
-  
+
   await wait(60 * 1000);
-  
+
   await discoverMarketAas()
   await marketDB.api.refreshSymbols();
 
@@ -62,6 +63,11 @@ async function start() {
   webserver.start();
   console.error('webserver has been started');
 
+  if (conf.enableCommitter) {
+    const committer = new ResultCommitter();
+
+    await committer.init();
+  }
 }
 
 eventBus.on('aa_response', responseHandler);

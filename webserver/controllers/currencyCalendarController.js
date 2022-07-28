@@ -15,7 +15,7 @@ module.exports = async (request, reply) => {
     const pageInParams = request.params.page;
     const currency = request.params.currency;
 
-    const currencyMarkets = await marketDB.api.getAllMarkets(conf.currencyOracleAddresses);
+    const currencyMarkets = await marketDB.api.getAllMarkets({ oracles: conf.currencyOracleAddresses });
 
     const takenTimeByPairs = {};
     const currentUTCTime = moment.utc().unix();
@@ -187,7 +187,7 @@ module.exports = async (request, reply) => {
     });
 
     reply.send({
-        data: data.sort((a, b)=> a.event_date - b.event_date).slice(offset, offset + limit),
+        data: data.sort((a, b) => a.event_date - b.event_date).slice(offset, offset + limit),
         count: data.length
     });
 }
