@@ -18,6 +18,6 @@ const filter = ({ oracles, waitingResult }) => {
   return query;
 }
 
-exports.getAllMarkets = function ({ oracles, waitingResult }) {
-  return db.query(`SELECT * FROM markets ${filter({ oracles, waitingResult })}`);
+exports.getAllMarkets = function (queryFilters = {}) {
+  return db.query(`SELECT * FROM markets ${filter(queryFilters)}`);
 }
