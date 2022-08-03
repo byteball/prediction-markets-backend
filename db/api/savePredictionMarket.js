@@ -9,7 +9,7 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
   const unlock = await mutex.lock(aa_address);
 
   // ignore if unknown reserve
-  if (!(params.reserve_asset in conf.supported_reserve_assets)) return unlock();
+  if (!(params.reserve_asset in conf.supportedReserveAssets)) return unlock();
 
   await wallet_general.addWatchedAddress(aa_address, null, console.log);
 

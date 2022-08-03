@@ -21,8 +21,8 @@ eventBus.once('connected', function (ws) {
 });
 
 async function addWatchedAas() {
-  wallet_general.addWatchedAddress(conf.factory_aa, null, console.log);
-  network.addLightWatchedAa(conf.token_registry_aa_address, null, console.log)
+  wallet_general.addWatchedAddress(conf.factoryAa, null, console.log);
+  network.addLightWatchedAa(conf.tokenRegistryAaAddress, null, console.log)
 };
 
 async function watchMarketAa(objAa) {
@@ -32,7 +32,7 @@ async function watchMarketAa(objAa) {
 }
 
 async function discoverMarketAas() {
-  const factoryStateVars = await dag.readAAStateVars(conf.factory_aa);
+  const factoryStateVars = await dag.readAAStateVars(conf.factoryAa);
   const allMarkets = Object.keys(factoryStateVars).map((name) => name.replace("prediction_", ""));
   const rows = await db.query("SELECT aa_address FROM markets");
   const knownAaAddresses = rows.map(obj => obj.aa_address);
@@ -51,7 +51,7 @@ async function start() {
 
   await lightWallet.waitUntilHistoryRefreshDone();
 
-  await dag.loadAA(conf.token_registry_aa_address);
+  await dag.loadAA(conf.tokenRegistryAaAddress);
 
   await wait(60 * 1000);
 

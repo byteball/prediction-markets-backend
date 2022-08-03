@@ -3,7 +3,7 @@ const { default: axios } = require('axios');
 const conf = require('ocore/conf.js');
 
 exports.getUSDPriceByAsset = async function (asset, timestamp) {
-  const symbol = conf.supported_reserve_assets[asset] ? conf.supported_reserve_assets[asset].symbol : null;
+  const symbol = conf.supportedReserveAssets[asset] ? conf.supportedReserveAssets[asset].symbol : null;
 
   if (!symbol) return null;
 

@@ -6,7 +6,7 @@ const { tokenRegistryResponseHandler } = require("./tokenRegistry");
 exports.justsayingHandler = function (ws, subject, body) {
   switch (subject) {
     case 'light/aa_response':
-      if (body.aa_address === conf.token_registry_aa_address)
+      if (body.aa_address === conf.tokenRegistryAaAddress)
         tokenRegistryResponseHandler(body);
       break;
 

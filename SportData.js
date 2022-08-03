@@ -35,9 +35,7 @@ class SportDataService {
 
   getCalendarLength(sport, championship) {
     if (this.calendar[sport]) {
-      if (this.calendar[sport]) {
-        return this.calendar[sport].filter(({ championship: c }) => c === championship).length
-      }
+      return (this.calendar[sport] || []).filter(({ championship: c }) => c === championship).length
     }
 
     return 0
@@ -81,40 +79,36 @@ class SportDataService {
   async getSoccerCalendar() {
     let newData = [];
 
-    try {
-      const competitionList = [2001, 2002, 2003, 2013, 2014, 2015, 2019];
-      const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data = {}) => {
-        const { competition, matches } = data;
+    const competitionList = [2001, 2002, 2003, 2013, 2014, 2015, 2019];
+    const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data = {}) => {
+      const { competition, matches } = data;
 
-        const championship = this.getChampionshipBySoccerCompetitionId(id);
+      const championship = this.getChampionshipBySoccerCompetitionId(id);
 
-        matches.forEach(matchObject => {
-          const feed_name = this.getFeedNameByMatches(championship, matchObject);
+      matches.forEach(matchObject => {
+        const feed_name = this.getFeedNameByMatches(championship, matchObject);
 
-          if (feed_name) {
-            newData.push({
-              feed_name,
-              event_date: moment.utc(matchObject.utcDate).unix(),
-              expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation,
-              yes_team: matchObject.homeTeam.name,
-              no_team: matchObject.awayTeam.name,
-              yes_team_id: matchObject.homeTeam.id,
-              no_team_id: matchObject.awayTeam.id,
-              oracle: conf.sportOracleAddress,
-              championship,
-              league_emblem: competition.emblem,
-              league: competition.name
-            })
-          }
-        });
-      }));
+        if (feed_name) {
+          newData.push({
+            feed_name,
+            event_date: moment.utc(matchObject.utcDate).unix(),
+            expect_datafeed_value: abbreviations.soccer[matchObject.homeTeam.id].abbreviation,
+            yes_team: matchObject.homeTeam.name,
+            no_team: matchObject.awayTeam.name,
+            yes_team_id: matchObject.homeTeam.id,
+            no_team_id: matchObject.awayTeam.id,
+            oracle: conf.sportOracleAddress,
+            championship,
+            league_emblem: competition.emblem,
+            league: competition.name
+          })
+        }
+      });
+    }));
 
-      await Promise.all(competitionsGetter);
+    await Promise.all(competitionsGetter);
 
-      return newData;
-    } catch (err) {
-      console.error('Football data error: ', err);
-    }
+    return newData;
   }
 
   getChampionshipInfo(sport, championship) {
@@ -128,34 +122,36 @@ class SportDataService {
   }
 
   async getSoccerChampionshipsInfo() {
-    const soccerChampionshipsData = await this.footballApi.get('/v4/competitions');
-
-    return soccerChampionshipsData.data.competitions;
+    return await this.footballApi.get('/v4/competitions').then(({ data }) => data.competitions);
   }
 
   async updateSoccerCalendar() {
-    const feedNamesOfExistingSportMarkets = await marketDB.api.getAllMarkets().then((markets) => markets.filter(({ oracle }) => oracle === conf.sportOracleAddress).map(({ feed_name }) => feed_name));
-    const now = moment.utc().unix();
-    const soccerCalendar = await this.getSoccerCalendar();
-    const existCompetitions = feedNamesOfExistingSportMarkets.map((feed_name) => feed_name.split("_")[0]);
+    try {
+      const feedNamesOfExistingSportMarkets = await marketDB.api.getAllMarkets({ oracles: [conf.sportOracleAddress] }).then((markets) => markets.map(({ feed_name }) => feed_name));
 
-    this.calendar.soccer = soccerCalendar.filter(({ feed_name, event_date }) => !feedNamesOfExistingSportMarkets.includes(feed_name) && ((event_date - now) >= 24 * 3600)).slice(0, 15).sort((a, b) => a.event_date - b.event_date);
-    this.calendar.soccer.forEach(({ feed_name }) => existCompetitions.push(feed_name.split("_")[0]));
+      const now = moment.utc().unix();
+      const soccerCalendar = await this.getSoccerCalendar();
+      const existCompetitions = feedNamesOfExistingSportMarkets.map((feed_name) => feed_name.split("_")[0]);
 
-    const soccerChampionships = uniq(existCompetitions);
+      this.calendar.soccer = soccerCalendar.filter(({ feed_name, event_date }) => !feedNamesOfExistingSportMarkets.includes(feed_name) && ((event_date - now) >= 24 * 3600)).slice(0, 15).sort((a, b) => a.event_date - b.event_date);
+      this.calendar.soccer.forEach(({ feed_name }) => existCompetitions.push(feed_name.split("_")[0]));
 
-    const championshipsInfo = await this.getSoccerChampionshipsInfo();
+      const soccerChampionships = uniq(existCompetitions);
 
-    this.championships.soccer = soccerChampionships.map((leagueName) => {
-      const info = championshipsInfo.find(({ code }) => code === leagueName) || {};
+      const championshipsInfo = await this.getSoccerChampionshipsInfo();
 
-      return ({
-        code: leagueName,
-        name: info.name || null,
-        emblem: info.emblem || null
+      this.championships.soccer = soccerChampionships.map((leagueName) => {
+        const info = championshipsInfo.find(({ code }) => code === leagueName) || {};
+
+        return ({
+          code: leagueName,
+          name: info.name || null,
+          emblem: info.emblem || null
+        })
       })
-    })
-
+    } catch (err) {
+      console.error('update sportData error', err);
+    }
   }
 
   async init() {

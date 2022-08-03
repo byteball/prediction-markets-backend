@@ -31,7 +31,7 @@ const filterByType = (type, championship) => {
 	}
 
 	// include only allowed reserve assets
-	query += ` ${(type === 'currency' || type === 'soccer' || type === 'misc') ? 'AND' : "WHERE"} (${Object.keys(conf.supported_reserve_assets).map((asset, index) => `${index ? 'OR' : ''} markets.reserve_asset='${asset}'`).join(' ')})`;
+	query += ` ${(type === 'currency' || type === 'soccer' || type === 'misc') ? 'AND' : "WHERE"} (${Object.keys(conf.supportedReserveAssets).map((asset, index) => `${index ? 'OR' : ''} markets.reserve_asset='${asset}'`).join(' ')})`;
 
 	query += ` AND market_assets.yes_symbol IS NOT NULL AND market_assets.no_symbol IS NOT NULL AND (markets.allow_draw == 0 OR market_assets.draw_symbol IS NOT NULL)`
 
@@ -101,11 +101,11 @@ module.exports = async (request, reply) => {
 
 	if (Object.keys(cacheRate.data).length === 0 || cacheRate.lastUpdate < Date.now() - (1800 * 1000)) {
 		try {
-			const data = await axios.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${Object.values(conf.supported_reserve_assets).map(({ symbol }) => symbol).join(",")}&tsyms=USD`).then(({ data }) => {
+			const data = await axios.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${Object.values(conf.supportedReserveAssets).map(({ symbol }) => symbol).join(",")}&tsyms=USD`).then(({ data }) => {
 				const res = {};
 
 				Object.entries(data).forEach(([name, value]) => {
-					const assetBySymbol = Object.entries(conf.supported_reserve_assets).find(([_, { symbol }]) => symbol === name)[0];
+					const assetBySymbol = Object.entries(conf.supportedReserveAssets).find(([_, { symbol }]) => symbol === name)[0];
 					res[assetBySymbol] = value.USD;
 				});
 
