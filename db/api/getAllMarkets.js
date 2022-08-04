@@ -11,7 +11,7 @@ const filter = ({ oracles, waitingResult }) => {
 
   if (waitingResult) {
     const now = moment.utc().unix();
-    query += ` ${whereAlreadyAdded ? 'AND' : 'WHERE'} markets.result IS NULL AND markets.event_date < ${now} AND markets.event_date + markets.waiting_period_length > ${now}`
+    query += ` ${whereAlreadyAdded ? 'AND' : 'WHERE'} markets.result IS NULL AND markets.event_date < ${now}`
   }
 
   return query;

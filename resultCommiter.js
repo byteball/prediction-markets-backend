@@ -1,4 +1,3 @@
-const wallet_general = require('ocore/wallet_general.js');
 const dag = require('aabot/dag.js');
 const clc = require("cli-color");
 const { bind } = require('lodash');
@@ -14,15 +13,17 @@ class ResultCommitter {
     }
 
     async init() {
-        await wallet_general.readMyPersonalAddresses(async ([address]) => {
-            if (!address) throw "no address, please check conf.js";
+        await operator.start();
 
-            const balance = await dag.readBalance(address);
+        const address = await operator.getAddress();
+        if (!address) throw "no address, please check conf.js";
 
-            this.balance = balance?.base?.stable || 0;
+        const balance = await dag.readBalance(address);
 
-            if (this.balance <= 1e6) {
-                throw clc.red.bold(`
+        this.balance = balance?.base?.stable || 0;
+
+        if (this.balance <= 1e6) {
+            throw clc.red.bold(`
 
 
                 ##################################################################################
@@ -33,16 +34,13 @@ class ResultCommitter {
                 
                 
                 `)
-            } else {
-                console.error(clc.green.bold(`
+        } else {
+            console.error(clc.green.bold(`
                 ################################################################
                 ${address} balance: ${+Number(this.balance / 1e9).toFixed(9)} GBYTE.
                 ################################################################
                 `))
-            }
-        });
-
-        await operator.start();
+        }
 
         this.intervalId = setInterval(bind(this.checkAndCommit, this), CHECK_INTERVAL);
     }
