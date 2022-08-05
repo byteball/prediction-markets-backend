@@ -2,6 +2,7 @@ const db = require('ocore/db.js');
 const mutex = require('ocore/mutex.js');
 const wallet_general = require('ocore/wallet_general.js');
 const conf = require('ocore/conf.js');
+const moment = require('moment');
 
 const { saveMarketAsset } = require('./saveMarketAsset');
 
@@ -38,7 +39,7 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
       comparison ? comparison : "==",
       datafeed_value,
       datafeed_draw_value,
-      event_date,
+      moment.utc(event_date, 'YYYY-MM-DDTHH:mm:ss').utc().unix(),
       waiting_period_length !== undefined ? waiting_period_length : 5 * 24 * 3600,
       issue_fee !== undefined ? issue_fee : 0.01,
       redeem_fee !== undefined ? redeem_fee : 0.02,
