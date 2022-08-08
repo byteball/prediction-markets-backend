@@ -1,0 +1,1 @@
+*/20 * * * * cd prediction-markets-backend; node check_daemon.js 1>>~/.config/prediction-markets-backend/check_daemon.log 2>>~/.config/prediction-markets-backend/check_daemon.err
