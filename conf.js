@@ -24,7 +24,7 @@ exports.supportedReserveAssets = process.env.testnet == "1" ? {
     decimals: 9
   },
   'lwvZjepKoGSiMIDalxi2GB8Pd+nK86Qsnsn1Ng7TAJE=': {
-    symbol: "USDC",
+    symbol: "USDC3",
     decimals: 4
   }
 } : {
