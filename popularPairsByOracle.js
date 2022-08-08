@@ -1,7 +1,9 @@
+const conf = require('ocore/conf.js');
+
 // All feed_names must be unique
 
 exports.popularPairsByOracle = {
-    'F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N' : [
+    [conf.currencyOracleAddresses[0]] : [
         "GBYTE_USD",
         "GBYTE_BTC",
         "BTC_USD",
