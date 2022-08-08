@@ -6,7 +6,7 @@ exports.bLight = true;
 exports.bNoPassphrase = true;
 exports.webPort = null;
 
-exports.webserverPort = 3001;
+exports.webserverPort = process.env.testnet ? 5001 : 5000;
 exports.testnet = process.env.testnet == "1";
 exports.hub = process.env.testnet ? 'obyte.org/bb-test' : 'obyte.org/bb';
 exports.tokenRegistryAaAddress = "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
@@ -40,7 +40,7 @@ exports.supportedReserveAssets = process.env.testnet == "1" ? {
 
 exports.footballDataApiKey = process.env.footballDataApiKey;
 exports.sportOracleAddress = process.env.testnet === '1' ? 'MDKKPO375Q5M3GDET2X4H4ZNSO37OIIZ' : 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW';
-exports.currencyOracleAddresses = ['F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N'];
+exports.currencyOracleAddresses = process.env.testnet ? ['F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N'] : ['JPQKPRI5FMTQRJF4ZZMYZYDQVRD55OTC', 'DXYWHSZ72ZDNDZ7WYZXKWBBH425C6WZN'];
 exports.limitMarketsOnPage = 5;
 
 console.error('finished server conf');
