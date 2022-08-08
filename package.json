@@ -18,6 +18,5 @@
 		"request": "^2.88.2"
 	},
 	"resolutions": {
-		"level-rocksdb": "^4.0.0"
 	}
 }
