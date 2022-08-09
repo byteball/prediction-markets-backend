@@ -70,7 +70,7 @@ class SportDataService {
     if (competitionId === 2003) return 'DED';
     if (competitionId === 2013) return 'BSA';
     if (competitionId === 2014) return 'PD';
-    if (competitionId === 2015) return 'L1';
+    if (competitionId === 2015) return 'FL1';
     if (competitionId === 2019) return 'SA';
     if (competitionId === 2021) return 'PL';
     return null;
@@ -140,7 +140,7 @@ class SportDataService {
       const championshipsInfo = await this.getSoccerChampionshipsInfo();
 
       this.championships.soccer = soccerChampionships.map((leagueName) => {
-        const info = championshipsInfo.find(({ code }) => code === (leagueName === "L1" ? "FL1" : leagueName)) || {};
+        const info = championshipsInfo.find(({ code }) => code === leagueName) || {};
 
         return ({
           code: leagueName,
