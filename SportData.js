@@ -70,7 +70,7 @@ class SportDataService {
     if (competitionId === 2003) return 'DED';
     if (competitionId === 2013) return 'BSA';
     if (competitionId === 2014) return 'PD';
-    if (competitionId === 2015) return 'L1';
+    if (competitionId === 2015) return 'FL1';
     if (competitionId === 2019) return 'SA';
     if (competitionId === 2021) return 'PL';
     return null;
@@ -129,11 +129,10 @@ class SportDataService {
     try {
       const feedNamesOfExistingSportMarkets = await marketDB.api.getAllMarkets({ oracles: [conf.sportOracleAddress] }).then((markets) => markets.map(({ feed_name }) => feed_name));
 
-      const now = moment.utc().unix();
       const soccerCalendar = await this.getSoccerCalendar();
       const existCompetitions = feedNamesOfExistingSportMarkets.map((feed_name) => feed_name.split("_")[0]);
 
-      this.calendar.soccer = soccerCalendar.filter(({ feed_name, event_date }) => !feedNamesOfExistingSportMarkets.includes(feed_name) && ((event_date - now) >= 24 * 3600)).slice(0, 15).sort((a, b) => a.event_date - b.event_date);
+      this.calendar.soccer = soccerCalendar.filter(({ feed_name }) => !feedNamesOfExistingSportMarkets.includes(feed_name)).sort((a, b) => a.event_date - b.event_date);
       this.calendar.soccer.forEach(({ feed_name }) => existCompetitions.push(feed_name.split("_")[0]));
 
       const soccerChampionships = uniq(existCompetitions);
