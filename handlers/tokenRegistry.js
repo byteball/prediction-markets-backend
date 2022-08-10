@@ -2,6 +2,8 @@ const db = require('ocore/db.js');
 const conf = require('ocore/conf.js');
 
 exports.tokenRegistryResponseHandler = async function (objResponse) {
+  if (objResponse.bounced)
+    return;
   const updatedStateVars = objResponse.updatedStateVars[conf.tokenRegistryAaAddress];
   const updatedStateVarNames = Object.keys(updatedStateVars);
 
