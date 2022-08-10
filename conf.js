@@ -15,7 +15,7 @@ exports.bSingleAddress = true;
 exports.bWantNewPeers = true;
 
 // custom
-exports.factoryAa = "S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G";
+exports.factoryAas = ["S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G", "ZV3JPT2RDDQSEFTO7IDOZF3OWVUZF7NC"];
 exports.deviceName = 'Prediction markets';
 exports.enableCommitter = false;
 exports.supportedReserveAssets = process.env.testnet == "1" ? {
