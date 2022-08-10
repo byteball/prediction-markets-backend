@@ -18,7 +18,7 @@ exports.responseHandler = async function (objResponse) {
   const aa_address = objResponse.aa_address;
 
   if (('prediction_address' in responseVars)) {
-    if (timestamp > 1660137024 && aa_address === conf.factoryAas[0]) {
+    if (timestamp > 1660147346 && aa_address === conf.factoryAas[0]) {
       return unlock('ignored AA', responseVars.prediction_address);
     }
 
