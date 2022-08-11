@@ -59,7 +59,7 @@ module.exports = async (request, reply) => {
 
 	try {
 		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }));
-		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 48 }).then(data => rows[i].candles = data));
+		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data));
 
 		rows.forEach((row, i) => {
 			if (row.oracle === conf.sportOracleAddress) {
