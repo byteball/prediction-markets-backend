@@ -20,7 +20,7 @@ class ResultCommitter {
 
         const balance = await dag.readBalance(address);
 
-        this.balance = balance?.base?.stable || 0;
+        this.balance = balance?.base?.total || 0;
 
         if (this.balance <= 1e6) {
             throw clc.red.bold(`
