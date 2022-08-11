@@ -39,7 +39,7 @@ async function discoverMarketAas() {
   await Promise.all(stateVarsGetter);
 
   const allMarkets = Object.keys(factoryStateVars).map((name) => name.replace("prediction_", "")).filter((address) => address !== conf.factoryAas[0]).filter((factoryAddress) => {
-    if (factoryAddress !== conf.factoryAas[0] || factoryStateVars[`prediction_${address}`].created_at <= 1660147346) {
+    if (factoryAddress !== conf.factoryAas[0] || factoryStateVars[`prediction_${address}`].created_at <= conf.factoryUpgradeTimestamp) {
       return true;
     } else {
       return false;
