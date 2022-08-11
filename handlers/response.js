@@ -1,4 +1,5 @@
 const dag = require('aabot/dag.js');
+const conf = require('ocore/conf.js');
 const mutex = require('ocore/mutex.js')
 const marketDB = require('../db');
 
@@ -17,6 +18,10 @@ exports.responseHandler = async function (objResponse) {
   const aa_address = objResponse.aa_address;
 
   if (('prediction_address' in responseVars)) {
+    if (timestamp > conf.factoryUpgradeTimestamp && aa_address === conf.factoryAas[0]) {
+      return unlock('ignored AA', responseVars.prediction_address);
+    }
+
     if (joint && joint.unit && joint.unit.messages) {
       await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp);
       await marketDB.api.saveReserveSymbol(responseVars.prediction_address, payload.reserve_asset);

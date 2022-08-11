@@ -21,7 +21,7 @@ eventBus.once('connected', function (ws) {
 });
 
 async function addWatchedAas() {
-  wallet_general.addWatchedAddress(conf.factoryAa, null, console.log);
+  conf.factoryAas.map((address) => wallet_general.addWatchedAddress(address, null, console.log));
   network.addLightWatchedAa(conf.tokenRegistryAaAddress, null, console.log)
 };
 
@@ -32,8 +32,27 @@ async function watchMarketAa(objAa) {
 }
 
 async function discoverMarketAas() {
-  const factoryStateVars = await dag.readAAStateVars(conf.factoryAa);
-  const allMarkets = Object.keys(factoryStateVars).map((name) => name.replace("prediction_", ""));
+  let factoryStateVars = {};
+
+  const stateVarsGetter = conf.factoryAas.map((aa) => dag.readAAStateVars(aa).then((stateVars) => Object.assign(factoryStateVars, { [aa]: stateVars })));
+
+  await Promise.all(stateVarsGetter);
+
+  const allMarkets = [];
+
+  Object.entries(factoryStateVars).forEach(([factory, stateVars]) => {
+    Object.keys(stateVars).forEach((key) => {
+      const { created_at } = stateVars[key];
+      const marketAddress = key.replace("prediction_", "");
+
+      if (factory !== conf.factoryAas[0] || created_at <= conf.factoryUpgradeTimestamp) {
+        allMarkets.push(marketAddress);
+      } else {
+        console.error('ignore ', marketAddress);
+      }
+    })
+  })
+
   const rows = await db.query("SELECT aa_address FROM markets");
   const knownAaAddresses = rows.map(obj => obj.aa_address);
   const newMarketsAas = allMarkets.filter(address => !knownAaAddresses.includes(address));

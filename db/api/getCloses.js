@@ -4,7 +4,7 @@ const db = require('ocore/db.js');
 exports.getCloses = async function ({ aa_address, type, onlyYesPrices = false, limit: customLimit}) {
   if (type !== 'daily' && type !== 'hourly') throw 'unknown type';
 
-  const limit = customLimit ? customLimit : type === 'hourly' ? 24 : 30 * 6;
+  let limit = customLimit ? customLimit : type === 'hourly' ? 24 : 30 * 6;
   const step_length = type === 'hourly' ? 3600 : 24 * 3600; // hour in seconds OR day in seconds
 
   const end = moment.utc().startOf(type === 'hourly' ? "hour" : 'day').add(1, type === 'hourly' ? "h" : 'd').unix();
@@ -13,6 +13,18 @@ exports.getCloses = async function ({ aa_address, type, onlyYesPrices = false, l
 
   // 1st step: select all candles in period
   let rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
+
+  if (onlyYesPrices) {
+    if (rows.length < 2 || rows[0].yes_price === rows[rows.length - 1].yes_price) {
+      limit *= 2;
+      rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
+    }
+
+    if (rows.length < 2 || rows[0].yes_price === rows[rows.length - 1].yes_price) {
+      limit *= 2;
+      rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
+    }
+  }
 
   // 2nd step: If there was no trading for the selected period, then we look for the most recent trading event and take its date
   if (!rows[0]) {

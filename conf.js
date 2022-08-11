@@ -15,7 +15,7 @@ exports.bSingleAddress = true;
 exports.bWantNewPeers = true;
 
 // custom
-exports.factoryAa = "S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G";
+exports.factoryAas = ["S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G", "ZV3JPT2RDDQSEFTO7IDOZF3OWVUZF7NC"];
 exports.deviceName = 'Prediction markets';
 exports.enableCommitter = false;
 exports.supportedReserveAssets = process.env.testnet == "1" ? {
@@ -42,5 +42,6 @@ exports.footballDataApiKey = process.env.footballDataApiKey;
 exports.sportOracleAddress = process.env.testnet === '1' ? 'MDKKPO375Q5M3GDET2X4H4ZNSO37OIIZ' : 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW';
 exports.currencyOracleAddresses = process.env.testnet ? ['F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N'] : ['JPQKPRI5FMTQRJF4ZZMYZYDQVRD55OTC', 'DXYWHSZ72ZDNDZ7WYZXKWBBH425C6WZN'];
 exports.limitMarketsOnPage = 5;
+exports.factoryUpgradeTimestamp = 1660221260;
 
 console.error('finished server conf');
