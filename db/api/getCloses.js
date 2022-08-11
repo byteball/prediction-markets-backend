@@ -16,12 +16,14 @@ exports.getCloses = async function ({ aa_address, type, onlyYesPrices = false, l
 
   if (onlyYesPrices) {
     if (rows.length < 2 || rows[0].yes_price === rows[rows.length - 1].yes_price) {
-      limit *= 2;
+      limit *= 3;
+      start = end - step_length * limit;
       rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
     }
 
     if (rows.length < 2 || rows[0].yes_price === rows[rows.length - 1].yes_price) {
-      limit *= 2;
+      limit *= 3;
+      start = end - step_length * limit;
       rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
     }
   }
