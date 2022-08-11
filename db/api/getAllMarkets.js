@@ -5,7 +5,7 @@ const filter = ({ oracles, waitingResult }) => {
   let whereAlreadyAdded = false;
   let query = ''
   if (oracles) {
-    query += `WHERE (markets.oracle == '${oracles[0]}' ${oracles.slice(1, oracles.length).map((oracle) => `OR markets.oracle == '${oracle}'`)})`
+    query += `WHERE markets.oracle IN (${"'" + oracles.join("','") + "'"})`
     whereAlreadyAdded = true;
   }
 

@@ -15,12 +15,12 @@ exports.getCloses = async function ({ aa_address, type, onlyYesPrices = false, l
   let rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
 
   if (onlyYesPrices) {
-    if (rows.length < 2 || rows[0].coef === rows[rows.length - 1].coef) {
+    if (rows.length < 2 || rows[0].yes_price === rows[rows.length - 1].yes_price) {
       limit *= 2;
       rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
     }
 
-    if (rows.length < 2 || rows[0].coef === rows[rows.length - 1].coef) {
+    if (rows.length < 2 || rows[0].yes_price === rows[rows.length - 1].yes_price) {
       limit *= 2;
       rows = await db.query(`SELECT * FROM ${type}_closes WHERE aa_address=? AND start_timestamp >= ? ORDER BY start_timestamp DESC LIMIT ${limit}`, [aa_address, start]);
     }

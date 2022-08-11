@@ -19,7 +19,7 @@ const filterByType = (type, championship) => {
 	let query = '';
 
 	if (type === 'currency') {
-		query = `WHERE (markets.oracle='${conf.currencyOracleAddresses[0]}' ${conf.currencyOracleAddresses.slice(1, conf.currencyOracleAddresses.length).map((oracle) => `OR markets.oracle = '${oracle}'`)})`;
+		query = `WHERE markets.oracle IN (${"'" + conf.currencyOracleAddresses.join("','") + "'"})`
 	} else if (type === 'soccer') {
 		query = `WHERE markets.oracle='${conf.sportOracleAddress}'`
 
@@ -27,7 +27,7 @@ const filterByType = (type, championship) => {
 			query += ` AND upper(feed_name) like '${championship}%'`;
 		}
 	} else if (type === 'misc') {
-		query = `WHERE markets.oracle != '${conf.currencyOracleAddresses[0]}' ${conf.currencyOracleAddresses.slice(1, conf.currencyOracleAddresses.length).map((oracle) => `AND markets.oracle != '${oracle}'`)} AND markets.oracle != '${conf.sportOracleAddress}'`;
+		query = `WHERE markets.oracle NOT IN (${"'" + [...conf.currencyOracleAddresses, conf.sportOracleAddress].join("','") + "'"})`
 	}
 
 	// include only allowed reserve assets
