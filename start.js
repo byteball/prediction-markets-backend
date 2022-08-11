@@ -34,17 +34,24 @@ async function watchMarketAa(objAa) {
 async function discoverMarketAas() {
   let factoryStateVars = {};
 
-  const stateVarsGetter = conf.factoryAas.map((aa) => dag.readAAStateVars(aa).then((stateVars) => Object.assign(factoryStateVars, stateVars)));
+  const stateVarsGetter = conf.factoryAas.map((aa) => dag.readAAStateVars(aa).then((stateVars) => Object.assign(factoryStateVars, { [aa]: stateVars })));
 
   await Promise.all(stateVarsGetter);
 
-  const allMarkets = Object.keys(factoryStateVars).map((name) => name.replace("prediction_", "")).filter((address) => address !== conf.factoryAas[0]).filter((factoryAddress) => {
-    if (factoryAddress !== conf.factoryAas[0] || factoryStateVars[`prediction_${address}`].created_at <= conf.factoryUpgradeTimestamp) {
-      return true;
-    } else {
-      return false;
-    }
-  });
+  const allMarkets = [];
+
+  Object.entries(factoryStateVars).forEach(([factory, stateVars]) => {
+    Object.keys(stateVars).forEach((key) => {
+      const { created_at } = stateVars[key];
+      const marketAddress = key.replace("prediction_", "");
+
+      if (factory !== conf.factoryAas[0] || created_at <= conf.factoryUpgradeTimestamp) {
+        allMarkets.push(marketAddress);
+      } else {
+        console.error('ignore ', marketAddress);
+      }
+    })
+  })
 
   const rows = await db.query("SELECT aa_address FROM markets");
   const knownAaAddresses = rows.map(obj => obj.aa_address);
@@ -65,12 +72,12 @@ async function start() {
 
   await dag.loadAA(conf.tokenRegistryAaAddress);
 
-  await wait(60 * 1000);
+  // await wait(60 * 1000);
 
   await discoverMarketAas()
   await marketDB.api.refreshSymbols();
 
-  await sportDataService.init();
+  // await sportDataService.init();
 
   webserver.start();
   console.error('webserver has been started');
