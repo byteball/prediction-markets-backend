@@ -10,6 +10,7 @@ const CHECK_INTERVAL = 1000 * 60 * 10; // 10 min
 class ResultCommitter {
     constructor() {
         this.intervalId = null;
+        this.listOfCommittedMarkets = [];
     }
 
     async init() {
@@ -53,7 +54,7 @@ class ResultCommitter {
         const dataFeeds = await Promise.all(dataFeedsGetters);
 
         dataFeeds.forEach(async ({ address, value }) => {
-            if (value !== null) {
+            if (value !== null && !this.listOfCommittedMarkets.includes(address)) {
                 try {
 
                     dag.sendPayment({
@@ -65,6 +66,7 @@ class ResultCommitter {
                     });
 
                     console.error(`commit result for ${address}`);
+                    this.listOfCommittedMarkets.push(address);
                 } catch (e) {
                     console.error(e);
                 }
