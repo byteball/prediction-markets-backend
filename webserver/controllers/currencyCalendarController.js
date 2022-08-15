@@ -47,7 +47,7 @@ module.exports = async (request, reply) => {
         } else if (difference >= 3600) { // 1 hour
             return 1800; // 30 min
         } else { // less 1 hours
-            return 0;
+            return Math.round(difference / 2);
         }
     }
 
