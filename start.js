@@ -12,7 +12,7 @@ const { justsayingHandler, responseHandler } = require('./handlers');
 const webserver = require('./webserver');
 const { sportDataService } = require('./SportData');
 const { wait } = require('./utils/wait');
-const ResultCommitter = require('./resultCommiter');
+const ResultCommitter = require('./resultCommitter');
 
 lightWallet.setLightVendorHost(conf.hub);
 
