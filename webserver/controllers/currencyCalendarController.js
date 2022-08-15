@@ -19,33 +19,33 @@ module.exports = async (request, reply) => {
 
     const takenTimeByPairs = {};
     const currentUTCTime = moment.utc().unix();
-    const waiting_period_length = 3600;
+    const waiting_period_length = 5 * 24 * 3600;
 
     const calcQuietPeriod = (eventDataInUnix) => {
         const differ = Math.abs(eventDataInUnix - currentUTCTime);
 
         if (differ >= 2 * 30 * 24 * 3600) { // 2 months
-            return 3 * 24 * 3600;
+            return 648000; // 7 days 12 hours
         } else if (differ >= 30 * 24 * 3600) { // 1 month
-            return 2 * 24 * 3600;
+            return 324000; // 3 days 18 hours
         } else if (differ >= 14 * 24 * 3600) { // 2 weeks
-            return 24 * 3600;
+            return 151200; // 1 day 18 hours
         } else if (differ >= 7 * 24 * 3600) { // 1 week
-            return 12 * 3600;
+            return 75600; // 21 hours
         } else if (differ >= 2 * 24 * 3600) { // 2 days
-            return 6 * 3600;
+            return 43200; // 12 hours
         } else if (differ >= 24 * 3600) { // 1 day
-            return 3 * 3600;
+            return 21600; // 6 hours
         } else if (differ >= 12 * 3600) { // 12 hours
-            return 2 * 3600;
+            return 5400; // 1 hour 30 min
         } else if (differ >= 6 * 3600) { // 6 hours
-            return 3600;
+            return 3600; // 1 hour
         } else if (differ >= 3 * 3600) {// 3 hours
-            return 1800;
+            return 2700; // 45 min
         } else if (differ >= 2 * 3600) { // 2 hours
-            return 900;
+            return 3600; // 45 min
         } else if (differ >= 3600) { // 1 hour
-            return 450;
+            return 1800; // 30 min
         } else { // less 1 hours
             return 0;
         }
