@@ -21,30 +21,30 @@ module.exports = async (request, reply) => {
     const currentUTCTime = moment.utc().unix();
     const waiting_period_length = 5 * 24 * 3600;
 
-    const calcQuietPeriod = (eventDataInUnix) => {
-        const differ = Math.abs(eventDataInUnix - currentUTCTime);
+    const calcQuietPeriod = (eventDateInUnix) => {
+        const difference = Math.abs(eventDateInUnix - currentUTCTime);
 
-        if (differ >= 2 * 30 * 24 * 3600) { // 2 months
+        if (difference >= 2 * 30 * 24 * 3600) { // 2 months
             return 648000; // 7 days 12 hours
-        } else if (differ >= 30 * 24 * 3600) { // 1 month
+        } else if (difference >= 30 * 24 * 3600) { // 1 month
             return 324000; // 3 days 18 hours
-        } else if (differ >= 14 * 24 * 3600) { // 2 weeks
+        } else if (difference >= 14 * 24 * 3600) { // 2 weeks
             return 151200; // 1 day 18 hours
-        } else if (differ >= 7 * 24 * 3600) { // 1 week
+        } else if (difference >= 7 * 24 * 3600) { // 1 week
             return 75600; // 21 hours
-        } else if (differ >= 2 * 24 * 3600) { // 2 days
+        } else if (difference >= 2 * 24 * 3600) { // 2 days
             return 43200; // 12 hours
-        } else if (differ >= 24 * 3600) { // 1 day
+        } else if (difference >= 24 * 3600) { // 1 day
             return 21600; // 6 hours
-        } else if (differ >= 12 * 3600) { // 12 hours
+        } else if (difference >= 12 * 3600) { // 12 hours
             return 5400; // 1 hour 30 min
-        } else if (differ >= 6 * 3600) { // 6 hours
+        } else if (difference >= 6 * 3600) { // 6 hours
             return 3600; // 1 hour
-        } else if (differ >= 3 * 3600) {// 3 hours
+        } else if (difference >= 3 * 3600) {// 3 hours
             return 2700; // 45 min
-        } else if (differ >= 2 * 3600) { // 2 hours
+        } else if (difference >= 2 * 3600) { // 2 hours
             return 3600; // 1 hour
-        } else if (differ >= 3600) { // 1 hour
+        } else if (difference >= 3600) { // 1 hour
             return 1800; // 30 min
         } else { // less 1 hours
             return 0;
