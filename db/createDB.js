@@ -40,6 +40,7 @@ exports.create = async function () {
 		total_reserve INTEGER DEFAULT 0,
 		result CHAR(4),
 		created_at TIMESTAMP NOT NULL,
+		committed_at TIMESTAMP DEFAULT NULL,
 		UNIQUE (aa_address)
 	)`);
 

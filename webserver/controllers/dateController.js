@@ -6,10 +6,13 @@ module.exports = async (request, reply) => {
 
     if (!isValidAddress(address)) return reply.badRequest();
 
-    const ts = await marketDB.api.getMarketParams(address).then((data) => data && data.created_at);
+    const params = await marketDB.api.getMarketParams(address);
 
-    if (ts) {
-        return reply.send(ts);
+    if (params) {
+        return reply.send({
+            created_at: params.created_at,
+            committed_at: params.committed_at
+        });
     } else {
         return reply.notFound();
     }
