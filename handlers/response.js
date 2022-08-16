@@ -69,7 +69,7 @@ exports.responseHandler = async function (objResponse) {
   }
 
   if (responseVars.result) {
-    await marketDB.api.saveMarketResult(aa_address, responseVars.result)
+    await marketDB.api.saveMarketResult(aa_address, responseVars.result, timestamp);
   }
 
   return unlock()

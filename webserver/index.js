@@ -11,7 +11,7 @@ const championshipsController = require('./controllers/championshipsController.j
 const sportTeamController = require('./controllers/sportTeamController.js');
 const currencyCalendarController = require('./controllers/currencyCalendarController.js');
 const popularCurrenciesController = require('./controllers/popularCurrenciesController.js');
-const createdAtController = require('./controllers/createdAtController.js');
+const datesController = require('./controllers/datesController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -31,7 +31,7 @@ fastifyInstance.get('/calendar/:sport/:championship/:page', sportCalendarControl
 fastifyInstance.get('/championships/:sport?', championshipsController);
 fastifyInstance.get('/popular_oracle_pairs', popularCurrenciesController);
 fastifyInstance.get('/team/:sport/:abbreviation', sportTeamController);
-fastifyInstance.get('/created_at/:address', createdAtController);
+fastifyInstance.get('/dates/:address', datesController);
 
 // Run the server
 exports.start = async () => {
