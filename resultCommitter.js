@@ -54,9 +54,11 @@ class ResultCommitter {
 
 
         const correspondent = await correspondents.findCorrespondentByPairingCode(conf.sportOraclePairingCode);
+        console.log(`sport oracle found in db`, correspondent);
 
         if (!correspondent) {
             oracle_device_address = await correspondents.addCorrespondent(conf.sportOraclePairingCode, 'Sport Oracle');
+            console.log(`added oracle correspondent`, oracle_device_address);
         } else {
             oracle_device_address = correspondent.device_address;
         }
@@ -77,9 +79,11 @@ class ResultCommitter {
         this.oracle_device_address = oracle_device_address;
 
         this.intervalId = setInterval(bind(this.checkAndCommit, this), CHECK_INTERVAL);
+        console.log('init done');
     }
 
     async sendResultRequest(oracle_device_address, msg) {
+        console.log(`will send result request to oracle ${oracle_device_address}`, msg);
         const committerContext = this;
 
         return new Promise((resolve) => {
@@ -108,6 +112,7 @@ class ResultCommitter {
     }
 
     async checkAndCommit() {
+        console.log('checkAndCommit');
         const markets = await marketDB.api.getAllMarkets({ waitingResult: true });
 
         const dataFeedsGetters = markets.map(({ oracle, feed_name, aa_address }) => dag.getDataFeed(oracle, feed_name).then((value) => ({ address: aa_address, value, feed_name, oracle })).catch(() => ({ address: aa_address, value: null, feed_name, oracle })))
