@@ -72,5 +72,45 @@ exports.responseHandler = async function (objResponse) {
     await marketDB.api.saveMarketResult(aa_address, responseVars.result, timestamp);
   }
 
+  if (responseVars.profit) {
+    const assets = await marketDB.api.getMarketAssets(aa_address);
+    const params = await marketDB.api.getMarketParams(aa_address);
+    const actualData = await marketDB.api.getActualMarketInfo(aa_address);
+
+    if (!assets || !params || !actualData) {
+      return unlock();
+    }
+
+    const winner = params.result;
+
+    if (!winner) return unlock();
+
+    const winnerAsset = winner === 'yes' ? assets.yes_asset : (winner === 'no' ? assets.no_asset : assets.draw_asset);
+
+    const profit = responseVars.profit;
+    const payoutMsg = joint.unit.messages.find(({ app, payload }) => app === 'payment' && payload.asset === winnerAsset);
+    const output = payoutMsg.payload.outputs.find(({ address }) => address === aa_address);
+    const new_reserve = actualData.reserve - profit;
+    const new_winner_supply = actualData[`supply_${winner}`] - output.amount;
+    const winnerPrice = new_reserve / new_winner_supply;
+
+    await marketDB.api.saveTradeEvent({
+      aa_address,
+      response_unit: objResponse.response_unit,
+      [`${winner}_amount`]: output.amount,
+      reserve: new_reserve,
+      coef: actualData.coef,
+      type: 'claim_profit',
+      timestamp,
+      supply_yes: actualData.supply_yes,
+      supply_no: actualData.supply_no,
+      supply_draw: actualData.supply_draw,
+      yes_price: 0,
+      no_price: 0,
+      draw_price: 0,
+      ...{ [`supply_${winner}`]: actualData[`supply_${winner}`] - output.amount, [`${winner}_price`]: winnerPrice }
+    })
+  }
+
   return unlock()
 };
