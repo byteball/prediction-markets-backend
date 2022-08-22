@@ -88,8 +88,8 @@ exports.responseHandler = async function (objResponse) {
     const winnerAsset = winner === 'yes' ? assets.yes_asset : (winner === 'no' ? assets.no_asset : assets.draw_asset);
 
     const profit = responseVars.profit;
-    const supplyMsg = joint.unit.messages.find(({ app, payload }) => app === 'payment' && payload.asset === winnerAsset);
-    const output = supplyMsg.payload.outputs.find(({ address }) => address === aa_address);
+    const payoutMsg = joint.unit.messages.find(({ app, payload }) => app === 'payment' && payload.asset === winnerAsset);
+    const output = payoutMsg.payload.outputs.find(({ address }) => address === aa_address);
     const new_reserve = actualData.reserve - profit;
     const new_winner_supply = actualData[`supply_${winner}`] - output.amount;
     const winnerPrice = new_reserve / new_winner_supply;
