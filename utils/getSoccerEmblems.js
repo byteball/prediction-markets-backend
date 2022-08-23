@@ -7,13 +7,13 @@ const sharp = require('sharp');
 const abbreviations = require('../abbreviations.json');
 
 async function saveImage(data, id, type) {
-    return await fs.writeFile(`static/${id}.${type}`, data)
+    return await fs.writeFile(`emblems/${id}.${type}`, data)
 }
 
 async function getSoccerEmblems() {
 
-    if (!existsSync('static/')) {
-        mkdirSync('static/');
+    if (!existsSync('emblems/')) {
+        mkdirSync('emblems/');
     }
 
     const emblemsGetters = [];
