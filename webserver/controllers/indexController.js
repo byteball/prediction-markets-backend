@@ -24,20 +24,31 @@ module.exports = async (req, reply) => {
 
             if (params) {
                 const state = await marketDB.api.getActualMarketInfo(address);
-                const elapsed_seconds = (params.committed_at || moment.utc().unix()) - params.created_at;
-                let APY = state.coef !== 1 ? Math.abs(((state.coef * (1 - params.issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(4) : "0";
 
-                if (APY > 10e9) {
-                    APY = '10m.+'
-                } else if (Number(APY) > 9999) {
-                    APY = Math.floor(APY).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                } else {
-                    APY = Number(APY);
+                let APY;
+
+                if (state) {
+                    const elapsed_seconds = (params.committed_at || moment.utc().unix()) - params.created_at;
+                    APY = (state.coef || 1) !== 1 ? Math.abs((((state.coef || 1) * (1 - params.issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(4) : "0";
+
+                    if (APY > 10e9) {
+                        APY = '10m.+'
+                    } else if (Number(APY) > 9999) {
+                        APY = Math.floor(APY).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    } else {
+                        APY = Number(APY);
+                    }
                 }
 
                 const { oracle } = params;
 
                 title = 'Prophet — ';
+
+                let strAPY = '';
+
+                if (APY !== undefined) {
+                    strAPY = `, liquidity provider APY: ${APY}%`;
+                }
 
                 if (oracle === conf.sportOracleAddress) {
                     const [championship, yes_team, no_team, date] = params.feed_name.split("_");
@@ -47,11 +58,11 @@ module.exports = async (req, reply) => {
 
                     const yesName = yes_abbreviation[1].name;
                     const noName = no_abbreviation[1].name;
-                    title += `${yesName || yes_team} vs ${noName || no_team}, liquidity provider APY: ${APY}%`;
+                    title += `${yesName || yes_team} vs ${noName || no_team}${strAPY}`;
                 } else {
                     const event = generateTextEvent({ ...params, isUTC: true });
 
-                    title += `${event} , liquidity provider APY: ${APY}%`;
+                    title += `${event}${strAPY}`;
                 }
             }
 
