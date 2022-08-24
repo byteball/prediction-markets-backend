@@ -26,7 +26,7 @@ module.exports = async (req, reply) => {
                 title = 'Prophet — ';
 
                 if (oracle === conf.sportOracleAddress) {
-                    const [championship, yes_team, no_team, date] = row.feed_name.split("_");
+                    const [championship, yes_team, no_team, date] = params.feed_name.split("_");
 
                     const yes_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === yes_team);
                     const no_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === no_team);
