@@ -76,7 +76,7 @@ module.exports = async (req, reply) => {
             const spl = url.split('/');
 
             if (spl.length === 2 && spl[1]){
-                title = `Prophet — ${spl[1]} markets'`
+                title = `Prophet — ${spl[1]} markets`
             }  else {
                 title = 'Prophet — Decentralized prediction markets';
             }
