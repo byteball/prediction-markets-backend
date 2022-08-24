@@ -43,7 +43,7 @@ module.exports = async (request, reply) => {
             if (APY > 10e9) {
                 APY = '10m.+'
             } else if (Number(APY) > 9999) {
-                APY = Math.floor(APY).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                APY = Number(APY).toLocaleString('en-IN');
             } else {
                 APY = Number(APY);
             }
