@@ -84,6 +84,8 @@ module.exports = async (req, reply) => {
 
                     if (championship) {
                         const championships = sportDataService.getChampionships(urlParts[1]);
+                        console.error('championships', championships);
+                        
                         if (championships) {
                             const championshipItem = championships.find(({ code }) => code === championship);
                             if (championshipItem) {
