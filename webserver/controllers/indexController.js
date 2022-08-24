@@ -73,9 +73,15 @@ module.exports = async (req, reply) => {
             imageUrl = `${conf.webUrl}/og_images/create`;
             title = 'Prediction markets — Create new market';
         } else {
-            console.error(url, url.split('/'));
+            const spl = url.split('/');
+
+            if (spl.length === 2 && spl[1]){
+                title = `Prophet — ${spl[1]} markets'`
+            }  else {
+                title = 'Prophet — Decentralized prediction markets';
+            }
             imageUrl = `${conf.webUrl}/og_images/main`;
-            title = 'Prophet — Decentralized prediction markets';
+            
         }
 
         // inject meta tags
