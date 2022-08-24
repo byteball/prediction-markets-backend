@@ -1,6 +1,8 @@
 const path = require('path');
 const conf = require('ocore/conf.js');
 const fs = require("fs").promises;
+const moment = require('moment');
+
 const marketDB = require('../../db');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const abbreviations = require('../../abbreviations.json');
@@ -19,10 +21,22 @@ module.exports = async (req, reply) => {
         if (url.includes('market') && address) {
             imageUrl = `${conf.webUrl}/og_images/market/${address}`;
             const params = await marketDB.api.getMarketParams(address);
-            // console.error('params', params);
 
             if (params) {
+                const state = await marketDB.api.getActualMarketInfo(address);
+                const elapsed_seconds = (params.committed_at || moment.utc().unix()) - params.created_at;
+                let APY = state.coef !== 1 ? Math.abs(((state.coef * (1 - params.issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(4) : "0";
+
+                if (APY > 10e9) {
+                    APY = '10m.+'
+                } else if (Number(APY) > 9999) {
+                    APY = Math.floor(APY).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                } else {
+                    APY = Number(APY);
+                }
+
                 const { oracle } = params;
+                
                 title = 'Prophet — ';
 
                 if (oracle === conf.sportOracleAddress) {
@@ -33,11 +47,11 @@ module.exports = async (req, reply) => {
 
                     const yesName = yes_abbreviation[1].name;
                     const noName = no_abbreviation[1].name;
-                    title += `${yesName || yes_team} vs ${noName || no_team}`;
+                    title += `${yesName || yes_team} vs ${noName || no_team}, liquidity provider APY: ${APY}`;
                 } else {
                     const event = generateTextEvent({ ...params, isUTC: true });
 
-                    title += event;
+                    title += `${event} , liquidity provider APY: ${APY}`;
                 }
             }
 
@@ -67,9 +81,10 @@ module.exports = async (req, reply) => {
         reply.headers({
             'Content-Type': 'text/html; charset=UTF-8',
         })
-        
+
         return reply.send(modifiedHTMLData);
     } catch (e) {
         console.error('error', e)
+        return reply.send(htmlData);
     }
 }
