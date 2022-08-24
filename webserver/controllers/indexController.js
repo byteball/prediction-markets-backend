@@ -11,10 +11,10 @@ module.exports = async (req, reply) => {
     const htmlData = await fs.readFile(indexPath, 'utf8');
 
     try {
-        const url = req.url || '';
+        const url = conf.webUrl;
         const address = url.split("/").find((str) => str.length === 32);
         const host = req.headers.host;
-        const protocol = req.protocol;
+        const protocol = conf.webProtocol || 'http';
 
         let imageUrl = '';
         let title = 'Prophet — Decentralized prediction markets';
