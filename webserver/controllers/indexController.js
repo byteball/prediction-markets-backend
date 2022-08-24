@@ -34,7 +34,7 @@ module.exports = async (req, reply) => {
 
                     const yesName = yes_abbreviation[1].name;
                     const noName = no_abbreviation[1].name;
-                    console.error(yes_abbreviation, no_abbreviation);
+                    console.error(yes_abbreviation, no_abbreviation, yesName, noName);
                     title += `${yesName || yes_team} vs ${noName || no_team}`;
                 } else {
                     console.error('currency')
