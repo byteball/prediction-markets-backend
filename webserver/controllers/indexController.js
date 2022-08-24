@@ -47,7 +47,7 @@ module.exports = async (req, reply) => {
                 let strAPY = '';
 
                 if (APY !== undefined) {
-                    strAPY = `, liquidity provider APY: ${APY}%`;
+                    strAPY = `, liquidity provider APY ${APY}%`;
                 }
 
                 if (oracle === conf.sportOracleAddress) {
