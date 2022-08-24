@@ -6,6 +6,7 @@ const moment = require('moment');
 const marketDB = require('../../db');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const abbreviations = require('../../abbreviations.json');
+const { sportDataService } = require("../../SportData");
 
 const indexPath = path.resolve(__dirname, '..', '..', '..', 'prediction-markets-ui', 'build', 'index.html');
 
@@ -75,13 +76,34 @@ module.exports = async (req, reply) => {
         } else {
             const urlParts = url.split('/');
 
-            if (urlParts.length === 2 && urlParts[1]){
-                title = `Prophet — ${urlParts[1]} markets`
-            }  else {
+            if (urlParts.length === 2 && urlParts[1]) {
+                let fullChampionship;
+
+                if (urlParts[1] === 'soccer') {
+                    const championship = urlParts[2];
+
+                    if (championship) {
+                        const championships = sportDataService.getChampionships(urlParts[1]);
+                        if (championships) {
+                            const championshipItem = championships.find(({ code }) => code === championship);
+                            if (championshipItem) {
+                                fullChampionship = championshipItem.name;
+                            }
+                        }
+                    }
+                }
+
+                if (fullChampionship) {
+                    title = `Prophet — ${fullChampionship} markets`;
+                } else {
+                    title = `Prophet — ${urlParts[1]} markets`;
+                }
+            } else {
                 title = 'Prophet — Decentralized prediction markets';
             }
+
             imageUrl = `${conf.webUrl}/og_images/main`;
-            
+
         }
 
         // inject meta tags
