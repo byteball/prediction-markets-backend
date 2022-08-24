@@ -75,7 +75,7 @@ module.exports = async (req, reply) => {
             title = 'Prediction markets — Create new market';
         } else {
             const urlParts = url.split('/');
-
+            console.error('log2', urlParts)
             if (urlParts.length === 2 && urlParts[1]) {
                 let fullChampionship;
 
@@ -85,7 +85,7 @@ module.exports = async (req, reply) => {
                     if (championship) {
                         const championships = sportDataService.getChampionships(urlParts[1]);
                         console.error('championships', championships);
-                        
+
                         if (championships) {
                             const championshipItem = championships.find(({ code }) => code === championship);
                             if (championshipItem) {
