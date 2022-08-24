@@ -14,13 +14,11 @@ module.exports = async (req, reply) => {
         const url = req.url || '/';
         const address = url.split("/").find((str) => str.length === 32);
         const host = conf.webUrl;
-        const protocol = conf.webProtocol || 'http';
-
         let imageUrl = '';
         let title = 'Prophet — Decentralized prediction markets';
 
         if (url.includes('market') && address) {
-            imageUrl = `${protocol}://${host}/og_images/market/${address}`;
+            imageUrl = `${conf.webUrl}/og_images/market/${address}`;
             const params = await marketDB.api.getMarketParams(address);
 
             if (params) {
@@ -45,13 +43,13 @@ module.exports = async (req, reply) => {
             }
 
         } else if (url.includes('faq')) {
-            imageUrl = `${protocol}://${host}/og_images/faq`;
+            imageUrl = `${conf.webUrl}/og_images/faq`;
             title = 'Prediction markets — F.A.Q.';
         } else if (url.includes('create')) {
-            imageUrl = `${protocol}://${host}/og_images/create`;
+            imageUrl = `${conf.webUrl}/og_images/create`;
             title = 'Prediction markets — Create new market';
         } else {
-            imageUrl = `${protocol}://${host}/og_images/main`;
+            imageUrl = `${conf.webUrl}/og_images/main`;
             title = 'Prophet — Decentralized prediction markets';
         }
 
