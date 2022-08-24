@@ -11,9 +11,9 @@ module.exports = async (req, reply) => {
     const htmlData = await fs.readFile(indexPath, 'utf8');
 
     try {
-        const url = conf.webUrl;
+        const url = req.url || '/';
         const address = url.split("/").find((str) => str.length === 32);
-        const host = req.headers.host;
+        const host = conf.webUrl;
         const protocol = conf.webProtocol || 'http';
 
         let imageUrl = '';
