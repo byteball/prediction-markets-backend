@@ -73,10 +73,10 @@ module.exports = async (req, reply) => {
             imageUrl = `${conf.webUrl}/og_images/create`;
             title = 'Prediction markets — Create new market';
         } else {
-            const spl = url.split('/');
+            const urlParts = url.split('/');
 
-            if (spl.length === 2 && spl[1]){
-                title = `Prophet — ${spl[1]} markets`
+            if (urlParts.length === 2 && urlParts[1]){
+                title = `Prophet — ${urlParts[1]} markets`
             }  else {
                 title = 'Prophet — Decentralized prediction markets';
             }
