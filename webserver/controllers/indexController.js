@@ -13,19 +13,20 @@ module.exports = async (req, reply) => {
     try {
         const url = req.url || '/';
         const address = url.split("/").find((str) => str.length === 32);
-        const host = conf.webUrl;
         let imageUrl = '';
         let title = 'Prophet — Decentralized prediction markets';
 
         if (url.includes('market') && address) {
             imageUrl = `${conf.webUrl}/og_images/market/${address}`;
             const params = await marketDB.api.getMarketParams(address);
+            console.error('params', params);
 
             if (params) {
                 const { oracle } = params;
                 title = 'Prophet — ';
 
                 if (oracle === conf.sportOracleAddress) {
+                    console.error('sport')
                     const [championship, yes_team, no_team, date] = params.feed_name.split("_");
 
                     const yes_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === yes_team);
@@ -36,6 +37,7 @@ module.exports = async (req, reply) => {
 
                     title += `${yesName || yes_team} vs ${noName || no_team}`;
                 } else {
+                    console.error('currency')
                     const event = generateTextEvent({ ...params, isUTC: true });
 
                     title += event;
