@@ -19,14 +19,14 @@ module.exports = async (req, reply) => {
         if (url.includes('market') && address) {
             imageUrl = `${conf.webUrl}/og_images/market/${address}`;
             const params = await marketDB.api.getMarketParams(address);
-            console.error('params', params);
+            // console.error('params', params);
 
             if (params) {
                 const { oracle } = params;
                 title = 'Prophet — ';
 
                 if (oracle === conf.sportOracleAddress) {
-                    console.error('sport')
+                    // console.error('sport')
                     const [championship, yes_team, no_team, date] = params.feed_name.split("_");
 
                     const yes_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === yes_team);
@@ -34,7 +34,7 @@ module.exports = async (req, reply) => {
 
                     const yesName = yes_abbreviation[1].name;
                     const noName = no_abbreviation[1].name;
-
+                    console.error(yes_abbreviation, no_abbreviation);
                     title += `${yesName || yes_team} vs ${noName || no_team}`;
                 } else {
                     console.error('currency')
