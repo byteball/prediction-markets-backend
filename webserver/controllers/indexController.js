@@ -36,7 +36,7 @@ module.exports = async (req, reply) => {
                 }
 
                 const { oracle } = params;
-                
+
                 title = 'Prophet — ';
 
                 if (oracle === conf.sportOracleAddress) {
@@ -47,11 +47,11 @@ module.exports = async (req, reply) => {
 
                     const yesName = yes_abbreviation[1].name;
                     const noName = no_abbreviation[1].name;
-                    title += `${yesName || yes_team} vs ${noName || no_team}, liquidity provider APY: ${APY}`;
+                    title += `${yesName || yes_team} vs ${noName || no_team}, liquidity provider APY: ${APY}%`;
                 } else {
                     const event = generateTextEvent({ ...params, isUTC: true });
 
-                    title += `${event} , liquidity provider APY: ${APY}`;
+                    title += `${event} , liquidity provider APY: ${APY}%`;
                 }
             }
 
