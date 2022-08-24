@@ -73,6 +73,7 @@ module.exports = async (req, reply) => {
             imageUrl = `${conf.webUrl}/og_images/create`;
             title = 'Prediction markets — Create new market';
         } else {
+            console.error(url, url.split('/'));
             imageUrl = `${conf.webUrl}/og_images/main`;
             title = 'Prophet — Decentralized prediction markets';
         }
@@ -83,8 +84,8 @@ module.exports = async (req, reply) => {
 
 
         modifiedHTMLData = modifiedHTMLData.replace(
-            "<title>Prophet — Decentralized prediction markets</title>",
-            `<title>${title}</title>`
+            "__MAIN_TITLE__",
+            title
         )
 
         modifiedHTMLData = modifiedHTMLData.replace('__META_OG_TITLE__', title);
