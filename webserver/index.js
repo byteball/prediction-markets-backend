@@ -25,16 +25,16 @@ fastifyInstance.register(CORS);
 fastifyInstance.register(fastifySensible);
 
 // Declare routes
-fastifyInstance.get('/markets/:page?', marketsController);
-fastifyInstance.get('/reserve_assets', reserveAssetsController);
-fastifyInstance.get('/daily_closes/:address', dailyCandlesController);
-fastifyInstance.get('/calendar/currency/:currency/:page', currencyCalendarController);
-fastifyInstance.get('/calendar/:sport/:championship/:page', sportCalendarController);
-fastifyInstance.get('/championships/:sport?', championshipsController);
-fastifyInstance.get('/popular_oracle_pairs', popularCurrenciesController);
-fastifyInstance.get('/team/:sport/:abbreviation', sportTeamController);
-fastifyInstance.get('/dates/:address', datesController);
-fastifyInstance.get('/og_images/:type/:address?', ogImageController)
+fastifyInstance.get('/api/markets/:page?', marketsController);
+fastifyInstance.get('/api/reserve_assets', reserveAssetsController);
+fastifyInstance.get('/api/daily_closes/:address', dailyCandlesController);
+fastifyInstance.get('/api/calendar/currency/:currency/:page', currencyCalendarController);
+fastifyInstance.get('/api/calendar/:sport/:championship/:page', sportCalendarController);
+fastifyInstance.get('/api/championships/:sport?', championshipsController);
+fastifyInstance.get('/api/popular_oracle_pairs', popularCurrenciesController);
+fastifyInstance.get('/api/team/:sport/:abbreviation', sportTeamController);
+fastifyInstance.get('/api/dates/:address', datesController);
+fastifyInstance.get('/api/og_images/:type/:address?', ogImageController)
 fastifyInstance.get('*', indexController)
 
 // Run the server
