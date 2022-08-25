@@ -21,7 +21,7 @@ async function getSoccerEmblems() {
     Object.keys(abbreviations.soccer).map((id) => {
         emblemsGetters.push(axios.get(`https://crests.football-data.org/${id}.svg`).then(({ data }) => saveImage(data, id, 'svg')).catch(() => {
             axios.get(`https://crests.football-data.org/${id}.png`, { responseType: 'arraybuffer' }).then(({ data }) => {
-                sharp(data).png().toFile(`static/${id}.png`)
+                sharp(data).png().toFile(`emblems/${id}.png`)
             }).catch((err) => console.error('catch getSoccerEmblems', err))
         }));
     });
