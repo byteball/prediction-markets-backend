@@ -43,7 +43,7 @@ module.exports = async (request, reply) => {
             let APY = coef !== 1 ? Math.abs(((coef * (1 - issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(4) : "0";
 
             if (APY > 10e9) {
-                APY = '10m.+'
+                APY = '10m+'
             } else if (Number(APY) > 9999) {
                 APY = Number(APY).toLocaleString('en-US');
             } else {
