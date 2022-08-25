@@ -2,7 +2,8 @@
 	"name": "prediction-markets-backend",
 	"version": "0.0.1",
 	"scripts": {
-		"start": "node start.js oswap-stats 1>log 2>errlog &"
+		"start": "node start.js prediction 1>log 2>errlog &",
+		"load-emblems" : "node utils/getSoccerEmblems.js"
 	},
 	"dependencies": {
 		"aabot": "git+https://github.com/byteball/aabot.git",
@@ -15,8 +16,8 @@
 		"lodash": "^4.17.21",
 		"moment": "^2.29.3",
 		"node-cron": "^3.0.0",
-		"request": "^2.88.2"
+		"request": "^2.88.2",
+		"sharp": "^0.30.7"
 	},
-	"resolutions": {
-	}
+	"resolutions": {}
 }

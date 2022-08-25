@@ -37,7 +37,7 @@ exports.supportedReserveAssets = process.env.testnet == "1" ? {
     decimals: 4
   }
 };
-
+exports.webUrl = process.env.testnet ? 'https://testnet.prophet.ooo/api' : 'https://prophet.ooo/api';
 exports.footballDataApiKey = process.env.footballDataApiKey;
 exports.sportOracleAddress = process.env.testnet === '1' ? 'MDKKPO375Q5M3GDET2X4H4ZNSO37OIIZ' : 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW';
 exports.sportOraclePairingCode = process.env.testnet ? 'AozzzS0drYyXGk2Hj1jJ0IV4FL6zykUAYdmygfMw1gsO@obyte.org/bb-test#0000' : 'Ar1O7dGgkkcABYNAbShlY2Pbx6LmUzoyRh6F14vM0vTZ@obyte.org/bb#0000';
