@@ -29,9 +29,11 @@ module.exports = async (request, reply) => {
         if (type === 'market' && address) {
             const { yes_price = 1, no_price = 1, draw_price = 1, reserve = 0, supply_yes = 0, supply_no = 0, supply_draw = 0, coef = 1 } = await marketDB.api.getActualMarketInfo(address).then(data => data || {}).catch(() => { });
 
-            const [params] = await db.query(`SELECT * FROM markets LEFT JOIN market_assets USING (aa_address) WHERE aa_address=?`, [address]);
+            const rows = await db.query(`SELECT * FROM markets LEFT JOIN market_assets USING (aa_address) WHERE aa_address=?`, [address]);
 
-            if (!params) reply.notFound();
+            if (rows.length !== 1) reply.notFound();
+
+            const [params] = rows;
 
             const { event_date, feed_name, oracle, created_at, committed_at, issue_fee, reserve_decimals = 0, reserve_symbol, datafeed_value, comparison, allow_draw = false, result } = params;
 
@@ -159,19 +161,11 @@ module.exports = async (request, reply) => {
                 ]);
 
                 const yesEmblemBufferResized = await sharp(yesEmblemBuffer)
-                    .resize({
-                        width: 150,
-                        heigh: 150,
-                        fit: "contain",
-                    })
+                    .resize(150, 150, { fit: 'contain', background: '#141412' })
                     .toBuffer();
 
                 const noEmblemBufferResized = await sharp(noEmblemBuffer)
-                    .resize({
-                        width: 150,
-                        heigh: 150,
-                        fit: "contain",
-                    })
+                    .resize(150, 150, { fit: 'contain', background: '#141412' })
                     .toBuffer();
 
                 const b = await Buffer.from(svg);
