@@ -63,8 +63,8 @@ module.exports = async (request, reply) => {
                 const yes_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === yes_team);
                 const no_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === no_team);
 
-                const yesTeamName = truncate(yes_abbreviation[1].name, { length: 22 });
-                const noTeamName = truncate(no_abbreviation[1].name, { length: 22 });
+                const yesTeamName = truncate(yes_abbreviation[1].name, { length: 18 });
+                const noTeamName = truncate(no_abbreviation[1].name, { length: 18 });
 
                 const svg = `
             <svg width="1200" height="630" viewBox="0 0 1200 630" style="font-family: 'Inter';" fill="none" xmlns="http://www.w3.org/2000/svg">
