@@ -36,7 +36,7 @@ fastifyInstance.get('/api/team/:sport/:abbreviation', sportTeamController);
 fastifyInstance.get('/api/dates/:address', datesController);
 fastifyInstance.get('/api/og_images/:type/:address?', ogImageController)
 // fastifyInstance.get('*', )
-fastify.setNotFoundHandler(indexController)
+fastifyInstance.setNotFoundHandler(indexController)
 // Run the server
 exports.start = async () => {
   try {
