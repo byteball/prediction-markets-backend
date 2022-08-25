@@ -16,11 +16,11 @@ module.exports = async (request, reply) => {
     const { type, address } = (request.params || {});
 
     if (!type || !knownTypes.includes(type)) {
-        reply.badRequest();
+        return reply.badRequest();
     }
 
     if (address && !isValidAddress(address)) {
-        reply.badRequest();
+        return reply.badRequest();
     }
 
     let image;
@@ -31,13 +31,13 @@ module.exports = async (request, reply) => {
 
             const rows = await db.query(`SELECT * FROM markets LEFT JOIN market_assets USING (aa_address) WHERE aa_address=?`, [address]);
 
-            if (rows.length !== 1) reply.notFound();
+            if (rows.length !== 1) return reply.notFound();
 
             const [params] = rows;
 
             const { event_date, feed_name, oracle, created_at, committed_at, issue_fee, reserve_decimals = 0, reserve_symbol, datafeed_value, comparison, allow_draw = false, result } = params;
 
-            if (!oracle) reply.notFound();
+            if (!oracle) return reply.notFound();
 
             const elapsed_seconds = (committed_at || moment.utc().unix()) - created_at;
             let APY = coef !== 1 ? Math.abs(((coef * (1 - issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(4) : "0";
@@ -266,7 +266,7 @@ module.exports = async (request, reply) => {
             image = await fs.readFile(`static/${type}.png`)
         }
 
-        reply
+        return reply
             .header('Content-Type', 'image/jpeg')
             .code(200)
             .send(image);
