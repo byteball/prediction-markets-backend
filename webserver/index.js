@@ -35,8 +35,8 @@ fastifyInstance.get('/api/popular_oracle_pairs', popularCurrenciesController);
 fastifyInstance.get('/api/team/:sport/:abbreviation', sportTeamController);
 fastifyInstance.get('/api/dates/:address', datesController);
 fastifyInstance.get('/api/og_images/:type/:address?', ogImageController)
-fastifyInstance.get('*', indexController)
-
+// fastifyInstance.get('*', )
+fastify.setNotFoundHandler(indexController)
 // Run the server
 exports.start = async () => {
   try {
