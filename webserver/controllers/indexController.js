@@ -69,10 +69,10 @@ module.exports = async (req, reply) => {
 
         } else if (url.includes('faq')) {
             imageUrl = `${conf.webUrl}/og_images/faq`;
-            title = 'Prediction markets — F.A.Q.';
+            title = 'Prophet prediction markets — F.A.Q.';
         } else if (url.includes('create')) {
             imageUrl = `${conf.webUrl}/og_images/create`;
-            title = 'Prediction markets — Create new market';
+            title = 'Prophet prediction markets — Create new market';
         } else {
             const urlParts = url.split('/');
 
@@ -95,9 +95,10 @@ module.exports = async (req, reply) => {
                 }
 
                 if (fullChampionship) {
-                    title = `Prophet — ${fullChampionship} markets`;
+                    title = `Prophet prediction markets — ${fullChampionship}`;
                 } else {
-                    title = `Prophet — ${urlParts[1]} markets`;
+                    const particle = urlParts[1] === 'misc' ? 'miscellaneous' : urlParts[1];
+                    title = `Prophet prediction markets — ${particle}`;
                 }
             } else {
                 title = 'Prophet — Decentralized prediction markets';
