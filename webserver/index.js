@@ -34,9 +34,9 @@ fastifyInstance.get('/api/championships/:sport?', championshipsController);
 fastifyInstance.get('/api/popular_oracle_pairs', popularCurrenciesController);
 fastifyInstance.get('/api/team/:sport/:abbreviation', sportTeamController);
 fastifyInstance.get('/api/dates/:address', datesController);
-fastifyInstance.get('/api/og_images/:type/:address?', ogImageController)
-// fastifyInstance.get('*', )
-fastifyInstance.setNotFoundHandler(indexController)
+fastifyInstance.get('/api/og_images/:type/:address?', ogImageController);
+fastifyInstance.setNotFoundHandler(indexController);
+
 // Run the server
 exports.start = async () => {
   try {
