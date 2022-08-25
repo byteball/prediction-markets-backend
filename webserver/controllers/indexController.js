@@ -43,7 +43,7 @@ module.exports = async (req, reply) => {
 
                 const { oracle } = params;
 
-                title = 'Prophet — ';
+                title = 'Prophet prediction markets — ';
 
                 let strAPY = '';
 
