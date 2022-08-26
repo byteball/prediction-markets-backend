@@ -44,10 +44,8 @@ module.exports = async (request, reply) => {
 
             if (APY > 10e9) {
                 APY = '10m+'
-            } else if (APY > 9999) {
-                APY = (+Number(APY).toPrecision(4)).toLocaleString('en-US');
             } else if (APY > 1) {
-                APY = APY.toPrecision(4);
+                APY = (+Number(APY).toPrecision(4)).toLocaleString('en-US');
             } else {
                 APY = +APY.toFixed(4);
             }
