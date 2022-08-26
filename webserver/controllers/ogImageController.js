@@ -40,21 +40,23 @@ module.exports = async (request, reply) => {
             if (!oracle) return reply.notFound();
 
             const elapsed_seconds = (committed_at || moment.utc().unix()) - created_at;
-            let APY = coef !== 1 ? Math.abs(((coef * (1 - issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(4) : "0";
+            let APY = coef !== 1 ? Math.abs(((coef * (1 - issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100) : 0;
 
             if (APY > 10e9) {
                 APY = '10m+'
-            } else if (Number(APY) > 9999) {
-                APY = Number(APY).toLocaleString('en-US');
+            } else if (APY > 9999) {
+                APY = (+Number(APY).toPrecision(4)).toLocaleString('en-US');
+            } else if (APY > 1) {
+                APY = APY.toPrecision(4);
             } else {
-                APY = Number(APY);
+                APY = +APY.toFixed(4);
             }
 
             const yesOddsView = supply_yes !== 0 ? +Number((reserve / supply_yes) / yes_price).toPrecision(4) : 0;
             const drawOddsView = supply_draw !== 0 ? +Number((reserve / supply_draw) / draw_price).toPrecision(4) : 0;
             const noOddsView = supply_no !== 0 ? +Number((reserve / supply_no) / no_price).toPrecision(4) : 0;
 
-            const eventDateView = moment.unix(event_date).utc().format('lll');
+            const eventDateView = moment.unix(event_date).utc().format(conf.sportOracleAddress === oracle ? 'MMM D, h:mm A' : 'lll');
 
             const reserveView = +Number(reserve / 10 ** reserve_decimals).toPrecision(3);
 
