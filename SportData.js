@@ -35,11 +35,12 @@ class SportDataService {
 
   getCalendarLength(sport, championship) {
     if (this.calendar[sport]) {
+      const sportCalendar = this.calendar[sport] || [];
 
       if (championship !== 'all') {
-        return (this.calendar[sport] || []).filter(({ championship: c }) => c === championship).length
+        return sportCalendar.filter(({ championship: c }) => c === championship).length
       } else {
-        return (this.calendar[sport] || []).length;
+        return sportCalendar.length;
       }
 
     }
