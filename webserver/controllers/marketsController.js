@@ -124,7 +124,7 @@ module.exports = async (request, reply) => {
 	try {
 
 		const actualMarkets = [];
-		const oldMarkets = [];
+		let oldMarkets = [];
 
 		const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
 
@@ -135,6 +135,8 @@ module.exports = async (request, reply) => {
 				actualMarkets.push(row);
 			}
 		});
+
+		oldMarkets = oldMarkets.sort((a, b) => b.event_date - a.event_date);
 
 		// add APY
 		const data = [...actualMarkets, ...oldMarkets].slice(offset, offset + limit).map((allData) => {
