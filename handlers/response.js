@@ -13,12 +13,15 @@ const attemptList = {}; // address:count
 const tryRegSymbols = async (address, data) => {
   try {
     await marketDB.api.registerSymbols(address, data);
-  } catch {
+  } catch (e) {
     if (!(address in attemptList)) {
       attemptList[address] = 1;
     } else {
       if (attemptList[address] >= MAX_RETRY_COUNT) {
-        notifyAdmin(`too many attempts to register a symbol (${conf.testnet ? 'testnet' : 'livenet'})`);
+        notifyAdmin(`too many attempts to register a symbol (${conf.testnet ? 'testnet' : 'livenet'})`, `
+          address: ${address}
+          error: "${e}"
+        `);
       } else {
         attemptList[address] = attemptList[address] + 1;
       }

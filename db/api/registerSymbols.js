@@ -33,7 +33,7 @@ exports.registerSymbols = async function (address, data) {
         if (regTxId) {
             registeredTokens.push(yes.asset);
         } else {
-            throw "reg yes symbol error"
+            throw `YES symbol registration error (asset: ${yes.asset}; symbol: ${draw.symbol})`
         }
 
         await dag.sendPayment({
@@ -59,7 +59,7 @@ exports.registerSymbols = async function (address, data) {
         if (regTxId) {
             registeredTokens.push(no.asset);
         } else {
-            throw "reg no symbol error"
+            throw `NO symbol registration error (asset: ${no.asset}; symbol: ${draw.symbol})`
         }
 
         await dag.sendPayment({
@@ -85,7 +85,7 @@ exports.registerSymbols = async function (address, data) {
         if (regTxId) {
             registeredTokens.push(draw.asset);
         } else {
-            throw "reg draw symbol error"
+            throw `DRAW symbol registration error (asset: ${draw.asset}; symbol: ${draw.symbol})`
         }
 
 
