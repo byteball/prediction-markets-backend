@@ -25,6 +25,15 @@ exports.responseHandler = async function (objResponse) {
     if (joint && joint.unit && joint.unit.messages) {
       await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp);
       await marketDB.api.saveReserveSymbol(responseVars.prediction_address, payload.reserve_asset);
+      
+      if (conf.automaticSymbolsReg && timestamp > 1661955871){ //automatic registration start time
+        try {
+          await marketDB.api.registerSymbols(responseVars.prediction_address, payload);
+        } catch (e) {
+          console.error('reg symbol error', e)
+        }
+      }
+      
     }
   }
 

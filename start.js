@@ -5,6 +5,8 @@ const lightWallet = require('ocore/light_wallet.js');
 const wallet_general = require('ocore/wallet_general.js');
 const db = require('ocore/db.js');
 const dag = require('aabot/dag.js');
+const clc = require("cli-color");
+const operator = require('aabot/operator.js');
 
 const marketDB = require('./db');
 
@@ -86,6 +88,22 @@ async function start() {
     const committer = new ResultCommitter();
 
     await committer.init();
+  }
+
+  if (conf.automaticSymbolsReg) {
+    await operator.start();
+
+    const address = await operator.getAddress();
+
+    if (!address) throw "no address, please check conf.js";
+
+    const balance = await dag.readBalance(address);
+
+    const reserve_balance = balance?.base?.total || 0;
+
+    if (reserve_balance < 1e9) {
+      throw clc.red.bold('Your wallet contains less than 1 GBYTE.')
+    }
   }
 }
 

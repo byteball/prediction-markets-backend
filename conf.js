@@ -18,6 +18,8 @@ exports.bWantNewPeers = true;
 exports.factoryAas = ["S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G", "ZV3JPT2RDDQSEFTO7IDOZF3OWVUZF7NC"];
 exports.deviceName = 'Prediction markets';
 exports.enableCommitter = false;
+exports.automaticSymbolsReg = false;
+
 exports.supportedReserveAssets = process.env.testnet == "1" ? {
   base: {
     symbol: "GBYTE",
