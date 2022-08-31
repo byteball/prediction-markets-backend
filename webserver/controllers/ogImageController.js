@@ -50,9 +50,39 @@ module.exports = async (request, reply) => {
                 APY = +APY.toFixed(4);
             }
 
-            const yesOddsView = supply_yes !== 0 ? +Number((reserve / supply_yes) / yes_price).toPrecision(4) : 0;
-            const drawOddsView = supply_draw !== 0 ? +Number((reserve / supply_draw) / draw_price).toPrecision(4) : 0;
-            const noOddsView = supply_no !== 0 ? +Number((reserve / supply_no) / no_price).toPrecision(4) : 0;
+            let yesOddsView = null;
+            let drawOddsView = null;
+            let noOddsView = null;
+            let winnerOddsView = 0;
+
+            if (result && reserve) {
+                const winnerSupply = result === 'yes' ? supply_yes : (result === 'no' ? supply_no : supply_draw);
+
+                if (winnerSupply) {
+                    winnerOddsView = +Number(reserve / winnerSupply).toPrecision(3);
+                }
+            }
+
+            if (!result) {
+                yesOddsView = supply_yes !== 0 ? 'x' + (+Number((reserve / supply_yes) / yes_price).toPrecision(3)) : '-';
+                drawOddsView = (allow_draw && supply_draw !== 0) ? 'x' + (+Number((reserve / supply_draw) / draw_price).toPrecision(3)) : '-';
+                noOddsView = supply_no !== 0 ? 'x' + (+Number((reserve / supply_no) / no_price).toPrecision(3)) : '-';
+            } else {
+                yesOddsView = 'loser';
+                noOddsView = 'loser';
+
+                if (allow_draw) {
+                    drawOddsView = 'loser';
+                }
+
+                if (result === 'yes') {
+                    yesOddsView = supply_yes ? `x${winnerOddsView}` : 'winner';
+                } else if (result === 'no') {
+                    noOddsView = supply_no ? `x${winnerOddsView}` : 'winner';
+                } else if (result === 'draw' && allow_draw) {
+                    drawOddsView = supply_draw ? `x${winnerOddsView}` : 'winner';
+                }
+            }
 
             const eventDateView = moment.unix(event_date).utc().format(conf.sportOracleAddress === oracle ? 'MMM D, h:mm A' : 'lll');
 
@@ -103,7 +133,7 @@ module.exports = async (request, reply) => {
                 </g>
 
                 <g transform="translate(475, 340)">
-                    <text x="125" y="20" fill='#ffc048' text-anchor="middle" alignment-baseline="middle" style="font-size: 46px;">x${drawOddsView}</text>
+                    <text x="125" y="20" fill='#ffc048' text-anchor="middle" alignment-baseline="middle" style="font-size: 46px;">${drawOddsView}</text>
                 </g>` : null}
 
 
@@ -115,7 +145,7 @@ module.exports = async (request, reply) => {
 
                 ${(yesOddsView && !result) ? `<g transform="translate(240,340)">
                     <rect width="230" height="40" stroke-width="1"></rect>
-                    <text x="115" y="20" fill='#05C46B' text-anchor="middle" alignment-baseline="middle" style="font-size: 46px;">x${yesOddsView}</text>
+                    <text x="115" y="20" fill='#05C46B' text-anchor="middle" alignment-baseline="middle" style="font-size: 46px;">${yesOddsView}</text>
                 </g>` : null}
 
                 <g transform="translate(740,290)">
@@ -125,7 +155,7 @@ module.exports = async (request, reply) => {
 
                 ${(noOddsView && !result) ? `<g transform="translate(740,340)">
                     <rect width="230" height="40" stroke-width="1"></rect>
-                    <text x="115" y="20" fill='#FF5E57' text-anchor="middle" alignment-baseline="middle" style="font-size: 46px;">x${noOddsView}</text>
+                    <text x="115" y="20" fill='#FF5E57' text-anchor="middle" alignment-baseline="middle" style="font-size: 46px;">${noOddsView}</text>
                 </g>` : null}
 
             </g>
@@ -216,21 +246,21 @@ module.exports = async (request, reply) => {
                 <text x="${allow_draw ? 490 : 483}" y="310" style="font-size: 30px; fill: #05c46b;">YES</text>
                 
                 <!-- yes value -->
-                <text x="${allow_draw ? 490 : 483}" y="370" style="font-size: 38px; fill: #05c46b;">x${yesOddsView || 1}</text>
+                <text x="${allow_draw ? 490 : 483}" y="370" style="font-size: 38px; fill: #05c46b;">${yesOddsView}</text>
 
                 ${allow_draw && `
                     <!-- draw label -->
                     <text x="643" y="310" style="font-size: 30px; fill: #ffc048;">DRAW</text>
                     
                     <!-- draw value -->
-                    <text x="643" y="370" style="font-size: 38px; fill: #ffc048;">x${drawOddsView || 1}</text>
+                    <text x="643" y="370" style="font-size: 38px; fill: #ffc048;">${drawOddsView}</text>
                 `}
 
                 <!-- no label -->
                 <text x="${allow_draw ? 796 : 723}" y="310" style="font-size: 30px; fill: #ff5e57;">NO</text>
                 
                 <!-- no value -->
-                <text x="${allow_draw ? 796 : 723}" y="370" style="font-size: 38px; fill: #ff5e57;">x${noOddsView || 1}</text>
+                <text x="${allow_draw ? 796 : 723}" y="370" style="font-size: 38px; fill: #ff5e57;">${noOddsView}</text>
 
             </g>
             <!-- url -->

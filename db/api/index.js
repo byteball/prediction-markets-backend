@@ -12,6 +12,7 @@ const { savePredictionMarket } = require("./savePredictionMarket");
 const { saveReserveSymbol } = require("./saveReserveSymbol");
 const { saveSymbolForAsset } = require("./saveSymbolForAsset");
 const { saveTradeEvent } = require("./saveTradeEvent");
+const { registerSymbols } = require("./registerSymbols");
 
 module.exports = {
   saveMarketAsset,
@@ -27,5 +28,6 @@ module.exports = {
   getActualMarketInfo,
   saveMarketResult,
   saveReserveSymbol,
-  getAllMarkets
+  getAllMarkets,
+  registerSymbols
 }
