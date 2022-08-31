@@ -14,6 +14,10 @@ exports.tokenRegistryAaAddress = "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
 exports.bSingleAddress = true;
 exports.bWantNewPeers = true;
 
+// mail
+exports.admin_email = '';
+exports.from_email = '';
+
 // custom
 exports.factoryAas = ["S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G", "ZV3JPT2RDDQSEFTO7IDOZF3OWVUZF7NC"];
 exports.deviceName = 'Prediction markets';

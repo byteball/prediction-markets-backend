@@ -1,9 +1,11 @@
 const dag = require('aabot/dag.js');
 const conf = require('ocore/conf.js');
-const mutex = require('ocore/mutex.js')
-const marketDB = require('../db');
+const mutex = require('ocore/mutex.js');
 
-const RETRY_TIMEOUT = 5 * 60 * 1000; // 5 min
+const marketDB = require('../db');
+const { notifyAdmin } = require('../notifications');
+
+const RETRY_TIMEOUT = 20 * 60 * 1000; // 20 min
 const MAX_RETRY_COUNT = 40;
 
 const attemptList = {}; // address:count
@@ -16,7 +18,7 @@ const tryRegSymbols = async (address, data) => {
       attemptList[address] = 1;
     } else {
       if (attemptList[address] >= MAX_RETRY_COUNT) {
-        throw "too many attempts to register a symbol"
+        notifyAdmin(`too many attempts to register a symbol (${conf.testnet ? 'testnet' : 'livenet'})`);
       } else {
         attemptList[address] = attemptList[address] + 1;
       }
