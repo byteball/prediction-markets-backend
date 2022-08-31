@@ -18,7 +18,7 @@ exports.registerSymbols = async function (address, data) {
     const noSymbol = await token_registry.getSymbolByAsset(noAsset);
     const drawSymbol = drawAsset ? await token_registry.getSymbolByAsset(drawAsset) : null;
 
-    const {yes, no, draw} = await getExpectSymbolsData({...data, yes_asset: yesAsset, no_asset: noAsset, draw_asset: drawAsset});
+    const {yes, no, draw} = await getSymbolsData({...data, yes_asset: yesAsset, no_asset: noAsset, draw_asset: drawAsset});
 
     await operator.start();
 
@@ -87,7 +87,7 @@ exports.registerSymbols = async function (address, data) {
 }
 
 
-const getExpectSymbolsData = async (data) => {
+const getSymbolsData = async (data) => {
     const { feed_name, event_date, oracle, reserve_asset, yes_asset, no_asset, draw_asset } = data;
     const momentDate = moment.utc(event_date, 'YYYY-MM-DDTHH:mm:ss').utc();
     const date = momentDate.format((momentDate.hours() === 0 && momentDate.minutes() === 0) ? "YYYY-MM-DD" : "YYYY-MM-DD-hhmm");
