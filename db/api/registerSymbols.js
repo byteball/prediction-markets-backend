@@ -7,8 +7,9 @@ const abbreviations = require('../../abbreviations.json');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const operator = require('aabot/operator.js');
 
-exports.registerSymbols = async function (address, data) {
+const registeredTokens = [];
 
+exports.registerSymbols = async function (address, data) {
     // get assets
     const yesAsset = await dag.readAAStateVar(address, 'yes_asset');
     const noAsset = await dag.readAAStateVar(address, 'no_asset');
@@ -18,18 +19,24 @@ exports.registerSymbols = async function (address, data) {
     const noSymbol = await token_registry.getSymbolByAsset(noAsset);
     const drawSymbol = drawAsset ? await token_registry.getSymbolByAsset(drawAsset) : null;
 
-    const {yes, no, draw} = await getSymbolsData({...data, yes_asset: yesAsset, no_asset: noAsset, draw_asset: drawAsset});
+    const { yes, no, draw } = await getSymbolsData({ ...data, yes_asset: yesAsset, no_asset: noAsset, draw_asset: drawAsset });
 
     await operator.start();
 
-    if (!yesSymbol) {
-        dag.sendPayment({
+    if (!yesSymbol && !registeredTokens.includes(yes.asset)) {
+        const regTxId = await dag.sendPayment({
             to_address: conf.tokenRegistryAaAddress,
             amount: 1e8,
             data: yes
         });
 
-        dag.sendPayment({
+        if (regTxId) {
+            registeredTokens.push(yes.asset);
+        } else {
+            throw "reg yes symbol error"
+        }
+
+        await dag.sendPayment({
             to_address: conf.tokenRegistryAaAddress,
             amount: 1e4,
             data: {
@@ -40,17 +47,22 @@ exports.registerSymbols = async function (address, data) {
             }
         });
 
-        console.error('send reg yes', yes);
     }
 
-    if (!noSymbol) {
-        dag.sendPayment({
+    if (!noSymbol && !registeredTokens.includes(no.asset)) {
+        const regTxId = await dag.sendPayment({
             to_address: conf.tokenRegistryAaAddress,
             amount: 1e8,
             data: no
         });
 
-        dag.sendPayment({
+        if (regTxId) {
+            registeredTokens.push(no.asset);
+        } else {
+            throw "reg no symbol error"
+        }
+
+        await dag.sendPayment({
             to_address: conf.tokenRegistryAaAddress,
             amount: 1e4,
             data: {
@@ -60,18 +72,24 @@ exports.registerSymbols = async function (address, data) {
                 asset: no.asset
             }
         });
-
-        console.error('send reg no', no);
     }
 
-    if (!drawSymbol && drawAsset) {
-        dag.sendPayment({
+
+    if (!drawSymbol && drawAsset && !registeredTokens.includes(draw.asset)) {
+        const regTxId = await dag.sendPayment({
             to_address: conf.tokenRegistryAaAddress,
             amount: 1e8,
-            data: yes
+            data: draw
         });
 
-        dag.sendPayment({
+        if (regTxId) {
+            registeredTokens.push(draw.asset);
+        } else {
+            throw "reg draw symbol error"
+        }
+
+
+        await dag.sendPayment({
             to_address: conf.tokenRegistryAaAddress,
             amount: 1e4,
             data: {
@@ -81,8 +99,6 @@ exports.registerSymbols = async function (address, data) {
                 asset: draw.asset
             }
         });
-
-        console.error('send reg draw', draw);
     }
 }
 

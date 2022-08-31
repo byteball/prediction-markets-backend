@@ -3,6 +3,31 @@ const conf = require('ocore/conf.js');
 const mutex = require('ocore/mutex.js')
 const marketDB = require('../db');
 
+const RETRY_TIMEOUT = 5 * 60 * 1000; // 5 min
+const MAX_RETRY_COUNT = 40;
+
+const attemptList = {}; // address:count
+
+const tryRegSymbols = async (address, data) => {
+  try {
+    await marketDB.api.registerSymbols(address, data);
+  } catch {
+    if (!(address in attemptList)) {
+      attemptList[address] = 1;
+    } else {
+      if (attemptList[address] >= MAX_RETRY_COUNT) {
+        throw "too many attempts to register a symbol"
+      } else {
+        attemptList[address] = attemptList[address] + 1;
+      }
+    }
+
+    setTimeout(async () => {
+      await tryRegSymbols(address, data);
+    }, RETRY_TIMEOUT);
+  }
+}
+
 exports.responseHandler = async function (objResponse) {
   const unlock = await mutex.lock('responseHandler');
 
@@ -25,15 +50,10 @@ exports.responseHandler = async function (objResponse) {
     if (joint && joint.unit && joint.unit.messages) {
       await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp);
       await marketDB.api.saveReserveSymbol(responseVars.prediction_address, payload.reserve_asset);
-      
-      if (conf.automaticSymbolsReg && timestamp > 1661955871){ //automatic registration start time
-        try {
-          await marketDB.api.registerSymbols(responseVars.prediction_address, payload);
-        } catch (e) {
-          console.error('reg symbol error', e)
-        }
+
+      if (conf.automaticSymbolsReg && timestamp > 1661955871) { // automatic registration start time
+        await tryRegSymbols(responseVars.prediction_address, payload);
       }
-      
     }
   }
 
