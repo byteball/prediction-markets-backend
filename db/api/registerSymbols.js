@@ -122,7 +122,7 @@ const getExpectSymbolsData = async (data) => {
         no_symbol = `${feed_name}_${date}_NO`
         draw_symbol = `${feed_name}_${date}_DRAW`
 
-        const event = generateTextEvent({ ...data, event_date: moment.utc(event_date, 'YYYY-MM-DDTHH:mm:ss').unix(), isUTC: true })// '435' //generateTextEvent({ ...order.data, event_date: moment.utc(order.data.event_date, 'YYYY-MM-DDTHH:mm:ss').unix(), isUTC: true })
+        const event = generateTextEvent({ ...data, event_date: moment.utc(event_date, 'YYYY-MM-DDTHH:mm:ss').unix(), isUTC: true });
 
         yes_desc = `YES-token for event: "${event}"`;
         no_desc = `NO-token for event: "${event}"`;
