@@ -14,7 +14,7 @@ exports.tokenRegistryAaAddress = "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ";
 exports.bSingleAddress = true;
 exports.bWantNewPeers = true;
 
-// mail
+// email
 exports.admin_email = '';
 exports.from_email = '';
 
