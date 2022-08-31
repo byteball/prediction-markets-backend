@@ -104,6 +104,10 @@ async function start() {
     if (reserve_balance < 1e9) {
       throw clc.red.bold('Your wallet contains less than 1 GBYTE.')
     }
+
+    if (!conf.admin_email || !conf.from_email) {
+      throw clc.red.bold('please specify admin_email and from_email in your conf.json');
+    }
   }
 }
 
