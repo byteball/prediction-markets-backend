@@ -21,7 +21,7 @@ exports.create = async function () {
 		type VARCHAR(40),
 		timestamp TIMESTAMP NOT NULL,
 		trigger_address CHAR(32) NOT NULL,
-		trigger_unit CHAR(44),
+		trigger_unit CHAR(44) NOT NULL,
 		UNIQUE (response_unit)
 	)`);
 	
