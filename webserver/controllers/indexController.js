@@ -2,12 +2,13 @@ const path = require('path');
 const conf = require('ocore/conf.js');
 const fs = require("fs").promises;
 const moment = require('moment');
+const { isValidAddress } = require('ocore/validation_utils');
+const { kebabCase } = require('lodash');
 
 const marketDB = require('../../db');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const abbreviations = require('../../abbreviations.json');
 const { sportDataService } = require("../../SportData");
-const { kebabCase } = require('lodash');
 
 const indexPath = path.resolve(__dirname, '..', '..', '..', 'prediction-markets-ui', 'build', 'index.html');
 
@@ -16,18 +17,22 @@ module.exports = async (req, reply) => {
 
     try {
         const url = req.url || '/';
-        const regex = /-\w{32}$/;
-        const pathname = url.substring(8, url.length);
+        let address = null;
 
-        const startSymbol = pathname.search(regex) + 1;
-        const address = pathname.substring(startSymbol, startSymbol + 32);
+        if (url.includes('market')) {
+            const regex = /(\w{32})$/;
+            const match = url.match(regex);
+
+            address = match[0];
+        }
 
         let imageUrl = '';
         let event = null;
 
         let title = 'Prophet — Decentralized prediction markets';
 
-        if (url.includes('market') && address) {
+        if (url.includes('market') && address && isValidAddress(address)) {
+
             imageUrl = `${conf.backendUrl}/og_images/market/${address}`;
             const params = await marketDB.api.getMarketParams(address);
 
