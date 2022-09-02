@@ -43,12 +43,14 @@ exports.supportedReserveAssets = process.env.testnet == "1" ? {
     decimals: 4
   }
 };
-exports.webUrl = process.env.testnet ? 'https://testnet.prophet.ooo/api' : 'https://prophet.ooo/api';
+exports.backendUrl = process.env.testnet ? 'https://testnet.prophet.ooo/api' : 'https://prophet.ooo/api';
+exports.frontendUrl = process.env.testnet ? 'https://testnet.prophet.ooo' : 'https://prophet.ooo';
 exports.footballDataApiKey = process.env.footballDataApiKey;
 exports.sportOracleAddress = process.env.testnet === '1' ? 'MDKKPO375Q5M3GDET2X4H4ZNSO37OIIZ' : 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW';
 exports.sportOraclePairingCode = process.env.testnet ? 'AozzzS0drYyXGk2Hj1jJ0IV4FL6zykUAYdmygfMw1gsO@obyte.org/bb-test#0000' : 'Ar1O7dGgkkcABYNAbShlY2Pbx6LmUzoyRh6F14vM0vTZ@obyte.org/bb#0000';
 exports.currencyOracleAddresses = process.env.testnet ? ['F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N'] : ['JPQKPRI5FMTQRJF4ZZMYZYDQVRD55OTC', 'DXYWHSZ72ZDNDZ7WYZXKWBBH425C6WZN'];
 exports.limitMarketsOnPage = 5;
+exports.limitEventsOnPage = 5;
 exports.factoryUpgradeTimestamp = 1660221260;
 
 console.error('finished server conf');

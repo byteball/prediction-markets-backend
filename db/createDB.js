@@ -9,6 +9,7 @@ exports.create = async function () {
 		yes_amount INTEGER DEFAULT 0,
 		no_amount INTEGER DEFAULT 0,
 		draw_amount INTEGER DEFAULT 0,
+		reserve_amount INTEGER DEFAULT 0,
 		supply_yes INTEGER DEFAULT 0,
 		supply_no INTEGER DEFAULT 0,
 		supply_draw INTEGER DEFAULT 0,
@@ -19,6 +20,8 @@ exports.create = async function () {
 		coef REAL DEFAULT 1,
 		type VARCHAR(40),
 		timestamp TIMESTAMP NOT NULL,
+		trigger_address CHAR(32) NOT NULL,
+		trigger_unit CHAR(44) NOT NULL,
 		UNIQUE (response_unit)
 	)`);
 	

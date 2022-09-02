@@ -14,6 +14,7 @@ const popularCurrenciesController = require('./controllers/popularCurrenciesCont
 const datesController = require('./controllers/datesController.js');
 const ogImageController = require('./controllers/ogImageController.js');
 const indexController = require('./controllers/indexController.js');
+const recentEventsController = require('./controllers/recentEventsController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -35,6 +36,7 @@ fastifyInstance.get('/api/popular_oracle_pairs', popularCurrenciesController);
 fastifyInstance.get('/api/team/:sport/:abbreviation', sportTeamController);
 fastifyInstance.get('/api/dates/:address', datesController);
 fastifyInstance.get('/api/og_images/:type/:address?', ogImageController);
+fastifyInstance.get('/api/recent_events/:address/:page?', recentEventsController);
 fastifyInstance.setNotFoundHandler(indexController);
 
 // Run the server

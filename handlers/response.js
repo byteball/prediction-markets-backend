@@ -78,6 +78,33 @@ exports.responseHandler = async function (objResponse) {
 
   if (responseVars && ('next_coef' in responseVars) && ('arb_profit_tax' in responseVars || isAddLiquidity)) {
     const existsAmountInPayload = 'yes_amount' in payload || 'no_amount' in payload || 'draw_amount' in payload;
+    const { reserve_asset } = await marketDB.api.getMarketAssets(aa_address);
+
+    let reserve_amount = 0;
+    if (existsAmountInPayload || isAddLiquidity || ('type' in payload)) {
+      if (joint.unit && joint.unit.messages) {
+        const msg = joint?.unit?.messages?.find(({ app, payload }) => app === 'payment' && (reserve_asset === 'base' ? !('asset' in payload) : payload.asset === reserve_asset));
+
+        if (msg) {
+          const outputs = msg.payload.outputs;
+          if (outputs) {
+            const output = outputs.find(({ address }) => address === aa_address);
+            if (output && output.amount !== 1e4) {
+              reserve_amount = output.amount;
+            }
+          }
+        }
+      }
+
+    } else { // redeem
+      const messages = objResponse.objResponseUnit.messages;
+
+      if (messages.length === 1) {
+        const outputs = messages[0].payload.outputs;
+        const output = outputs.find(({ address }) => address !== aa_address);
+        reserve_amount = output.amount;
+      }
+    }
 
     const tradeData = {
       aa_address: aa_address,
@@ -94,7 +121,10 @@ exports.responseHandler = async function (objResponse) {
       coef: responseVars.next_coef,
       reserve: responseVars.next_reserve,
       timestamp,
-      response_unit: objResponse.response_unit
+      response_unit: objResponse.response_unit,
+      reserve_amount: reserve_amount || 0,
+      trigger_address: objResponse.trigger_address,
+      trigger_unit: objResponse.trigger_unit
     };
 
     await marketDB.api.saveTradeEvent(tradeData)
@@ -142,7 +172,10 @@ exports.responseHandler = async function (objResponse) {
       yes_price: 0,
       no_price: 0,
       draw_price: 0,
-      ...{ [`supply_${winner}`]: actualData[`supply_${winner}`] - output.amount, [`${winner}_price`]: winnerPrice }
+      ...{ [`supply_${winner}`]: new_winner_supply, [`${winner}_price`]: winnerPrice },
+      trigger_address: objResponse.trigger_address,
+      reserve_amount: Math.floor(output.amount / new_winner_supply * new_reserve),
+      trigger_unit: objResponse.trigger_unit
     })
   }
 

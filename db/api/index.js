@@ -1,6 +1,6 @@
 const { getActualMarketInfo } = require("./getActualMarketInfo");
 const { getAllMarkets } = require("./getAllMarkets");
-const { getAllTradeEventsByMarketAddress } = require("./getAllTradeEventsByMarketAddress");
+const { getTradeEventsByMarket } = require("./getTradeEventsByMarket");
 const { getCloses } = require("./getCloses");
 const { getMarketAssets } = require("./getMarketAssets");
 const { getMarketParams } = require("./getMarketParams");
@@ -20,7 +20,7 @@ module.exports = {
   saveSymbolForAsset,
   refreshSymbols,
   saveTradeEvent,
-  getAllTradeEventsByMarketAddress,
+  getTradeEventsByMarket,
   getMarketParams,
   getMarketAssets,
   getCloses,
