@@ -126,7 +126,7 @@ module.exports = async (req, reply) => {
         if (event) {
             modifiedHTMLData = modifiedHTMLData.replace('__CANONICAL_URL__', `${conf.frontendUrl}/markets/${kebabCase(event)}-${address}`);
         } else {
-            modifiedHTMLData = modifiedHTMLData.replace('<link rel="canonical" href="__CANONICAL_URL__" />', '');
+            modifiedHTMLData = modifiedHTMLData.replace('<link rel="canonical" href="__CANONICAL_URL__" data-react-helmet="true" />', '');
         }
 
         modifiedHTMLData = modifiedHTMLData.replace(
