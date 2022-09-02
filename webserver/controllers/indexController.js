@@ -7,6 +7,7 @@ const marketDB = require('../../db');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const abbreviations = require('../../abbreviations.json');
 const { sportDataService } = require("../../SportData");
+const { kebabCase } = require('lodash');
 
 const indexPath = path.resolve(__dirname, '..', '..', '..', 'prediction-markets-ui', 'build', 'index.html');
 
@@ -15,16 +16,24 @@ module.exports = async (req, reply) => {
 
     try {
         const url = req.url || '/';
-        const address = url.split("/").find((str) => str.length === 32);
+        const regex = /-\w{32}$/;
+        const pathname = url.substring(8, url.length);
+
+        const startSymbol = pathname.search(regex) + 1;
+        const address = pathname.substring(startSymbol, startSymbol + 32);
+
         let imageUrl = '';
+        let event = null;
+
         let title = 'Prophet — Decentralized prediction markets';
 
         if (url.includes('market') && address) {
-            imageUrl = `${conf.webUrl}/og_images/market/${address}`;
+            imageUrl = `${conf.backendUrl}/og_images/market/${address}`;
             const params = await marketDB.api.getMarketParams(address);
 
             if (params) {
                 const state = await marketDB.api.getActualMarketInfo(address);
+
 
                 let APY;
 
@@ -60,18 +69,20 @@ module.exports = async (req, reply) => {
                     const yesName = yes_abbreviation[1].name;
                     const noName = no_abbreviation[1].name;
                     title += `${yesName || yes_team} vs ${noName || no_team}${strAPY}`;
+
+                    event = generateTextEvent({ params, isUTC: true, yes_team_name: yesName, no_team_name: noName });
                 } else {
-                    const event = generateTextEvent({ ...params, isUTC: true });
+                    event = generateTextEvent({ ...params, isUTC: true });
 
                     title += `${event}${strAPY}`;
                 }
             }
 
         } else if (url.includes('faq')) {
-            imageUrl = `${conf.webUrl}/og_images/faq`;
+            imageUrl = `${conf.backendUrl}/og_images/faq`;
             title = 'Prophet prediction markets — F.A.Q.';
         } else if (url.includes('create')) {
-            imageUrl = `${conf.webUrl}/og_images/create`;
+            imageUrl = `${conf.backendUrl}/og_images/create`;
             title = 'Prophet prediction markets — Create new market';
         } else {
             const urlParts = url.split('/');
@@ -104,7 +115,7 @@ module.exports = async (req, reply) => {
                 title = 'Prophet — Decentralized prediction markets';
             }
 
-            imageUrl = `${conf.webUrl}/og_images/main`;
+            imageUrl = `${conf.backendUrl}/og_images/main`;
 
         }
 
@@ -112,6 +123,11 @@ module.exports = async (req, reply) => {
         modifiedHTMLData = htmlData.replace('__META_OG_IMAGE__', imageUrl);
         modifiedHTMLData = modifiedHTMLData.replace('__META_OG_IMAGE__', imageUrl);
 
+        if (event) {
+            modifiedHTMLData = modifiedHTMLData.replace('__CANONICAL_URL__', `${conf.frontendUrl}/markets/${kebabCase(event)}-${address}`);
+        } else {
+            modifiedHTMLData = modifiedHTMLData.replace('<link rel="canonical" href="__CANONICAL_URL__" />', '');
+        }
 
         modifiedHTMLData = modifiedHTMLData.replace(
             "__MAIN_TITLE__",
