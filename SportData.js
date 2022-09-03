@@ -3,7 +3,7 @@ const { default: axios } = require("axios");
 const moment = require('moment');
 const marketDB = require('./db')
 const abbreviations = require('./abbreviations.json');
-const { uniq } = require('lodash');
+const { uniq, isEmpty } = require('lodash');
 
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
 
@@ -124,12 +124,12 @@ class SportDataService {
 
       return championshipInfo || {}
     } else {
-      return null;
+      return {};
     }
   }
 
   async getSoccerChampionshipsInfo() {
-    return await this.footballApi.get('/v4/competitions').then(({ data }) => data.competitions);
+    return await this.footballApi.get('/v4/competitions').then(({ data }) => data.competitions).catch(() => []);
   }
 
   async updateSoccerCalendar() {
@@ -146,15 +146,17 @@ class SportDataService {
 
       const championshipsInfo = await this.getSoccerChampionshipsInfo();
 
-      this.championships.soccer = soccerChampionships.map((leagueName) => {
-        const info = championshipsInfo.find(({ code }) => code === leagueName) || {};
+      if (!isEmpty(championshipsInfo)) {
+        this.championships.soccer = soccerChampionships.map((leagueName) => {
+          const info = championshipsInfo.find(({ code }) => code === leagueName) || {};
 
-        return ({
-          code: leagueName,
-          name: info.name || null,
-          emblem: info.emblem || null
+          return ({
+            code: leagueName,
+            name: info.name || null,
+            emblem: info.emblem || null
+          })
         })
-      })
+      }
     } catch (err) {
       console.error('update sportData error', err);
     }
