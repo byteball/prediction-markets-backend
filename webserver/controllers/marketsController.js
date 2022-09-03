@@ -61,6 +61,13 @@ module.exports = async (request, reply) => {
 		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }));
 		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data));
 
+		await Promise.all(gettersActualData);
+		await Promise.all(gettersCandle);
+	} catch (e) {
+		console.error('error in getters', e)
+	}
+
+	try {
 		rows.forEach((row, i) => {
 			if (row.oracle === conf.sportOracleAddress) {
 				const [championship, yes_team, no_team, date] = row.feed_name.split("_");
@@ -91,13 +98,9 @@ module.exports = async (request, reply) => {
 				}
 			}
 		});
-
-		await Promise.all(gettersActualData);
-		await Promise.all(gettersCandle);
 	} catch (e) {
-		console.error('error in getters', e)
+		console.error('soccer info error', e)
 	}
-
 
 	if (Object.keys(cacheRate.data).length === 0 || cacheRate.lastUpdate < Date.now() - (1800 * 1000)) {
 		try {
