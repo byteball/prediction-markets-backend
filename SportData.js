@@ -94,6 +94,10 @@ class SportDataService {
 
       matches.forEach(matchObject => {
         const feed_name = this.getFeedNameByMatches(championship, matchObject);
+        
+        if (!conf.sportOracleAddress) {
+          console.error('no sport oracle', conf);
+        }
 
         if (feed_name) {
           newData.push({
