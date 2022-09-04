@@ -58,16 +58,6 @@ module.exports = async (request, reply) => {
 	}
 
 	try {
-		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }).catch((e) => console.error('get actual data error', e)));
-		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data).catch((e) => console.error('get candles error', e)));
-
-		await Promise.all(gettersActualData);
-		await Promise.all(gettersCandle);
-	} catch (e) {
-		console.error('error in getters', e)
-	}
-
-	try {
 		rows.forEach((row, i) => {
 			if (row.oracle === conf.sportOracleAddress) {
 				const [championship, yes_team, no_team, date] = row.feed_name.split("_");
@@ -86,9 +76,9 @@ module.exports = async (request, reply) => {
 						rows[i].no_team = no_abbreviation[1].name;
 					}
 
-					let championshipInfo;
+					let championshipInfo = {};
 					try {
-						championshipInfo = sportDataService.getChampionshipInfo('soccer', championship);
+						championshipInfo = sportDataService.getCharmpionshipInfo('soccer', championship);
 					} catch (e) {
 						championshipInfo = {};
 						console.error('get championshipInfo error', e)
@@ -101,6 +91,16 @@ module.exports = async (request, reply) => {
 		});
 	} catch (e) {
 		console.error('soccer info error', e)
+	}
+
+	try {
+		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }).catch((e) => console.error('get actual data error', e)));
+		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data).catch((e) => console.error('get candles error', e)));
+
+		await Promise.all(gettersActualData);
+		await Promise.all(gettersCandle);
+	} catch (e) {
+		console.error('error in getters', e)
 	}
 
 	if (Object.keys(cacheRate.data).length === 0 || cacheRate.lastUpdate < Date.now() - (1800 * 1000)) {
