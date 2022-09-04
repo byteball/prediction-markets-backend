@@ -58,8 +58,8 @@ module.exports = async (request, reply) => {
 	}
 
 	try {
-		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }));
-		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data));
+		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data })).catch((e) => console.error('get actual data error', e));
+		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data)).catch((e) => console.error('get candles error', e));
 
 		await Promise.all(gettersActualData);
 		await Promise.all(gettersCandle);
@@ -89,8 +89,9 @@ module.exports = async (request, reply) => {
 					let championshipInfo;
 					try {
 						championshipInfo = sportDataService.getChampionshipInfo('soccer', championship);
-					} catch {
+					} catch (e) {
 						championshipInfo = {};
+						console.error('get championshipInfo error', e)
 					}
 
 					rows[i].league_emblem = championshipInfo.emblem || null;

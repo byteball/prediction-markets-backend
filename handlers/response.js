@@ -14,6 +14,7 @@ const tryRegSymbols = async (address, data) => {
   try {
     await marketDB.api.registerSymbols(address, data);
   } catch (e) {
+    console.error('reg symbols error', e)
     if (!(address in attemptList)) {
       attemptList[address] = 1;
     } else {
