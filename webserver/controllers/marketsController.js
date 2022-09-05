@@ -18,6 +18,10 @@ let cacheRate = {
 const filterByType = (type, championship) => {
 	let query = '';
 
+	if (conf.sportOracleAddress !== 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW') {
+		console.error('conf.sportOracleAddress error1', conf.sportOracleAddress)
+	}
+
 	if (type === 'currency') {
 		query = `WHERE markets.oracle IN (${"'" + conf.currencyOracleAddresses.join("','") + "'"})`
 	} else if (type === 'soccer') {
@@ -57,14 +61,8 @@ module.exports = async (request, reply) => {
 		reply.send([]);
 	}
 
-	try {
-		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }).catch((e) => console.error('get actual data error', e)));
-		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data).catch((e) => console.error('get candles error', e)));
-
-		await Promise.all(gettersActualData);
-		await Promise.all(gettersCandle);
-	} catch (e) {
-		console.error('error in getters', e)
+	if (conf.sportOracleAddress !== 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW') {
+		console.error('conf.sportOracleAddress error2', conf.sportOracleAddress)
 	}
 
 	try {
@@ -86,13 +84,7 @@ module.exports = async (request, reply) => {
 						rows[i].no_team = no_abbreviation[1].name;
 					}
 
-					let championshipInfo;
-					try {
-						championshipInfo = sportDataService.getChampionshipInfo('soccer', championship);
-					} catch (e) {
-						championshipInfo = {};
-						console.error('get championshipInfo error', e)
-					}
+					const championshipInfo = sportDataService.getChampionshipInfo('soccer', championship);
 
 					rows[i].league_emblem = championshipInfo.emblem || null;
 					rows[i].league = championshipInfo.name || null;
@@ -101,6 +93,16 @@ module.exports = async (request, reply) => {
 		});
 	} catch (e) {
 		console.error('soccer info error', e)
+	}
+
+	try {
+		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }).catch((e) => console.error('get actual data error', e)));
+		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data).catch((e) => console.error('get candles error', e)));
+
+		await Promise.all(gettersActualData);
+		await Promise.all(gettersCandle);
+	} catch (e) {
+		console.error('error in getters', e)
 	}
 
 	if (Object.keys(cacheRate.data).length === 0 || cacheRate.lastUpdate < Date.now() - (1800 * 1000)) {
