@@ -18,10 +18,6 @@ let cacheRate = {
 const filterByType = (type, championship) => {
 	let query = '';
 
-	if (conf.sportOracleAddress !== 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW') {
-		console.error('conf.sportOracleAddress error1', conf.sportOracleAddress)
-	}
-
 	if (type === 'currency') {
 		query = `WHERE markets.oracle IN (${"'" + conf.currencyOracleAddresses.join("','") + "'"})`
 	} else if (type === 'soccer') {
@@ -59,10 +55,6 @@ module.exports = async (request, reply) => {
 	} catch {
 		console.error("get markets error");
 		reply.send([]);
-	}
-
-	if (conf.sportOracleAddress !== 'TKT4UESIKTTRALRRLWS4SENSTJX6ODCW') {
-		console.error('conf.sportOracleAddress error2', conf.sportOracleAddress)
 	}
 
 	try {
