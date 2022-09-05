@@ -78,7 +78,7 @@ module.exports = async (request, reply) => {
 
 					let championshipInfo = {};
 					try {
-						championshipInfo = sportDataService.getCharmpionshipInfo('soccer', championship);
+						championshipInfo = sportDataService.getChampionshipInfo('soccer', championship);
 					} catch (e) {
 						championshipInfo = {};
 						console.error('get championshipInfo error', e)
