@@ -175,7 +175,7 @@ exports.responseHandler = async function (objResponse) {
       draw_price: 0,
       ...{ [`supply_${winner}`]: new_winner_supply, [`${winner}_price`]: winnerPrice },
       trigger_address: objResponse.trigger_address,
-      reserve_amount: Math.floor(output.amount / new_winner_supply * new_reserve),
+      reserve_amount: responseVars.profit,
       trigger_unit: objResponse.trigger_unit
     })
   }
