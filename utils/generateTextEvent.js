@@ -9,7 +9,7 @@ exports.generateTextEvent = ({ oracle, event_date, feed_name, datafeed_value, co
         const [from, to] = feed_name.split("_");
 
         return `Will ${from} be ${comparisonText} ${datafeed_value} ${to} on ${expiry_date}${isUTC ? ' UTC' : ''}?`;
-    } else if (conf.sportOracleAddress = oracle) {
+    } else if (conf.sportOracleAddress === oracle) {
         // eslint-disable-next-line no-unused-vars
         const [_, yes_team, no_team] = feed_name.split("_");
 
