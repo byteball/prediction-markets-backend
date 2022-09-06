@@ -49,7 +49,7 @@ exports.responseHandler = async function (objResponse) {
   const aa_address = objResponse.aa_address;
 
   if (('prediction_address' in responseVars) && objResponse.objResponseUnit.messages) {
-    if ((timestamp > conf.factoryUpgradeTimestamp[0] && aa_address === conf.factoryAas[0]) || (timestamp > conf.factoryUpgradeTimestamp[1] && aa_address === conf.factoryAas[1])) {
+    if ((timestamp > factoryUpgradeFixQuietPeriodTimestamp && aa_address === conf.factoryAas[0]) || (timestamp > factoryUpgradeRemoveIssueFeeForLiqTimestamp && aa_address === conf.factoryAas[1])) {
       return unlock('ignored AA', responseVars.prediction_address);
     }
 

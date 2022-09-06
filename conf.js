@@ -51,6 +51,7 @@ exports.sportOraclePairingCode = process.env.testnet ? 'AozzzS0drYyXGk2Hj1jJ0IV4
 exports.currencyOracleAddresses = process.env.testnet ? ['F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N'] : ['JPQKPRI5FMTQRJF4ZZMYZYDQVRD55OTC', 'DXYWHSZ72ZDNDZ7WYZXKWBBH425C6WZN'];
 exports.limitMarketsOnPage = 5;
 exports.limitEventsOnPage = 5;
-exports.factoryUpgradeTimestamp = [1660221260, 1662462240];
+exports.factoryUpgradeFixQuietPeriodTimestamp = 1660221260;
+exports.factoryUpgradeRemoveIssueFeeForLiqTimestamp = 1662462240;
 
 console.error('finished server conf');
