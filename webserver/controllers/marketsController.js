@@ -7,6 +7,7 @@ const moment = require('moment');
 const abbreviations = require('../../abbreviations.json');
 const marketDB = require('../../db');
 const { sportDataService } = require('../../SportData');
+const { getEstimateAPY } = require('../../utils/getEstimateAPY');
 
 const limit = conf.limitMarketsOnPage;
 
@@ -138,10 +139,7 @@ module.exports = async (request, reply) => {
 
 		// add APY
 		const data = [...actualMarkets, ...oldMarkets].slice(offset, offset + limit).map((allData) => {
-			const { coef = 1, issue_fee, created_at, committed_at } = allData;
-			const elapsed_seconds = (committed_at || moment.utc().unix()) - created_at;
-
-			const apy = coef !== 1 ? Number(((coef * (1 - issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(2) : 0;
+			const apy = getEstimateAPY(allData).toFixed(2);
 
 			return ({
 				...allData,

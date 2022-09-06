@@ -1,7 +1,6 @@
 const path = require('path');
 const conf = require('ocore/conf.js');
 const fs = require("fs").promises;
-const moment = require('moment');
 const { isValidAddress } = require('ocore/validation_utils');
 const { kebabCase } = require('lodash');
 
@@ -9,6 +8,7 @@ const marketDB = require('../../db');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const abbreviations = require('../../abbreviations.json');
 const { sportDataService } = require("../../SportData");
+const { getEstimateAPY } = require('../../utils/getEstimateAPY');
 
 const indexPath = path.resolve(__dirname, '..', '..', '..', 'prediction-markets-ui', 'build', 'index.html');
 
@@ -43,8 +43,7 @@ module.exports = async (req, reply) => {
                 let APY;
 
                 if (state) {
-                    const elapsed_seconds = (params.committed_at || moment.utc().unix()) - params.created_at;
-                    APY = (state.coef || 1) !== 1 ? Math.abs((((state.coef || 1) * (1 - params.issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100).toFixed(4) : "0";
+                    APY = getEstimateAPY({...params, coef: state.coef}).toFixed(4);
 
                     if (APY > 10e9) {
                         APY = '10m.+'

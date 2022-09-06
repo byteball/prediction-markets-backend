@@ -6,7 +6,7 @@ const moment = require('moment');
 
 const { saveMarketAsset } = require('./saveMarketAsset');
 
-exports.savePredictionMarket = async function (aa_address, params, timestamp) {
+exports.savePredictionMarket = async function (aa_address, params, timestamp, base_aa) {
   const unlock = await mutex.lock(aa_address);
 
   // ignore if unknown reserve
@@ -33,6 +33,7 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
   if (aa_address && oracle && feed_name !== undefined && datafeed_value !== undefined) {
     const data = [
       aa_address,
+      base_aa,
       oracle,
       feed_name,
       reserve_asset ? reserve_asset : "base",
@@ -48,7 +49,7 @@ exports.savePredictionMarket = async function (aa_address, params, timestamp) {
       quiet_period !== undefined ? quiet_period : 0
     ];
 
-    await db.query("INSERT INTO markets (aa_address, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, event_date, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, quiet_period, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
+    await db.query("INSERT INTO markets (aa_address, base_aa, oracle, feed_name, reserve_asset, comparison, datafeed_value, datafeed_draw_value, event_date, waiting_period_length, issue_fee, redeem_fee, arb_profit_tax, allow_draw, quiet_period, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [...data, timestamp]);
 
     await saveMarketAsset(aa_address, 'reserve', reserve_asset || "base");
   } else {
