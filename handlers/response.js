@@ -48,13 +48,19 @@ exports.responseHandler = async function (objResponse) {
   const payload = msg ? msg.payload : {};
   const aa_address = objResponse.aa_address;
 
-  if (('prediction_address' in responseVars)) {
-    if (timestamp > conf.factoryUpgradeTimestamp && aa_address === conf.factoryAas[0]) {
+  if (('prediction_address' in responseVars) && objResponse.objResponseUnit.messages) {
+    if ((timestamp > factoryUpgradeFixQuietPeriodTimestamp && aa_address === conf.factoryAas[0]) || (timestamp > factoryUpgradeRemoveIssueFeeForLiqTimestamp && aa_address === conf.factoryAas[1])) {
       return unlock('ignored AA', responseVars.prediction_address);
     }
 
+    const defMsg = objResponse.objResponseUnit.messages.find(({ app }) => app === 'definition');
+
+    if (!defMsg) return unlock('no def msg', responseVars.prediction_address)
+
+    const base_aa = defMsg.payload.definition[1].base_aa;
+
     if (joint && joint.unit && joint.unit.messages) {
-      await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp);
+      await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp, base_aa);
       await marketDB.api.saveReserveSymbol(responseVars.prediction_address, payload.reserve_asset);
 
       if (conf.automaticSymbolsReg && timestamp > 1661955871) { // automatic registration start time

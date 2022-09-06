@@ -19,7 +19,7 @@ exports.admin_email = '';
 exports.from_email = '';
 
 // custom
-exports.factoryAas = ["S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G", "ZV3JPT2RDDQSEFTO7IDOZF3OWVUZF7NC"];
+exports.factoryAas = ["S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G", "ZV3JPT2RDDQSEFTO7IDOZF3OWVUZF7NC", "HUJCVN2ZTG6CWUEKG4LQDAMBWSVCSP5L"];
 exports.deviceName = 'Prediction markets';
 exports.enableCommitter = false;
 exports.automaticSymbolsReg = false;
@@ -51,6 +51,7 @@ exports.sportOraclePairingCode = process.env.testnet ? 'AozzzS0drYyXGk2Hj1jJ0IV4
 exports.currencyOracleAddresses = process.env.testnet ? ['F4KHJUCLJKY4JV7M5F754LAJX4EB7M4N'] : ['JPQKPRI5FMTQRJF4ZZMYZYDQVRD55OTC', 'DXYWHSZ72ZDNDZ7WYZXKWBBH425C6WZN'];
 exports.limitMarketsOnPage = 5;
 exports.limitEventsOnPage = 5;
-exports.factoryUpgradeTimestamp = 1660221260;
+exports.factoryUpgradeFixQuietPeriodTimestamp = 1660221260;
+exports.factoryUpgradeRemoveIssueFeeForLiqTimestamp = 1662462240;
 
 console.error('finished server conf');

@@ -27,6 +27,7 @@ exports.create = async function () {
 	
 	await db.query(`CREATE TABLE IF NOT EXISTS markets (
 		aa_address CHAR(32) NOT NULL,
+		base_aa CHAR(32) NOT NULL,
 		oracle CHAR(32) NOT NULL,
 		comparison CHAR(2) NOT NULL,
 		feed_name CHAR(32) NOT NULL,

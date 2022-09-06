@@ -47,7 +47,7 @@ async function discoverMarketAas() {
       const { created_at } = stateVars[key];
       const marketAddress = key.replace("prediction_", "");
 
-      if (factory !== conf.factoryAas[0] || created_at <= conf.factoryUpgradeTimestamp) {
+      if ((factory === conf.factoryAas[0] && created_at <= factoryUpgradeFixQuietPeriodTimestamp) || (factory === conf.factoryAas[1] && created_at <= factoryUpgradeRemoveIssueFeeForLiqTimestamp) || factory === conf.factoryAas[2]) {
         allMarkets.push(marketAddress);
       } else {
         console.error('ignore ', marketAddress);

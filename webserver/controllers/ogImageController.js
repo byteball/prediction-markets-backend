@@ -5,10 +5,11 @@ const marketDB = require('../../db');
 const db = require('ocore/db.js');
 const moment = require('moment');
 const conf = require('ocore/conf.js');
+const { truncate } = require('lodash');
 
 const abbreviations = require('../../abbreviations.json');
-const { truncate } = require('lodash');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
+const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
 
 const knownTypes = ['main', 'faq', 'market', 'create'];
 
@@ -35,12 +36,11 @@ module.exports = async (request, reply) => {
 
             const [params] = rows;
 
-            const { event_date, feed_name, oracle, created_at, committed_at, issue_fee, reserve_decimals = 0, reserve_symbol, datafeed_value, comparison, allow_draw = false, result } = params;
+            const { event_date, feed_name, oracle, reserve_decimals = 0, reserve_symbol, datafeed_value, comparison, allow_draw = false, result } = params;
 
             if (!oracle) return reply.notFound();
 
-            const elapsed_seconds = (committed_at || moment.utc().unix()) - created_at;
-            let APY = coef !== 1 ? Math.abs(((coef * (1 - issue_fee)) ** (31536000 / elapsed_seconds) - 1) * 100) : 0;
+            let APY = getEstimatedAPY({ ...params, coef });
 
             if (APY > 10e9) {
                 APY = '10m+'
