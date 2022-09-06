@@ -9,7 +9,7 @@ const { truncate } = require('lodash');
 
 const abbreviations = require('../../abbreviations.json');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
-const { getEstimateAPY } = require('../../utils/getEstimateAPY');
+const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
 
 const knownTypes = ['main', 'faq', 'market', 'create'];
 
@@ -40,7 +40,7 @@ module.exports = async (request, reply) => {
 
             if (!oracle) return reply.notFound();
 
-            let APY = getEstimateAPY({ ...params, coef });
+            let APY = getEstimatedAPY({ ...params, coef });
 
             if (APY > 10e9) {
                 APY = '10m+'

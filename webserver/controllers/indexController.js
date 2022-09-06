@@ -8,7 +8,7 @@ const marketDB = require('../../db');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const abbreviations = require('../../abbreviations.json');
 const { sportDataService } = require("../../SportData");
-const { getEstimateAPY } = require('../../utils/getEstimateAPY');
+const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
 
 const indexPath = path.resolve(__dirname, '..', '..', '..', 'prediction-markets-ui', 'build', 'index.html');
 
@@ -43,7 +43,7 @@ module.exports = async (req, reply) => {
                 let APY;
 
                 if (state) {
-                    APY = getEstimateAPY({...params, coef: state.coef}).toFixed(4);
+                    APY = getEstimatedAPY({...params, coef: state.coef}).toFixed(4);
 
                     if (APY > 10e9) {
                         APY = '10m.+'
