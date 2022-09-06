@@ -59,6 +59,8 @@ class ResultCommitter {
         if (!correspondent) {
             oracle_device_address = await correspondents.addCorrespondent(conf.sportOraclePairingCode, 'Sport Oracle');
             console.log(`added oracle correspondent`, oracle_device_address);
+            if (!oracle_device_address)
+                throw Error(`no oracle device address`);
         } else {
             oracle_device_address = correspondent.device_address;
         }
@@ -84,6 +86,8 @@ class ResultCommitter {
 
     async sendResultRequest(oracle_device_address, msg) {
         console.log(`will send result request to oracle ${oracle_device_address}`, msg);
+        if (!oracle_device_address)
+            throw Error(`empty oracle device address`);
         const committerContext = this;
 
         return new Promise((resolve) => {

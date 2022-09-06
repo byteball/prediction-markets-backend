@@ -39,7 +39,7 @@ exports.addCorrespondent = async (code, name) => {
 		})
 	}
 
-	handleCode(code);
+	return await handleCode(code);
 };
 
 exports.findCorrespondentByPairingCode = async (code) => {
