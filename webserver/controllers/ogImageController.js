@@ -40,7 +40,9 @@ module.exports = async (request, reply) => {
 
             if (!oracle) return reply.notFound();
 
-            let APY = getEstimatedAPY({ ...params, coef });
+            const first_trade_info = await marketDB.api.getTradeEventsByMarket(address, { limit: 1, sort: 'ASC' }).then(({ data }) => data)
+
+            let APY = getEstimatedAPY({ ...params, coef, first_trade_at: first_trade_info?.[0]?.timestamp || null });
 
             if (APY > 10e9) {
                 APY = '10m+'

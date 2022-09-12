@@ -88,16 +88,6 @@ module.exports = async (request, reply) => {
 		console.error('soccer info error', e)
 	}
 
-	try {
-		const gettersActualData = rows.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(data => rows[i] = { ...rows[i], ...data }).catch((e) => console.error('get actual data error', e)));
-		const gettersCandle = rows.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(data => rows[i].candles = data).catch((e) => console.error('get candles error', e)));
-
-		await Promise.all(gettersActualData);
-		await Promise.all(gettersCandle);
-	} catch (e) {
-		console.error('error in getters', e)
-	}
-
 	if (Object.keys(cacheRate.data).length === 0 || cacheRate.lastUpdate < Date.now() - (1800 * 1000)) {
 		try {
 			const data = await axios.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${Object.values(conf.supportedReserveAssets).map(({ symbol }) => symbol).join(",")}&tsyms=USD`).then(({ data }) => {
@@ -125,7 +115,7 @@ module.exports = async (request, reply) => {
 		const actualMarkets = [];
 		let oldMarkets = [];
 
-		const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
+		const sortedRows = rows.sort((b, a) => ((a.total_reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.total_reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
 
 		sortedRows.forEach(row => {
 			if (now >= row.event_date) {
@@ -138,7 +128,17 @@ module.exports = async (request, reply) => {
 		oldMarkets = oldMarkets.sort((a, b) => b.event_date - a.event_date);
 
 		// add APY
-		const data = [...actualMarkets, ...oldMarkets].slice(offset, offset + limit).map((allData) => {
+		let data = [...actualMarkets, ...oldMarkets].slice(offset, offset + limit);
+
+		const gettersCandle = data.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(closes => data[i].candles = closes).catch((e) => console.error('get candles error', e)));
+		const gettersFirstTrade = data.map((row, i) => marketDB.api.getTradeEventsByMarket(row.aa_address, { limit: 1, sort: 'ASC' }).then(({ data: first_trade_ts }) => data[i].first_trade_at = first_trade_ts?.[0]?.timestamp || null).catch(console.error));
+		const gettersActualData = data.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(actualData => data[i] = { ...data[i], ...actualData }).catch((e) => console.error('get actual data error', e)));
+
+		await Promise.all(gettersActualData);
+		await Promise.all(gettersCandle);
+		await Promise.all(gettersFirstTrade);
+
+		data = data.map((allData) => {
 			const apy = getEstimatedAPY(allData).toFixed(2);
 
 			return ({
