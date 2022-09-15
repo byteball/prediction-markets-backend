@@ -115,7 +115,7 @@ module.exports = async (request, reply) => {
 		const actualMarkets = [];
 		let oldMarkets = [];
 
-		const sortedRows = rows.sort((b, a) => ((a.total_reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.total_reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
+		const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
 
 		sortedRows.forEach(row => {
 			if (now >= row.event_date) {

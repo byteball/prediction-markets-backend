@@ -41,7 +41,7 @@ exports.create = async function () {
 		issue_fee REAL DEFAULT 0.01,
 		redeem_fee REAL DEFAULT 0.02,
 		arb_profit_tax REAL DEFAULT 0.9,
-		total_reserve INTEGER DEFAULT 0,
+		reserve INTEGER DEFAULT 0,
 		result CHAR(4),
 		created_at TIMESTAMP NOT NULL,
 		committed_at TIMESTAMP DEFAULT NULL,
@@ -119,9 +119,9 @@ exports.create = async function () {
 		UNIQUE (aa_address, start_timestamp)
 	)`);
 
-	await db.query(`CREATE TRIGGER IF NOT EXISTS update_reserve_total AFTER INSERT ON trades
+	await db.query(`CREATE TRIGGER IF NOT EXISTS update_reserve AFTER INSERT ON trades
 		BEGIN
-			UPDATE markets SET total_reserve=new.reserve WHERE aa_address = new.aa_address;
+			UPDATE markets SET reserve=new.reserve WHERE aa_address = new.aa_address;
 		END;
 	`)
 
