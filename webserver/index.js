@@ -29,7 +29,7 @@ fastifyInstance.register(fastifySensible);
 // Declare routes
 fastifyInstance.get('/api/markets/:page?', marketsController);
 fastifyInstance.get('/api/reserve_assets', reserveAssetsController);
-fastifyInstance.get('/api/daily_closes/:address', dailyCandlesController);
+fastifyInstance.get('/api/daily_candles/:address', dailyCandlesController);
 fastifyInstance.get('/api/calendar/currency/:currency/:page', currencyCalendarController);
 fastifyInstance.get('/api/calendar/:sport/:championship/:page', sportCalendarController);
 fastifyInstance.get('/api/championships/:sport?', championshipsController);

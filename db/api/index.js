@@ -1,10 +1,10 @@
 const { getActualMarketInfo } = require("./getActualMarketInfo");
 const { getAllMarkets } = require("./getAllMarkets");
 const { getTradeEventsByMarket } = require("./getTradeEventsByMarket");
-const { getCloses } = require("./getCloses");
+const { getCandles } = require("./getCandles");
 const { getMarketAssets } = require("./getMarketAssets");
 const { getMarketParams } = require("./getMarketParams");
-const { makeCloses } = require("./makeCloses");
+const { makeCandles } = require("./makeCandles");
 const { refreshSymbols } = require("./refreshSymbols");
 const { saveMarketAsset } = require("./saveMarketAsset");
 const { saveMarketResult } = require("./saveMarketResult");
@@ -23,8 +23,8 @@ module.exports = {
   getTradeEventsByMarket,
   getMarketParams,
   getMarketAssets,
-  getCloses,
-  makeCloses,
+  getCandles,
+  makeCandles,
   getActualMarketInfo,
   saveMarketResult,
   saveReserveSymbol,

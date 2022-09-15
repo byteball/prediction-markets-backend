@@ -23,7 +23,9 @@ module.exports = async (req, reply) => {
             const regex = /(\w{32})$/;
             const match = url.match(regex);
 
-            address = match[0];
+            if (match && match.length) {
+                address = match[0];
+            }
         }
 
         let imageUrl = '';
@@ -43,7 +45,7 @@ module.exports = async (req, reply) => {
                 let APY;
 
                 if (state) {
-                    APY = getEstimatedAPY({...params, coef: state.coef}).toFixed(4);
+                    APY = getEstimatedAPY({ ...params, coef: state.coef }).toFixed(4);
 
                     if (APY > 10e9) {
                         APY = '10m.+'

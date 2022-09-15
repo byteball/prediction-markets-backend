@@ -130,7 +130,7 @@ module.exports = async (request, reply) => {
 		// add APY
 		let data = [...actualMarkets, ...oldMarkets].slice(offset, offset + limit);
 
-		const gettersCandle = data.map((row, i) => marketDB.api.getCloses({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24 }).then(closes => data[i].candles = closes).catch((e) => console.error('get candles error', e)));
+		const gettersCandle = data.map((row, i) => marketDB.api.getCandles({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24, params: data[i] }).then(candles => data[i].candles = candles).catch((e) => console.error('get candles error', e)));
 		const gettersFirstTrade = data.map((row, i) => marketDB.api.getTradeEventsByMarket(row.aa_address, { limit: 1, sort: 'ASC' }).then(({ data: first_trade_ts }) => data[i].first_trade_at = first_trade_ts?.[0]?.timestamp || null).catch(console.error));
 		const gettersActualData = data.map((row, i) => marketDB.api.getActualMarketInfo(row.aa_address).then(actualData => data[i] = { ...data[i], ...actualData }).catch((e) => console.error('get actual data error', e)));
 
