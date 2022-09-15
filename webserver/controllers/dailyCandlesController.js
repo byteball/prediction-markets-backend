@@ -16,7 +16,7 @@ module.exports = async (request, reply) => {
     const now = moment.utc().unix();
     const first_trade_ts = await marketDB.api.getTradeEventsByMarket(aa_address, { limit: 1, sort: 'ASC' }).then(({ data: first_trade_ts }) => first_trade_ts?.[0]?.timestamp || null).catch(console.error);
 
-    const monthAlreadyPassed = now > ((first_trade_ts || params.created_at) + 3600 * 24 * 30);
+    const monthAlreadyPassed = (params.committed_at || now) > ((first_trade_ts || params.created_at) + 3600 * 24 * 30);
 
     const candles = await marketDB.api.getCandles({ aa_address, type: monthAlreadyPassed ? "daily" : 'hourly', limit: monthAlreadyPassed ? 365 : 24 * 30, params });
 
