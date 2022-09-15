@@ -65,7 +65,32 @@ exports.getCandles = async function ({ aa_address, type, onlyYesPrices = false, 
       currentRowIndex++;
     } else {
       // we don't have a candle with this timestamp, so we have to take the last one
-      data.push({ ...rows[currentRowIndex - 1], start_timestamp: currentTs });
+      //TODO: fix it
+      const prevCandle = rows[currentRowIndex - 1];
+      
+      const newCandle = {
+        ...prevCandle,
+        open_supply_yes: prevCandle.close_supply_yes,
+        open_supply_no: prevCandle.close_supply_no,
+        open_supply_draw: prevCandle.close_supply_draw,
+        open_yes_price: prevCandle.close_yes_price,
+        open_no_price: prevCandle.close_no_price,
+        open_draw_price: prevCandle.close_draw_price,
+        open_reserve: prevCandle.close_reserve,
+        open_coef: prevCandle.close_coef,
+
+        close_supply_yes: prevCandle.close_supply_yes,
+        close_supply_no: prevCandle.close_supply_no,
+        close_supply_draw: prevCandle.close_supply_draw,
+        close_yes_price: prevCandle.close_yes_price,
+        close_no_price: prevCandle.close_no_price,
+        close_draw_price: prevCandle.close_draw_price,
+        close_reserve: prevCandle.close_reserve,
+        close_coef: prevCandle.close_coef,
+        start_timestamp: currentTs
+      }
+
+      data.push(newCandle);
     }
   }
 
