@@ -15,6 +15,7 @@ const datesController = require('./controllers/datesController.js');
 const ogImageController = require('./controllers/ogImageController.js');
 const indexController = require('./controllers/indexController.js');
 const recentEventsController = require('./controllers/recentEventsController.js');
+const firstTradeTimestampController = require('./controllers/firstTradeTimestampController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -28,7 +29,7 @@ fastifyInstance.register(fastifySensible);
 // Declare routes
 fastifyInstance.get('/api/markets/:page?', marketsController);
 fastifyInstance.get('/api/reserve_assets', reserveAssetsController);
-fastifyInstance.get('/api/daily_closes/:address', dailyCandlesController);
+fastifyInstance.get('/api/daily_candles/:address', dailyCandlesController);
 fastifyInstance.get('/api/calendar/currency/:currency/:page', currencyCalendarController);
 fastifyInstance.get('/api/calendar/:sport/:championship/:page', sportCalendarController);
 fastifyInstance.get('/api/championships/:sport?', championshipsController);
@@ -37,6 +38,7 @@ fastifyInstance.get('/api/team/:sport/:abbreviation', sportTeamController);
 fastifyInstance.get('/api/dates/:address', datesController);
 fastifyInstance.get('/api/og_images/:type/:address?', ogImageController);
 fastifyInstance.get('/api/recent_events/:address/:page?', recentEventsController);
+fastifyInstance.get('/api/first_trade_ts/:address', firstTradeTimestampController);
 fastifyInstance.setNotFoundHandler(indexController);
 
 // Run the server

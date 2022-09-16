@@ -24,7 +24,7 @@ exports.create = async function () {
 		trigger_unit CHAR(44) NOT NULL,
 		UNIQUE (response_unit)
 	)`);
-	
+
 	await db.query(`CREATE TABLE IF NOT EXISTS markets (
 		aa_address CHAR(32) NOT NULL,
 		base_aa CHAR(32) NOT NULL,
@@ -41,7 +41,7 @@ exports.create = async function () {
 		issue_fee REAL DEFAULT 0.01,
 		redeem_fee REAL DEFAULT 0.02,
 		arb_profit_tax REAL DEFAULT 0.9,
-		total_reserve INTEGER DEFAULT 0,
+		reserve INTEGER DEFAULT 0,
 		result CHAR(4),
 		created_at TIMESTAMP NOT NULL,
 		committed_at TIMESTAMP DEFAULT NULL,
@@ -66,40 +66,62 @@ exports.create = async function () {
 		UNIQUE (aa_address)
 	)`);
 
-	await db.query(`CREATE TABLE IF NOT EXISTS hourly_closes (
+	await db.query(`CREATE TABLE IF NOT EXISTS hourly_candles (
 		aa_address CHAR(32) NOT NULL,
-		yes_price REAL DEFAULT 0,
-		no_price REAL DEFAULT 0,
-		draw_price REAL DEFAULT 0,
-		supply_yes INTEGER DEFAULT 0,
-		supply_no INTEGER DEFAULT 0,
-		supply_draw INTEGER DEFAULT 0,
-		coef REAL DEFAULT 1,
-		reserve INTEGER DEFAULT 0,
+		
+		open_supply_yes INTEGER DEFAULT 0,
+		open_supply_no INTEGER DEFAULT 0,
+		open_supply_draw INTEGER DEFAULT 0,
+		open_yes_price REAL DEFAULT 0,
+		open_no_price REAL DEFAULT 0,
+		open_draw_price REAL DEFAULT 0,
+		open_reserve INTEGER DEFAULT 0,
+		open_coef REAL DEFAULT 1,
+
+		close_supply_yes INTEGER DEFAULT 0,
+		close_supply_no INTEGER DEFAULT 0,
+		close_supply_draw INTEGER DEFAULT 0,
+		close_yes_price REAL DEFAULT 0,
+		close_no_price REAL DEFAULT 0,
+		close_draw_price REAL DEFAULT 0,
+		close_reserve INTEGER DEFAULT 0,
+		close_coef REAL DEFAULT 1,
+
 		reserve_to_usd_rate REAL,
 		start_timestamp TIMESTAMP NOT NULL,
 		UNIQUE (aa_address, start_timestamp)
 	)`);
 
-	await db.query(`CREATE TABLE IF NOT EXISTS daily_closes (
+	await db.query(`CREATE TABLE IF NOT EXISTS daily_candles (
 		aa_address CHAR(32) NOT NULL,
-		yes_price REAL DEFAULT 0,
-		no_price REAL DEFAULT 0,
-		draw_price REAL DEFAULT 0,
-		supply_yes INTEGER DEFAULT 0,
-		supply_no INTEGER DEFAULT 0,
-		supply_draw INTEGER DEFAULT 0,
-		coef REAL DEFAULT 1,
-		reserve INTEGER DEFAULT 0,
+		
+		open_supply_yes INTEGER DEFAULT 0,
+		open_supply_no INTEGER DEFAULT 0,
+		open_supply_draw INTEGER DEFAULT 0,
+		open_yes_price REAL DEFAULT 0,
+		open_no_price REAL DEFAULT 0,
+		open_draw_price REAL DEFAULT 0,
+		open_reserve INTEGER DEFAULT 0,
+		open_coef REAL DEFAULT 1,
+
+		close_supply_yes INTEGER DEFAULT 0,
+		close_supply_no INTEGER DEFAULT 0,
+		close_supply_draw INTEGER DEFAULT 0,
+		close_yes_price REAL DEFAULT 0,
+		close_no_price REAL DEFAULT 0,
+		close_draw_price REAL DEFAULT 0,
+		close_reserve INTEGER DEFAULT 0,
+		close_coef REAL DEFAULT 1,
+
 		reserve_to_usd_rate REAL,
 		start_timestamp TIMESTAMP NOT NULL,
 		FOREIGN KEY(aa_address) REFERENCES markets(aa_address),
 		UNIQUE (aa_address, start_timestamp)
 	)`);
 
-	await db.query(`CREATE TRIGGER IF NOT EXISTS update_reserve_total AFTER INSERT ON trades
+	await db.query(`CREATE TRIGGER IF NOT EXISTS update_reserve AFTER INSERT ON trades
 		BEGIN
-			UPDATE markets SET total_reserve=new.reserve WHERE aa_address = new.aa_address;
+			UPDATE markets SET reserve=new.reserve WHERE aa_address = new.aa_address;
 		END;
 	`)
 
