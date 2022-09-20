@@ -119,6 +119,15 @@ exports.create = async function () {
 		UNIQUE (aa_address, start_timestamp)
 	)`);
 
+	await db.query(`CREATE TABLE IF NOT EXISTS bookmaker_odds (
+		yes_odds REAL DEFAULT NULL,
+		no_odds REAL DEFAULT NULL,
+		draw_odds REAL DEFAULT NULL,
+		feed_name CHAR(32) NOT NULL,
+		odds_updated_at TIMESTAMP DEFAULT NULL,
+		UNIQUE (feed_name)
+	)`)
+
 	await db.query(`CREATE TRIGGER IF NOT EXISTS update_reserve AFTER INSERT ON trades
 		BEGIN
 			UPDATE markets SET reserve=new.reserve WHERE aa_address = new.aa_address;

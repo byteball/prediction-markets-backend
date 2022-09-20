@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"scripts": {
 		"start": "node start.js prediction 1>log 2>errlog &",
-		"load-emblems" : "node utils/getSoccerEmblems.js"
+		"load-emblems": "node utils/getSoccerEmblems.js"
 	},
 	"dependencies": {
 		"aabot": "git+https://github.com/byteball/aabot.git",

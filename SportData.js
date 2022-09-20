@@ -17,6 +17,12 @@ class SportDataService {
       soccer: []
     };
 
+    this.odds = { // by expected feed name
+      soccer: {
+
+      }
+    }
+
     this.footballApi = axios.create({
       baseURL: `https://api.football-data.org`,
       headers: {
@@ -33,6 +39,18 @@ class SportDataService {
     return (this.calendar[sport] || []).filter(({ championship: c }) => championship === 'all' || championship === c).slice(offset, offset + limit);
   }
 
+  async getOdds(sport, feed_name) {
+    if (this.odds[sport]) {
+      if (this.odds[sport][feed_name]) {
+        return this.odds[sport][feed_name];
+      } else {
+        return await marketDB.api.getBookmakerOddsByFeedName(feed_name);
+      }
+    } else {
+      return null;
+    }
+  }
+
   getCalendarLength(sport, championship) {
     if (this.calendar[sport]) {
       const sportCalendar = this.calendar[sport] || [];
@@ -42,7 +60,6 @@ class SportDataService {
       } else {
         return sportCalendar.length;
       }
-
     }
 
     return 0
@@ -85,6 +102,7 @@ class SportDataService {
 
   async getSoccerCalendar() {
     let newData = [];
+    const odds = {};
 
     const competitionList = [2001, 2002, 2003, 2013, 2014, 2015, 2019];
     const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data = {}) => {
@@ -94,10 +112,12 @@ class SportDataService {
 
       matches.forEach(matchObject => {
         const feed_name = this.getFeedNameByMatches(championship, matchObject);
-        
+
         if (!conf.sportOracleAddress) {
-          console.error('no sport oracle', conf);
+          console.error('no sport oracle', conf.sportOracleAddress);
         }
+
+        const oddsObj = matchObject.odds;
 
         if (feed_name) {
           newData.push({
@@ -112,14 +132,20 @@ class SportDataService {
             championship,
             league_emblem: competition.emblem,
             league: competition.name
-          })
+          });
+
+          odds[feed_name] = {
+            yes_odds: oddsObj ? oddsObj.homeWin : null,
+            no_odds: oddsObj ? oddsObj.awayWin : null,
+            draw_odds: oddsObj ? oddsObj.draw : null,
+          }
         }
       });
     }));
 
     await Promise.all(competitionsGetter);
 
-    return newData;
+    return [newData, odds];
   }
 
   getChampionshipInfo(sport, championship) {
@@ -138,9 +164,11 @@ class SportDataService {
 
   async updateSoccerCalendar() {
     try {
-      const feedNamesOfExistingSportMarkets = await marketDB.api.getAllMarkets({ oracles: [conf.sportOracleAddress] }).then((markets) => markets.map(({ feed_name }) => feed_name));
+      const existingSportMarkets = await marketDB.api.getAllMarkets({ oracles: [conf.sportOracleAddress] });
 
-      const soccerCalendar = await this.getSoccerCalendar();
+      const feedNamesOfExistingSportMarkets = existingSportMarkets.map(({ feed_name }) => feed_name);
+
+      const [soccerCalendar, odds] = await this.getSoccerCalendar();
       const existCompetitions = feedNamesOfExistingSportMarkets.map((feed_name) => feed_name.split("_")[0]);
 
       this.calendar.soccer = soccerCalendar.filter(({ feed_name }) => !feedNamesOfExistingSportMarkets.includes(feed_name)).sort((a, b) => a.event_date - b.event_date);
@@ -161,6 +189,20 @@ class SportDataService {
           })
         })
       }
+
+      this.odds.soccer = odds;
+
+      const now = moment.utc().unix();
+
+      const marketsWaitingForOddsUpdate = existingSportMarkets.filter(({ event_date, feed_name }) => (event_date > now) && (feed_name in odds));
+
+      const updateOddsData = {};
+
+      marketsWaitingForOddsUpdate.forEach(({ feed_name }) => {
+        updateOddsData[feed_name] = odds[feed_name];
+      });
+
+      marketDB.api.updateOdds(updateOddsData);
     } catch (err) {
       console.error('update sportData error', err);
     }
