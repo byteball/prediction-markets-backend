@@ -196,13 +196,13 @@ class SportDataService {
 
       const marketsWaitingForOddsUpdate = existingSportMarkets.filter(({ event_date, feed_name }) => (event_date > now) && (feed_name in odds));
 
-      const updateOddsData = {};
+      const updatedOddsData = {};
 
       marketsWaitingForOddsUpdate.forEach(({ feed_name }) => {
-        updateOddsData[feed_name] = odds[feed_name];
+        updatedOddsData[feed_name] = odds[feed_name];
       });
 
-      marketDB.api.updateOdds(updateOddsData);
+      marketDB.api.updateOdds(updatedOddsData);
     } catch (err) {
       console.error('update sportData error', err);
     }
