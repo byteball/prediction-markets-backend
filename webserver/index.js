@@ -16,6 +16,7 @@ const ogImageController = require('./controllers/ogImageController.js');
 const indexController = require('./controllers/indexController.js');
 const recentEventsController = require('./controllers/recentEventsController.js');
 const firstTradeTimestampController = require('./controllers/firstTradeTimestampController.js');
+const bookmakerOddsController = require('./controllers/bookmakerOddsController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -39,6 +40,8 @@ fastifyInstance.get('/api/dates/:address', datesController);
 fastifyInstance.get('/api/og_images/:type/:address?', ogImageController);
 fastifyInstance.get('/api/recent_events/:address/:page?', recentEventsController);
 fastifyInstance.get('/api/first_trade_ts/:address', firstTradeTimestampController);
+fastifyInstance.get('/api/bookmaker_odds/:sport/:feed_name', bookmakerOddsController);
+
 fastifyInstance.setNotFoundHandler(indexController);
 
 // Run the server
