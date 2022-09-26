@@ -4,7 +4,7 @@ const db = require('ocore/db.js');
 const conf = require('ocore/conf.js');
 const moment = require('moment');
 
-const abbreviations = require('../../abbreviations.json');
+const abbreviations = require('abbreviations');
 const marketDB = require('../../db');
 const { sportDataService } = require('../../SportData');
 const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');

@@ -2,7 +2,7 @@ const conf = require('ocore/conf.js');
 const { default: axios } = require("axios");
 const moment = require('moment');
 const marketDB = require('./db')
-const abbreviations = require('./abbreviations.json');
+const abbreviations = require('abbreviations');
 const { uniq, isEmpty } = require('lodash');
 
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
