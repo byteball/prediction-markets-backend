@@ -4,7 +4,7 @@ const existsSync = require('fs').existsSync;
 const mkdirSync = require('fs').mkdirSync;
 const sharp = require('sharp');
 
-const abbreviations = require('../abbreviations.json');
+const abbreviations = require('abbreviations');
 
 async function saveImage(data, id, type) {
     return await fs.writeFile(`emblems/${id}.${type}`, data)

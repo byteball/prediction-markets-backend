@@ -3,7 +3,7 @@ const moment = require('moment');
 const token_registry = require('aabot/token_registry.js');
 const conf = require('ocore/conf.js');
 
-const abbreviations = require('../../abbreviations.json');
+const abbreviations = require('abbreviations');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const operator = require('aabot/operator.js');
 

@@ -7,7 +7,7 @@ const moment = require('moment');
 const conf = require('ocore/conf.js');
 const { truncate } = require('lodash');
 
-const abbreviations = require('../../abbreviations.json');
+const abbreviations = require('abbreviations');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
 

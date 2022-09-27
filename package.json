@@ -7,6 +7,7 @@
 	},
 	"dependencies": {
 		"aabot": "git+https://github.com/byteball/aabot.git",
+		"abbreviations": "git+https://github.com/byteball/sport-abbreviations.git",
 		"axios": "^0.24.0",
 		"cli-color": "^2.0.3",
 		"dotenv": "^8.2.0",

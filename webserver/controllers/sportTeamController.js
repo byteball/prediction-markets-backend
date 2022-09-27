@@ -1,4 +1,4 @@
-const abbreviations = require('../../abbreviations.json');
+const abbreviations = require('abbreviations');
 
 module.exports = async (request, reply) => {
   const abbreviation = request.params.abbreviation;

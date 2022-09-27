@@ -1,9 +1,11 @@
 const conf = require('ocore/conf.js');
 const { default: axios } = require("axios");
 const moment = require('moment');
-const marketDB = require('./db')
-const abbreviations = require('./abbreviations.json');
+const abbreviations = require('abbreviations');
+const { soccerCompetitions } = require('abbreviations/soccerCompetitions');
 const { uniq, isEmpty } = require('lodash');
+
+const marketDB = require('./db')
 
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
 
@@ -89,14 +91,24 @@ class SportDataService {
   }
 
   getChampionshipBySoccerCompetitionId(competitionId) {
+    if (competitionId === 2000) return 'WC';
     if (competitionId === 2001) return 'CL';
     if (competitionId === 2002) return 'BL1';
     if (competitionId === 2003) return 'DED';
     if (competitionId === 2013) return 'BSA';
     if (competitionId === 2014) return 'PD';
     if (competitionId === 2015) return 'FL1';
+
+    if (competitionId === 2016) return 'ELC';
+    if (competitionId === 2017) return 'PPL';
+
     if (competitionId === 2019) return 'SA';
     if (competitionId === 2021) return 'PL';
+
+    if (competitionId === 2044) return 'CSL';
+    if (competitionId === 2029) return 'BSB';
+    if (competitionId === 2024) return 'ASL';
+    if (competitionId === 2152) return 'CLI';
     return null;
   }
 
@@ -104,8 +116,7 @@ class SportDataService {
     let newData = [];
     const odds = {};
 
-    const competitionList = [2001, 2002, 2003, 2013, 2014, 2015, 2019];
-    const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data = {}) => {
+    const competitionsGetter = soccerCompetitions.map((id) => this.getSoccerMatchesByCompetition(id).then((data = {}) => {
       const { competition, matches } = data;
 
       const championship = this.getChampionshipBySoccerCompetitionId(id);

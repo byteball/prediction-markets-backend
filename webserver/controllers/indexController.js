@@ -6,7 +6,7 @@ const { kebabCase } = require('lodash');
 
 const marketDB = require('../../db');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
-const abbreviations = require('../../abbreviations.json');
+const abbreviations = require('abbreviations');
 const { sportDataService } = require("../../SportData");
 const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
 
