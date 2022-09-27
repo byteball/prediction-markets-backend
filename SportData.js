@@ -1,9 +1,11 @@
 const conf = require('ocore/conf.js');
 const { default: axios } = require("axios");
 const moment = require('moment');
-const marketDB = require('./db')
 const abbreviations = require('abbreviations');
+const { soccerCompetitions } = require('abbreviations/soccerCompetitions');
 const { uniq, isEmpty } = require('lodash');
+
+const marketDB = require('./db')
 
 const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
 
@@ -114,8 +116,7 @@ class SportDataService {
     let newData = [];
     const odds = {};
 
-    const competitionList = [2000, 2001, 2002, 2003, 2013, 2014, 2015, 2016, 2017, 2019, 2021, 2024, 2029, 2044, 2152];
-    const competitionsGetter = competitionList.map((id) => this.getSoccerMatchesByCompetition(id).then((data = {}) => {
+    const competitionsGetter = soccerCompetitions.map((id) => this.getSoccerMatchesByCompetition(id).then((data = {}) => {
       const { competition, matches } = data;
 
       const championship = this.getChampionshipBySoccerCompetitionId(id);
