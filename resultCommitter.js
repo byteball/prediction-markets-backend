@@ -110,6 +110,10 @@ class ResultCommitter {
 
                         }
                     }, 100);
+                },
+                ifError: (err) => {
+                    console.log('requesting result from oracle failed', err);
+                    resolve(false);
                 }
             });
         })
