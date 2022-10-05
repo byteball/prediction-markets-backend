@@ -104,6 +104,8 @@ exports.responseHandler = async function (objResponse) {
       }
 
     } else { // redeem
+      if (!objResponse.objResponseUnit)
+        throw Error(`no objResponseUnit in ${JSON.stringify(objResponse)}`);
       const messages = objResponse.objResponseUnit.messages;
 
       if (messages.length === 1) {
