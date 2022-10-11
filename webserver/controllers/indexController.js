@@ -11,6 +11,7 @@ const { sportDataService } = require("../../SportData");
 const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
 
 const indexPath = path.resolve(__dirname, '..', '..', '..', 'prediction-markets-ui', 'build', 'index.html');
+const langs = ['en', 'zh', 'es', 'pt', 'ru', 'uk'];
 
 module.exports = async (req, reply) => {
     const htmlData = await fs.readFile(indexPath, 'utf8');
@@ -91,7 +92,7 @@ module.exports = async (req, reply) => {
             imageUrl = `${conf.backendUrl}/og_images/create`;
             title = 'Prophet prediction markets — Create new market';
         } else {
-            const urlParts = url.split('/');
+            const urlParts = url.split('/').filter((path) => !langs.includes(path));
 
             if (urlParts.length >= 2 && urlParts[1]) {
                 let fullChampionship;
