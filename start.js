@@ -23,6 +23,7 @@ eventBus.once('connected', function (ws) {
 });
 
 async function addWatchedAas() {
+  console.log('addWatchedAas');
   conf.factoryAas.map((address) => wallet_general.addWatchedAddress(address, null, console.log));
   network.addLightWatchedAa(conf.tokenRegistryAaAddress, null, console.log)
 };
