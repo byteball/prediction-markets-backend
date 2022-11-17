@@ -22,7 +22,7 @@ exports.tokenRegistryResponseHandler = async function (objResponse) {
 
     const [market_assets] = await db.query("SELECT * FROM market_assets WHERE yes_asset=? OR no_asset=? OR draw_asset=?", [asset, asset, asset]);
 
-    if (!market_assets) return console.log(`no market assets record in ${s2aVarName}`);
+    if (!market_assets) return console.log(`no market assets record in ${s2aVarName} symbol ${symbol} asset ${asset}`);
 
     const type = asset === market_assets.yes_asset ? 'yes' : (asset === market_assets.no_asset ? 'no' : 'draw');
 
