@@ -36,6 +36,7 @@ const tryRegSymbols = async (address, data) => {
 
 exports.responseHandler = async function (objResponse) {
   const unlock = await mutex.lock('responseHandler');
+  console.log(`handling response`, JSON.stringify(objResponse, null, 2));
 
   if (objResponse.response.error)
     return unlock('ignored response with error: ' + objResponse.response.error);
