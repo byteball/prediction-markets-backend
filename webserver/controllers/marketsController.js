@@ -51,7 +51,7 @@ module.exports = async (request, reply) => {
 	let rows;
 	let count = 0;
 	try {
-		rows = await db.query(`SELECT * FROM markets LEFT JOIN market_assets USING (aa_address) LEFT JOIN bookmaker_odds USING (feed_name) ${filterByType(type, championship)}`);
+		rows = await db.query(`SELECT * FROM markets LEFT JOIN market_assets USING (aa_address) LEFT JOIN bookmaker_odds USING (feed_name) ${filterByType(type, championship)} ORDER BY event_date DESC`);
 		count = rows.length;
 	} catch {
 		console.error("get markets error");
