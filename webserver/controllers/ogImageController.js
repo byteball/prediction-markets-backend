@@ -62,7 +62,7 @@ module.exports = async (request, reply) => {
                 const winnerPrice = result === 'yes' ? yes_price : (result === 'no' ? no_price : draw_price);
 
                 if (winnerSupply) {
-                    winnerOddsView = +Number(reserve / (winnerPrice * winnerSupply)).toPrecision(5);
+                    winnerOddsView = +Number(reserve / (winnerPrice * winnerSupply)).toPrecision(3);
                 }
             }
 
