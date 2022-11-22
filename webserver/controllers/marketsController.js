@@ -69,11 +69,13 @@ module.exports = async (request, reply) => {
 
 					if (yes_abbreviation) {
 						rows[i].yes_team_id = yes_abbreviation[0];
+						rows[i].yes_crest_url = sportDataService.getCrest('soccer', championship, yes_abbreviation[0]);
 						rows[i].yes_team = yes_abbreviation[1].name;
 					}
 
 					if (no_abbreviation) {
 						rows[i].no_team_id = no_abbreviation[0];
+						rows[i].no_crest_url = sportDataService.getCrest('soccer', championship, no_abbreviation[0]);
 						rows[i].no_team = no_abbreviation[1].name;
 					}
 
