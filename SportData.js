@@ -25,6 +25,12 @@ class SportDataService {
       }
     }
 
+    this.crests = {
+      soccer: {
+
+      }
+    }
+
     this.footballApi = axios.create({
       baseURL: `https://api.football-data.org`,
       headers: {
@@ -39,6 +45,18 @@ class SportDataService {
     const offset = (page - 1) * limit;
 
     return (this.calendar[sport] || []).filter(({ championship: c }) => championship === 'all' || championship === c).slice(offset, offset + limit);
+  }
+
+  getCrest(sport, championship, team_id) {
+    if (sport in this.crests) {
+      if (championship in this.crests[sport]) {
+        if(`${team_id}` in this.crests[sport][championship]){
+          return this.crests[sport][championship][`${team_id}`];
+        }
+      }
+    }
+
+    return null
   }
 
   async getOdds(sport, feed_name) {
@@ -170,7 +188,26 @@ class SportDataService {
   }
 
   async getSoccerChampionshipsInfo() {
-    return await this.footballApi.get('/v4/competitions').then(({ data }) => data.competitions).catch(() => []);
+    return await this.footballApi.get('/v4/competitions').then(({ data }) => data.competitions).then(async (competitions) => {
+      const crestsGetters = [];
+
+      competitions.map(({ code, id }) => {
+        crestsGetters.push(this.footballApi.get(`/v4/competitions/${id}/teams`).then(({ data }) => {
+          if (!this.crests.soccer[code]) this.crests.soccer[code] = {};
+
+          data?.teams.map(({ id, crest }) => {
+            this.crests.soccer[code][id] = crest;
+          })
+        }));
+      });
+
+      await Promise.all(crestsGetters);
+
+      return competitions;
+    }).catch((error) => {
+      console.error(error);
+      return [];
+    });
   }
 
   async updateSoccerCalendar() {
@@ -188,6 +225,11 @@ class SportDataService {
       const soccerChampionships = uniq(existCompetitions);
 
       const championshipsInfo = await this.getSoccerChampionshipsInfo();
+
+      this.calendar.soccer.forEach(({ yes_team_id, no_team_id, championship }, index) => {
+        this.calendar.soccer[index].yes_crest_url = this.getCrest('soccer', championship, yes_team_id);
+        this.calendar.soccer[index].no_crest_url = this.getCrest('soccer', championship, no_team_id); 
+      });
 
       if (!isEmpty(championshipsInfo)) {
         this.championships.soccer = soccerChampionships.map((leagueName) => {
