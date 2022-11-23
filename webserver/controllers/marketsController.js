@@ -129,8 +129,21 @@ module.exports = async (request, reply) => {
 
 		oldMarkets = oldMarkets.sort((a, b) => b.event_date - a.event_date);
 
+		let resumedTradingMarkets = [];
+		const claimingProfitMarkets = [];
+
+		oldMarkets.forEach(row => {
+			if ((now >= row.event_date + row.waiting_period_length) && !row.result) {
+				resumedTradingMarkets.push(row);
+			} else {
+				claimingProfitMarkets.push(row);
+			}
+		});
+
+		resumedTradingMarkets = resumedTradingMarkets.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
+		
 		// add APY
-		let data = [...actualMarkets, ...oldMarkets].slice(offset, offset + limit);
+		let data = [...actualMarkets, ...resumedTradingMarkets, ...claimingProfitMarkets].slice(offset, offset + limit);
 
 		const gettersCandle = data.map((row, i) => marketDB.api.getCandles({ aa_address: row.aa_address, type: 'hourly', onlyYesPrices: true, limit: 24, params: data[i] }).then(candles => data[i].candles = candles).catch((e) => console.error('get candles error', e)));
 		const gettersFirstTrade = data.map((row, i) => marketDB.api.getTradeEventsByMarket(row.aa_address, { limit: 1, sort: 'ASC' }).then(({ data: first_trade_ts }) => data[i].first_trade_at = first_trade_ts?.[0]?.timestamp || null).catch(console.error));
