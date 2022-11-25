@@ -6,10 +6,12 @@ const db = require('ocore/db.js');
 const moment = require('moment');
 const conf = require('ocore/conf.js');
 const { truncate } = require('lodash');
+const { default: axios } = require('axios');
 
 const abbreviations = require('abbreviations');
 const { generateTextEvent } = require('../../utils/generateTextEvent');
 const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
+const { sportDataService } = require('../../SportData');
 
 const knownTypes = ['main', 'faq', 'market', 'create'];
 
@@ -92,7 +94,7 @@ module.exports = async (request, reply) => {
             const reserveView = +Number(reserve / 10 ** reserve_decimals).toPrecision(3);
 
             if (conf.sportOracleAddress === oracle) {
-                const [_, yes_team, no_team] = feed_name.split("_");
+                const [championship, yes_team, no_team] = feed_name.split("_");
                 const yes_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === yes_team);
                 const no_abbreviation = Object.entries(abbreviations.soccer).find(([index, item]) => item.abbreviation === no_team);
 
@@ -183,14 +185,17 @@ module.exports = async (request, reply) => {
             </svg>
         `;
 
-                const [yesEmblemBuffer, noEmblemBuffer] = await Promise.all([
-                    fs.readFile(`emblems/${yes_abbreviation[0]}.svg`).catch(() => {
-                        return fs.readFile(`emblems/${yes_abbreviation[0]}.png`)
-                    }),
+                const yesEmblemUrl = sportDataService.getCrest('soccer', championship, yes_abbreviation[0]);
+                const noEmblemUrl = sportDataService.getCrest('soccer', championship, no_abbreviation[0]);
 
-                    fs.readFile(`emblems/${no_abbreviation[0]}.svg`).catch(() => {
-                        return fs.readFile(`emblems/${no_abbreviation[0]}.png`)
-                    })
+                if (!yesEmblemUrl || !noEmblemUrl) return reply.notFound();
+
+                const [yesEmblemBuffer, noEmblemBuffer] = await Promise.all([
+                    axios.get(yesEmblemUrl, { responseType: 'arraybuffer' }).then(({ data }) => data)
+                        .catch(() => console.error('yes emblem error', yesEmblemUrl, championship, yes_abbreviation[0])),
+
+                    axios.get(noEmblemUrl, { responseType: 'arraybuffer' }).then(({ data }) => data)
+                        .catch(() => console.error('no emblem error', noEmblemUrl, championship, no_abbreviation[0]))
                 ]);
 
                 const yesEmblemBufferResized = await sharp(yesEmblemBuffer)
