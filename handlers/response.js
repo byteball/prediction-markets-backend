@@ -41,13 +41,17 @@ exports.responseHandler = async function (objResponse) {
   if (objResponse.response.error)
     return unlock('ignored response with error: ' + objResponse.response.error);
 
-  const trigger_unit = objResponse.trigger_unit;
+  const { trigger_unit, response_unit, timestamp, aa_address, trigger_address } = objResponse;
   const responseVars = objResponse.response.responseVars || {};
-  const timestamp = objResponse.timestamp;
   const joint = await dag.readJoint(trigger_unit);
   const msg = joint.unit.messages.find(m => m.app === 'data');
   const payload = msg ? msg.payload : {};
-  const aa_address = objResponse.aa_address;
+
+  if (response_unit && !objResponse.objResponseUnit) {
+    console.log(`no objResponseUnit for trigger ${trigger_unit} response ${response_unit}, will fetch`);
+    const response_joint = await dag.readJoint(response_unit);
+    objResponse.objResponseUnit = response_joint.unit;
+  }
 
   if (('prediction_address' in responseVars) && objResponse.objResponseUnit.messages) {
     if ((timestamp > conf.factoryUpgradeFixQuietPeriodTimestamp && aa_address === conf.factoryAas[0]) || (timestamp > conf.factoryUpgradeRemoveIssueFeeForLiqTimestamp && aa_address === conf.factoryAas[1])) {
@@ -71,15 +75,15 @@ exports.responseHandler = async function (objResponse) {
   }
 
   if (responseVars.yes_asset) {
-    await marketDB.api.saveMarketAsset(payload.to || objResponse.aa_address, 'yes', payload.yes_asset || responseVars.yes_asset)
+    await marketDB.api.saveMarketAsset(payload.to || aa_address, 'yes', payload.yes_asset || responseVars.yes_asset)
   }
 
   if (responseVars.no_asset) {
-    await marketDB.api.saveMarketAsset(payload.to || objResponse.aa_address, 'no', payload.no_asset || responseVars.no_asset)
+    await marketDB.api.saveMarketAsset(payload.to || aa_address, 'no', payload.no_asset || responseVars.no_asset)
   }
 
   if (responseVars.draw_asset) {
-    await marketDB.api.saveMarketAsset(payload.to || objResponse.aa_address, 'draw', payload.draw_asset || responseVars.draw_asset)
+    await marketDB.api.saveMarketAsset(payload.to || aa_address, 'draw', payload.draw_asset || responseVars.draw_asset)
   }
 
   const isAddLiquidity = !('arb_profit_tax' in responseVars);
@@ -117,7 +121,7 @@ exports.responseHandler = async function (objResponse) {
     }
 
     const tradeData = {
-      aa_address: aa_address,
+      aa_address,
       type: isAddLiquidity ? 'add_liquidity' : ('type' in payload) ? 'buy_by_type' : (existsAmountInPayload ? 'buy' : 'redeem'),
       supply_yes: responseVars.supply_yes,
       supply_no: responseVars.supply_no,
@@ -131,10 +135,10 @@ exports.responseHandler = async function (objResponse) {
       coef: responseVars.next_coef,
       reserve: responseVars.next_reserve,
       timestamp,
-      response_unit: objResponse.response_unit,
+      response_unit,
       reserve_amount: reserve_amount || 0,
-      trigger_address: objResponse.trigger_address,
-      trigger_unit: objResponse.trigger_unit
+      trigger_address,
+      trigger_unit,
     };
 
     await marketDB.api.saveTradeEvent(tradeData)
@@ -170,7 +174,7 @@ exports.responseHandler = async function (objResponse) {
 
     await marketDB.api.saveTradeEvent({
       aa_address,
-      response_unit: objResponse.response_unit,
+      response_unit,
       [`${winner}_amount`]: output.amount,
       reserve: new_reserve,
       coef: actualData.coef,
@@ -183,9 +187,9 @@ exports.responseHandler = async function (objResponse) {
       no_price: 0,
       draw_price: 0,
       ...{ [`supply_${winner}`]: new_winner_supply, [`${winner}_price`]: winnerPrice },
-      trigger_address: objResponse.trigger_address,
+      trigger_address,
       reserve_amount: responseVars.profit,
-      trigger_unit: objResponse.trigger_unit
+      trigger_unit,
     })
   }
 
