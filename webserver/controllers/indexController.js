@@ -147,6 +147,16 @@ module.exports = async (req, reply) => {
             'Content-Type': 'text/html; charset=UTF-8',
         })
 
+        // ALTERNATE_LINKS: https://developers.google.com/search/docs/specialty/international/localized-versions?hl=ru#example
+    
+        const cleanUrlPath = url.split('/').filter((path) => !langs.includes(path)).join('/');
+        const currentLang = langs.find((lang) => url.includes(lang));
+
+        modifiedHTMLData = modifiedHTMLData.replace('__ALTERNATE_LINKS__', `
+            <link rel="alternate" hreflang="x-default" href="${conf.frontendUrl}${cleanUrlPath}" />
+            ${(currentLang ? langs.filter((lang)=> lang !== currentLang) : langs).map((lang)=> `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}/${lang}${cleanUrlPath}" />`).join("\n")}
+        `);
+
         return reply.send(modifiedHTMLData);
     } catch (e) {
         console.error('error', e)
