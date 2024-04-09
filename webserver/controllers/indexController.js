@@ -130,7 +130,8 @@ module.exports = async (req, reply) => {
         modifiedHTMLData = modifiedHTMLData.replace('__META_OG_IMAGE__', imageUrl);
 
         if (event) {
-            modifiedHTMLData = modifiedHTMLData.replace('__CANONICAL_URL__', `${conf.frontendUrl}/market/${kebabCase(event)}-${address}`);
+            const currentLang = langs.find((lang) => url.includes(lang));
+            modifiedHTMLData = modifiedHTMLData = modifiedHTMLData.replace('__CANONICAL_URL__', `${conf.frontendUrl}/${(currentLang !== "en" && currentLang) ? currentLang + '/' : '' }market/${kebabCase(event)}-${address}`);.replace('__CANONICAL_URL__', `${conf.frontendUrl}/market/${kebabCase(event)}-${address}`);
         } else {
             modifiedHTMLData = modifiedHTMLData.replace('<link rel="canonical" href="__CANONICAL_URL__" data-rh="true" />', '');
         }
