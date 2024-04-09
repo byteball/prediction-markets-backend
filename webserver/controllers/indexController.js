@@ -147,19 +147,19 @@ module.exports = async (req, reply) => {
         })
 
         // ALTERNATE_LINKS: https://developers.google.com/search/docs/specialty/international/localized-versions?hl=ru#example
-    
+
         const cleanUrlPath = url.split('/').filter((path) => !langs.includes(path)).join('/');
 
         modifiedHTMLData = modifiedHTMLData.replace('__ALTERNATE_LINKS__', `
-            <link rel="alternate" hreflang="x-default" href="${conf.frontendUrl}${cleanUrlPath}" />
+            <link rel="alternate" hreflang="x-default" href="${conf.frontendUrl}${cleanUrlPath}" data-rh="true" />
             ${langs.map((lang) => {
                 if (lang === 'en') {
-                    return `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}${cleanUrlPath}" />`;
+                    return `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}${cleanUrlPath}" data-rh="true" />`;
                 } else {
-                    return `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}/${lang}${cleanUrlPath}" />`;
+                    return `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}/${lang}${cleanUrlPath}" data-rh="true"/>`;
                 }
             }).join("\n")}
-        `);
+    `);
 
         return reply.send(modifiedHTMLData);
     } catch (e) {
