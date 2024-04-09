@@ -10,7 +10,7 @@ const abbreviations = require('abbreviations');
 const { sportDataService } = require("../../SportData");
 const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
 
-const indexPath = path.resolve(__dirname, '..', '..', '..', 'prediction-markets-ui', 'build', 'index.html');
+const indexPath = path.resolve(__dirname, '..', '..', '..', 'pmn', 'build', 'index.html');
 const langs = ['en', 'zh', 'es', 'pt', 'ru', 'uk'];
 
 module.exports = async (req, reply) => {
@@ -76,8 +76,7 @@ module.exports = async (req, reply) => {
                     const yesName = yes_abbreviation[1].name;
                     const noName = no_abbreviation[1].name;
                     title += `${yesName || yes_team} vs ${noName || no_team}${strAPY}`;
-
-                    event = generateTextEvent({ params, isUTC: true, yes_team_name: yesName, no_team_name: noName });
+                    event = generateTextEvent({ ...params, isUTC: true, yes_team_name: yesName, no_team_name: noName });
                 } else {
                     event = generateTextEvent({ ...params, isUTC: true });
 
@@ -153,7 +152,7 @@ module.exports = async (req, reply) => {
 
         modifiedHTMLData = modifiedHTMLData.replace('__ALTERNATE_LINKS__', `
             <link rel="alternate" hreflang="x-default" href="${conf.frontendUrl}${cleanUrlPath}" />
-            ${langs.map((lang)=> `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}/${lang}${cleanUrlPath}" />`).join("\n")}
+            ${langs.filter(lng => lng !== 'en').map((lang)=> `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}/${lang}${cleanUrlPath}" />`).join("\n")}
         `);
 
         return reply.send(modifiedHTMLData);
