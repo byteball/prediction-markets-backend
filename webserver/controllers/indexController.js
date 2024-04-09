@@ -10,7 +10,7 @@ const abbreviations = require('abbreviations');
 const { sportDataService } = require("../../SportData");
 const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
 
-const indexPath = path.resolve(__dirname, '..', '..', '..', 'pmn', 'build', 'index.html');
+const indexPath = path.resolve(__dirname, '..', '..', '..', 'prediction-markets-ui', 'build', 'index.html');
 const langs = ['en', 'zh', 'es', 'pt', 'ru', 'uk'];
 
 module.exports = async (req, reply) => {
