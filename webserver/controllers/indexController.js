@@ -152,7 +152,13 @@ module.exports = async (req, reply) => {
 
         modifiedHTMLData = modifiedHTMLData.replace('__ALTERNATE_LINKS__', `
             <link rel="alternate" hreflang="x-default" href="${conf.frontendUrl}${cleanUrlPath}" />
-            ${langs.filter(lng => lng !== 'en').map((lang)=> `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}/${lang}${cleanUrlPath}" />`).join("\n")}
+            ${langs.map((lang) => {
+                if (lang === 'en') {
+                    return `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}${cleanUrlPath}" />`;
+                } else {
+                    return `<link rel="alternate" hreflang=${lang} href="${conf.frontendUrl}/${lang}${cleanUrlPath}" />`;
+                }
+            }).join("\n")}
         `);
 
         return reply.send(modifiedHTMLData);
