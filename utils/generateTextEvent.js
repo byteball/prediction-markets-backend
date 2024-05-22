@@ -3,13 +3,13 @@ const conf = require('ocore/conf.js');
 const locale = require('../locale');
 
 require('moment/locale/es');
-require('moment/locale/pt');
+require('moment/locale/pt-br');
 require('moment/locale/zh-cn');
 require('moment/locale/ru');
 require('moment/locale/uk');
 
 exports.generateTextEvent = ({ oracle, event_date, feed_name, datafeed_value, comparison, isUTC = false, yes_team_name, no_team_name, languageKey = "en" }) => { // params
-    moment.locale(languageKey === 'zh' ? 'zh-cn' : languageKey); // set locale for date formatting
+    moment.locale(getMomentLocaleByLanguageKey(languageKey)); // set locale for date formatting
 
     const format = ["ru", "uk"].includes(languageKey) ? "D MMMM gggg [в] LT" : "LLL"; // different date format for Russian and Ukrainian
     const expiry_date = isUTC ? moment.unix(event_date).utc().format(format) : moment.unix(event_date).format(format);
@@ -37,4 +37,11 @@ const getComparisonText = (comparison, languageKey) => {
     if (comparison === '<=') return locale[languageKey].below_or_equal;
     if (comparison === '==') return locale[languageKey].equal;
     if (comparison === '!=') return locale[languageKey].not_equal;
+}
+
+const getMomentLocaleByLanguageKey = (languageKey) => {
+    if (languageKey === 'zh') return 'zh-cn';
+    if (languageKey === 'pt') return 'pt-br';
+
+    return languageKey;
 }
