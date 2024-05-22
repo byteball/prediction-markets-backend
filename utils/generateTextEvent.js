@@ -1,29 +1,40 @@
 const moment = require('moment');
 const conf = require('ocore/conf.js');
+const locale = require('../locale');
 
-exports.generateTextEvent = ({ oracle, event_date, feed_name, datafeed_value, comparison, isUTC = false, yes_team_name, no_team_name }) => { // params
-    const expiry_date = isUTC ? moment.unix(event_date).utc().format("LLL") : moment.unix(event_date).format("LLL");
-    const comparisonText = getComparisonText(comparison);
+require('moment/locale/es');
+require('moment/locale/pt');
+require('moment/locale/zh-cn');
+require('moment/locale/ru');
+require('moment/locale/uk');
 
-    if (conf.currencyOracleAddresses.includes(oracle)) {
+exports.generateTextEvent = ({ oracle, event_date, feed_name, datafeed_value, comparison, isUTC = false, yes_team_name, no_team_name, languageKey = "en" }) => { // params
+    moment.locale(languageKey === 'zh' ? 'zh-cn' : languageKey); // set locale for date formatting
+
+    const format = ["ru", "uk"].includes(languageKey) ? "D MMMM gggg [в] LT" : "LLL"; // different date format for Russian and Ukrainian
+    const expiry_date = isUTC ? moment.unix(event_date).utc().format(format) : moment.unix(event_date).format(format);
+    const comparisonText = getComparisonText(comparison, languageKey); // get comparison text based on comparison operator
+
+    if (conf.currencyOracleAddresses.includes(oracle)) { // check if oracle is a currency oracle
         const [from, to] = feed_name.split("_");
-
-        return `Will ${from} be ${comparisonText} ${datafeed_value} ${to} on ${expiry_date}${isUTC ? ' UTC' : ''}?`;
-    } else if (conf.sportOracleAddress === oracle) {
+        return locale[languageKey].fn_currency_text({ from_currency: from, comparisonText, value: datafeed_value, to_currency: to, expiry_date, isUTC });
+    } else if (conf.sportOracleAddress === oracle) { // check if oracle is a sport oracle
         // eslint-disable-next-line no-unused-vars
         const [_, yes_team, no_team] = feed_name.split("_");
 
-        return `${yes_team_name || yes_team} vs ${no_team_name || no_team} on ${expiry_date}`;
+        return locale[languageKey].fn_sport_text({ yes_team: yes_team_name || yes_team, no_team: no_team_name || no_team, expiry_date, isUTC });
     } else {
-        return `Will ${feed_name} be ${comparisonText} ${datafeed_value} on ${expiry_date}${isUTC ? ' UTC' : ''}?`;
+        return locale[languageKey].fn_default_text({ feed_name, comparisonText, datafeed_value, expiry_date, isUTC });
     }
 }
 
-const getComparisonText = (comparison) => {
-    if (comparison === '>') return 'above';
-    if (comparison === '<') return 'below';
-    if (comparison === '>=') return 'above or equal';
-    if (comparison === '<=') return 'below or equal';
-    if (comparison === '==') return 'equal';
-    if (comparison === '!=') return 'not equal';
+const getComparisonText = (comparison, languageKey) => {
+    if (!(languageKey in locale)) throw new Error(`Language key ${languageKey} not found in locale`);
+
+    if (comparison === '>') return locale[languageKey].above;
+    if (comparison === '<') return locale[languageKey].below;
+    if (comparison === '>=') return locale[languageKey].above_or_equal;
+    if (comparison === '<=') return locale[languageKey].below_or_equal;
+    if (comparison === '==') return locale[languageKey].equal;
+    if (comparison === '!=') return locale[languageKey].not_equal;
 }

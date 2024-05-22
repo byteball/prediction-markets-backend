@@ -26,26 +26,28 @@ module.exports = async (_, reply) => {
 
         const championships = await sportDataService.getChampionships();
 
-        const markets = await getAllMarkets();
+        const markets = await getAllMarkets().then((markets) => markets.sort((a, b) => b.created_at - a.created_at));
 
         langs.forEach((lng) => {
             smStream.write({ url: `/${lng === "en" ? "" : lng}`, changefreq: 'daily', priority: 1 });
             smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/create`, changefreq: 'monthly', priority: 0.5 });
             smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/faq`, changefreq: 'monthly', priority: 1 });
             smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/currency`, changefreq: 'daily', priority: 1 });
-            smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/misc`, changefreq: 'monthly', priority: 1 });
+            smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/misc`, changefreq: 'daily', priority: 1 });
 
             Object.keys(championships).forEach((sport) => {
+                smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/${sport}/all`, changefreq: 'daily', priority: 1 });
+
                 championships[sport].forEach((championship) => {
+
                     if (championship.code) {
-                        smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/${sport}/${championship.code}`, changefreq: 'monthly', priority: 1 });
+                        smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/${sport}/${championship.code}`, changefreq: 'daily', priority: 1 });
                     }
                 });
             });
 
             markets.forEach((params) => {
                 let yes_team_name, no_team_name;
-
                 if (params.oracle === conf.sportOracleAddress) {
                     const [_, yes_team, no_team, __] = params.feed_name.split("_");
 
@@ -56,16 +58,16 @@ module.exports = async (_, reply) => {
                     no_team_name = no_abbreviation[1].name || no_team;
                 }
 
-                const event = generateTextEvent({ ...params, isUTC: true, yes_team_name, no_team_name });
+                const event = generateTextEvent({ ...params, isUTC: true, yes_team_name, no_team_name, languageKey: lng });
 
-                smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/market/${kebabCase(event)}-${params.aa_address}`, changefreq: 'monthly', priority: 1 });
+                smStream.write({ url: `${lng === "en" ? "" : `/${lng}`}/market/${kebabCase(event)}-${params.aa_address}`, changefreq: params.result ? 'monthly' : 'daily', priority: 1 });
             });
         });
 
         smStream.end();
 
         const result = await streamToPromise(smStream);
-        
+
         reply.header('Content-Type', 'application/xml');
         reply.send(result);
     } catch (e) {
