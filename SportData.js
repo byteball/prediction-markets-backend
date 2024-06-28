@@ -127,6 +127,8 @@ class SportDataService {
     if (competitionId === 2029) return 'BSB';
     if (competitionId === 2024) return 'ASL';
     if (competitionId === 2152) return 'CLI';
+
+    if (competitionId === 2018) return 'EC';
     return null;
   }
 
