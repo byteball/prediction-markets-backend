@@ -19,7 +19,7 @@ exports.saveMarketVenue = async function (feed_name, event_date) {
         if (match) {
             const venue = match.venue;
 
-            await db.query(`INSERT INTO sport_market_venues (venue, feed_name, event_date) VALUES (?, ?, ?)`, [venue, feed_name, event_date]);
+            await db.query(`INSERT INTO sport_market_venues (venue, feed_name) VALUES (?, ?)`, [venue, feed_name]);
 
             console.error(`Venue ${venue} for feed ${feed_name} on ${moment.utc(event_date).format('YYYY-MM-DDTHH:mm:ss')} saved`);
         }

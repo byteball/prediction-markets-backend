@@ -132,7 +132,6 @@ exports.create = async function () {
 	await db.query(`CREATE TABLE IF NOT EXISTS sport_market_venues (
 		venue CHAR(128) DEFAULT NULL,
 		feed_name CHAR(32) NOT NULL,
-		event_date INT NOT NULL,
 		UNIQUE (feed_name)
 	)`);
 
