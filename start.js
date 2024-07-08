@@ -65,6 +65,11 @@ async function discoverMarketAas() {
 
 async function start() {
   await marketDB.create();
+  
+  await wait(60 * 1000);
+
+  await sportDataService.init();
+
   addWatchedAas();
 
   eventBus.on('connected', addWatchedAas);
@@ -75,12 +80,9 @@ async function start() {
 
   await dag.loadAA(conf.tokenRegistryAaAddress);
 
-  await wait(60 * 1000);
 
   await discoverMarketAas()
   await marketDB.api.refreshSymbols();
-
-  await sportDataService.init();
 
   webserver.start();
   console.error('webserver has been started');

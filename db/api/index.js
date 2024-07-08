@@ -1,4 +1,5 @@
 const { getActualMarketInfo } = require("./getActualMarketInfo");
+const { saveMarketVenue } = require("./saveMarketVenue");
 const { getAllMarkets } = require("./getAllMarkets");
 const { getTradeEventsByMarket } = require("./getTradeEventsByMarket");
 const { getCandles } = require("./getCandles");
@@ -15,9 +16,11 @@ const { saveTradeEvent } = require("./saveTradeEvent");
 const { registerSymbols } = require("./registerSymbols");
 const { updateOdds } = require("./updateOdds");
 const { getBookmakerOddsByFeedName } = require("./getBookmakerOddsByFeedName");
+const { getVenue } = require("./getVenue");
 
 module.exports = {
   saveMarketAsset,
+  saveMarketVenue,
   savePredictionMarket,
   saveSymbolForAsset,
   refreshSymbols,
@@ -33,5 +36,6 @@ module.exports = {
   getAllMarkets,
   registerSymbols,
   updateOdds,
-  getBookmakerOddsByFeedName
+  getBookmakerOddsByFeedName,
+  getVenue
 }

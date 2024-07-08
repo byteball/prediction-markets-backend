@@ -19,6 +19,7 @@ const firstTradeTimestampController = require('./controllers/firstTradeTimestamp
 const bookmakerOddsController = require('./controllers/bookmakerOddsController.js');
 const crestController = require('./controllers/crestController.js');
 const sitemapController = require('./controllers/sitemapController.js');
+const venueController = require('./controllers/venueController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -45,6 +46,7 @@ fastifyInstance.get('/api/first_trade_ts/:address', firstTradeTimestampControlle
 fastifyInstance.get('/api/bookmaker_odds/:sport/:feed_name', bookmakerOddsController);
 fastifyInstance.get('/api/crest/:sport/:competitions/:team_id', crestController);
 fastifyInstance.get('/api/sitemap.xml', sitemapController);
+fastifyInstance.get('/api/venue/:feed_name', venueController);
 
 fastifyInstance.setNotFoundHandler(indexController);
 
