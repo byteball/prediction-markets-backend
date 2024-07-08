@@ -128,6 +128,13 @@ exports.create = async function () {
 		UNIQUE (feed_name)
 	)`)
 
+	// don't use FOREIGN KEY because we don't want to delete the venue if the markets aren't loaded. We can do backup and restore this data.
+	await db.query(`CREATE TABLE IF NOT EXISTS sport_market_venues (
+		venue CHAR(128) DEFAULT NULL,
+		feed_name CHAR(32) NOT NULL,
+		UNIQUE (feed_name)
+	)`);
+
 	await db.query(`CREATE TRIGGER IF NOT EXISTS update_reserve AFTER INSERT ON trades
 		BEGIN
 			UPDATE markets SET reserve=new.reserve WHERE aa_address = new.aa_address;

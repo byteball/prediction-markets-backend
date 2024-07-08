@@ -162,7 +162,8 @@ class SportDataService {
             oracle: conf.sportOracleAddress,
             championship,
             league_emblem: competition.emblem,
-            league: competition.name
+            league: competition.name,
+            venue: matchObject.venue
           });
 
           odds[feed_name] = {

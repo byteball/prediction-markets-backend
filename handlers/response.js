@@ -66,6 +66,11 @@ exports.responseHandler = async function (objResponse) {
 
     if (joint && joint.unit && joint.unit.messages) {
       await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp, base_aa);
+
+      if (payload && payload.oracle === conf.sportOracleAddress) {
+        await marketDB.api.saveMarketVenue(payload.feed_name, payload.event_date).catch(console.error);
+      }
+
       await marketDB.api.saveReserveSymbol(responseVars.prediction_address, payload.reserve_asset);
 
       if (conf.automaticSymbolsReg && timestamp > 1661955871) { // automatic registration start time
