@@ -20,6 +20,7 @@ const bookmakerOddsController = require('./controllers/bookmakerOddsController.j
 const crestController = require('./controllers/crestController.js');
 const sitemapController = require('./controllers/sitemapController.js');
 const venueController = require('./controllers/venueController.js');
+const marketController = require('./controllers/marketController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -32,6 +33,7 @@ fastifyInstance.register(fastifySensible);
 
 // Declare routes
 fastifyInstance.get('/api/markets/:page?', marketsController);
+fastifyInstance.get('/api/market/:address', marketController);
 fastifyInstance.get('/api/reserve_assets', reserveAssetsController);
 fastifyInstance.get('/api/daily_candles/:address', dailyCandlesController);
 fastifyInstance.get('/api/calendar/currency/:currency/:page', currencyCalendarController);
