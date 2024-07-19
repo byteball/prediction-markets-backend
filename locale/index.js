@@ -7,7 +7,7 @@ module.exports = {
         "equal": "equal",
         "not_equal": "not equal",
         "fn_currency_text": ({ from_currency, comparisonText, value, to_currency, expiry_date, isUTC = false }) => `Will ${from_currency} be ${comparisonText} ${value} ${to_currency} on ${expiry_date}${isUTC ? " UTC" : ""}?`,
-        "fn_sport_text": ({ yes_team, no_team, expiry_date, isUTC }) => `${yes_team} vs ${no_team} on ${expiry_date}${isUTC ? " UTC" : ""}?`,
+        "fn_sport_text": ({ yes_team, no_team, expiry_date, isUTC }) => `${yes_team} vs ${no_team} on ${expiry_date}${isUTC ? " UTC" : ""}`,
         "fn_other_text": ({ feed_name, comparisonText, value, expiry_date, isUTC }) => `Will ${feed_name} be ${comparisonText} ${value} on ${expiry_date}${isUTC ? " UTC" : ""}?`,
     },
     es: {
