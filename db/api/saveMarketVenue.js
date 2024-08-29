@@ -5,7 +5,7 @@ const { soccerCompetitions } = require('abbreviations/soccerCompetitions');
 const { getVenueFromSportData } = require('../../utils/getVenueFromSportData');
 const { getVenueFromTheScore } = require('../../utils/getVenueFromTheScore');
 
-exports.saveMarketVenue = async function (feed_name, event_date) {
+exports.saveMarketVenue = async function (feed_name, event_date, old_venue) {
     const { sportDataService } = require('../../SportData');
 
     const championship = feed_name.split('_')[0];
@@ -21,20 +21,21 @@ exports.saveMarketVenue = async function (feed_name, event_date) {
     }
 
     if (!venue) {
-        const matches = sportDataService.calendar.soccer;
+        const matches = sportDataService.calendar.soccer || [];
 
-        if (matches.length) {
-            const match = matches.find(({ feed_name: fn }) => fn === feed_name);
+        const match = matches.find(({ feed_name: fn }) => fn === feed_name);
 
-            if (match) {
-                venue = match.venue
-            }
+        if (match) {
+            venue = match.venue
+            console.error('log(venue): use football data service', feed_name);
+        } else if (old_venue) {
+            venue = old_venue;
+            console.error('log(venue): save old venue', feed_name, old_venue);
         }
-        console.error('log(venue): use football data service', feed_name);
     }
 
     if (venue) {
-        await db.query(`INSERT INTO sport_market_venues (venue, feed_name) VALUES (?, ?)`, [venue, feed_name]);
+        await db.query(`REPLACE INTO sport_market_venues (venue, feed_name) VALUES (?, ?)`, [venue, feed_name]);
 
         console.error(`Venue ${venue} for feed ${feed_name} on ${moment.utc(event_date).format('YYYY-MM-DDTHH:mm:ss')} saved`);
     }
