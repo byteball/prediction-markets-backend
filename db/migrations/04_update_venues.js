@@ -1,4 +1,6 @@
 const db = require("ocore/db");
+const moment = require("moment");
+
 const { saveMarketVenue } = require("../api");
 
 (async () => {
@@ -6,7 +8,8 @@ const { saveMarketVenue } = require("../api");
 
     for (const market of markets) {
         try {
-            await saveMarketVenue(market.feed_name, market.event_date, market.venue);
+            const eventDate = moment.unix(market.event_date).format('YYYY-MM-DDTHH:mm:ss');
+            await saveMarketVenue(market.feed_name, eventDate, market.venue);
         } catch (e) {
             console.error('error(saveMarketVenue)', e);
         }
