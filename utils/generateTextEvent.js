@@ -24,7 +24,7 @@ exports.generateTextEvent = ({ oracle, event_date, feed_name, datafeed_value, co
 
         return locale[languageKey].fn_sport_text({ yes_team: yes_team_name || yes_team, no_team: no_team_name || no_team, expiry_date, isUTC });
     } else {
-        return locale[languageKey].fn_default_text({ feed_name, comparisonText, datafeed_value, expiry_date, isUTC });
+        return locale[languageKey].fn_other_text({ feed_name, comparisonText, datafeed_value, expiry_date, isUTC });
     }
 }
 
