@@ -6,7 +6,7 @@ const marketDB = require('../db');
 const { notifyAdmin } = require('../notifications');
 
 const RETRY_TIMEOUT = 20 * 60 * 1000; // 20 min
-const MAX_RETRY_COUNT = 40;
+const MAX_RETRY_COUNT = 15;
 
 const attemptList = {}; // address:count
 
@@ -23,6 +23,7 @@ const tryRegSymbols = async (address, data) => {
           address: ${address}
           error: "${e}"
         `);
+        return;
       } else {
         attemptList[address] = attemptList[address] + 1;
       }
