@@ -14,6 +14,7 @@ const { justsayingHandler, responseHandler } = require('./handlers');
 const webserver = require('./webserver');
 const { sportDataService } = require('./SportData');
 const { wait } = require('./utils/wait');
+const { isSupportedMarket } = require('./utils/marketVersion');
 const ResultCommitter = require('./resultCommitter');
 
 lightWallet.setLightVendorHost(conf.hub);
@@ -24,7 +25,7 @@ eventBus.once('connected', function (ws) {
 
 async function addWatchedAas() {
   console.log('addWatchedAas');
-  conf.factoryAas.map((address) => wallet_general.addWatchedAddress(address, null, console.log));
+ [...conf.factoryAas, ...conf.factoryAasV2].map((address) => wallet_general.addWatchedAddress(address, null, console.log));
   network.addLightWatchedAa(conf.tokenRegistryAaAddress, null, console.log)
 };
 
@@ -37,7 +38,7 @@ async function watchMarketAa(objAa) {
 async function discoverMarketAas() {
   let factoryStateVars = {};
 
-  const stateVarsGetter = conf.factoryAas.map((aa) => dag.readAAStateVars(aa).then((stateVars) => Object.assign(factoryStateVars, { [aa]: stateVars })));
+  const stateVarsGetter = [...conf.factoryAas, ...conf.factoryAasV2].map((aa) => dag.readAAStateVars(aa).then((stateVars) => Object.assign(factoryStateVars, { [aa]: stateVars })));
 
   await Promise.all(stateVarsGetter);
 
@@ -48,7 +49,7 @@ async function discoverMarketAas() {
       const { created_at } = stateVars[key];
       const marketAddress = key.replace("prediction_", "");
 
-      if ((factory === conf.factoryAas[0] && created_at <= conf.factoryUpgradeFixQuietPeriodTimestamp) || (factory === conf.factoryAas[1] && created_at <= conf.factoryUpgradeRemoveIssueFeeForLiqTimestamp) || factory === conf.factoryAas[2]) {
+      if (isSupportedMarket({ factory, created_at })) {
         allMarkets.push(marketAddress);
       } else {
         console.error('ignore ', marketAddress);

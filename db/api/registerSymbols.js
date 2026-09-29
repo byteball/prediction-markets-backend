@@ -15,6 +15,8 @@ exports.registerSymbols = async function (address, data) {
     const noAsset = await dag.readAAStateVar(address, 'no_asset');
     const drawAsset = await dag.readAAStateVar(address, 'draw_asset');
 
+    if (!yesAsset || !noAsset) throw `assets of ${address} are not defined, nothing to register`;
+
     const yesSymbol = await token_registry.getSymbolByAsset(yesAsset);
     const noSymbol = await token_registry.getSymbolByAsset(noAsset);
     const drawSymbol = drawAsset ? await token_registry.getSymbolByAsset(drawAsset) : null;

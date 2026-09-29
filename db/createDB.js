@@ -45,6 +45,8 @@ exports.create = async function () {
 		result CHAR(4),
 		created_at TIMESTAMP NOT NULL,
 		committed_at TIMESTAMP DEFAULT NULL,
+		version INTEGER NOT NULL DEFAULT 1,
+		is_tokenless BOOLEAN NOT NULL DEFAULT 0,
 		UNIQUE (aa_address)
 	)`);
 

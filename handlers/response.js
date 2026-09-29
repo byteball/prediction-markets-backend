@@ -4,6 +4,8 @@ const mutex = require('ocore/mutex.js');
 
 const marketDB = require('../db');
 const { notifyAdmin } = require('../notifications');
+const { getFactoryVersion, isSupportedMarket } = require('../utils/marketVersion');
+const { normalizeResponseVars } = require('../utils/normalizeResponseVars');
 
 const RETRY_TIMEOUT = 20 * 60 * 1000; // 20 min
 const MAX_RETRY_COUNT = 15;
@@ -43,7 +45,7 @@ exports.responseHandler = async function (objResponse) {
     return unlock('ignored response with error: ' + objResponse.response.error);
 
   const { trigger_unit, response_unit, timestamp, aa_address, trigger_address } = objResponse;
-  const responseVars = objResponse.response.responseVars || {};
+  const responseVars = normalizeResponseVars(objResponse.response.responseVars);
   const joint = await dag.readJoint(trigger_unit);
   const msg = joint.unit.messages.find(m => m.app === 'data');
   const payload = msg ? msg.payload : {};
@@ -55,7 +57,7 @@ exports.responseHandler = async function (objResponse) {
   }
 
   if (('prediction_address' in responseVars) && objResponse.objResponseUnit.messages) {
-    if ((timestamp > conf.factoryUpgradeFixQuietPeriodTimestamp && aa_address === conf.factoryAas[0]) || (timestamp > conf.factoryUpgradeRemoveIssueFeeForLiqTimestamp && aa_address === conf.factoryAas[1])) {
+    if (!isSupportedMarket({ factory: aa_address, created_at: timestamp })) {
       return unlock('ignored AA', responseVars.prediction_address);
     }
 
@@ -64,9 +66,10 @@ exports.responseHandler = async function (objResponse) {
     if (!defMsg) return unlock('no def msg', responseVars.prediction_address)
 
     const base_aa = defMsg.payload.definition[1].base_aa;
+    const is_tokenless = !!defMsg.payload.definition[1].params.is_tokenless; // from the definition of the created AA, not from the request
 
     if (joint && joint.unit && joint.unit.messages) {
-      await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp, base_aa);
+      await marketDB.api.savePredictionMarket(responseVars.prediction_address, { ...payload, is_tokenless }, timestamp, base_aa, getFactoryVersion(aa_address));
 
       if (payload && payload.oracle === conf.sportOracleAddress) {
         await marketDB.api.saveMarketVenue(payload.feed_name, payload.event_date).catch(console.error);
@@ -74,7 +77,7 @@ exports.responseHandler = async function (objResponse) {
 
       await marketDB.api.saveReserveSymbol(responseVars.prediction_address, payload.reserve_asset);
 
-      if (conf.automaticSymbolsReg && timestamp > 1661955871) { // automatic registration start time
+      if (conf.automaticSymbolsReg && !is_tokenless && timestamp > 1661955871) { // automatic registration start time
         await tryRegSymbols(responseVars.prediction_address, payload);
       }
     }
@@ -95,7 +98,7 @@ exports.responseHandler = async function (objResponse) {
   const isAddLiquidity = !('arb_profit_tax' in responseVars);
 
   if (responseVars && ('next_coef' in responseVars) && ('arb_profit_tax' in responseVars || isAddLiquidity)) {
-    const existsAmountInPayload = 'yes_amount' in payload || 'no_amount' in payload || 'draw_amount' in payload;
+    const existsAmountInPayload = payload.yes_amount > 0 || payload.no_amount > 0 || payload.draw_amount > 0; // negative amounts = redeem in tokenless markets
     const { reserve_asset } = await marketDB.api.getMarketAssets(aa_address);
 
     let reserve_amount = 0;
@@ -114,9 +117,7 @@ exports.responseHandler = async function (objResponse) {
         }
       }
 
-    } else { // redeem
-      if (!objResponse.objResponseUnit)
-        throw Error(`no objResponseUnit in ${JSON.stringify(objResponse)}`);
+    } else if (objResponse.objResponseUnit) { // redeem, no response unit if nothing was paid
       const messages = objResponse.objResponseUnit.messages;
 
       if (messages.length === 1) {
@@ -173,15 +174,16 @@ exports.responseHandler = async function (objResponse) {
 
     const profit = responseVars.profit;
     const payoutMsg = joint.unit.messages.find(({ app, payload }) => app === 'payment' && payload.asset === winnerAsset);
-    const output = payoutMsg.payload.outputs.find(({ address }) => address === aa_address);
+    // v2 reports the claimed amount, v1 receives it in the winning tokens
+    const amount = 'claimed_amount' in responseVars ? responseVars.claimed_amount : payoutMsg.payload.outputs.find(({ address }) => address === aa_address).amount;
     const new_reserve = actualData.reserve - profit;
-    const new_winner_supply = actualData[`supply_${winner}`] - output.amount;
+    const new_winner_supply = actualData[`supply_${winner}`] - amount;
     const winnerPrice = new_reserve / new_winner_supply;
 
     await marketDB.api.saveTradeEvent({
       aa_address,
       response_unit,
-      [`${winner}_amount`]: output.amount,
+      [`${winner}_amount`]: amount,
       reserve: new_reserve,
       coef: actualData.coef,
       type: 'claim_profit',
