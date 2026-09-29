@@ -1,4 +1,3 @@
-const { default: axios } = require('axios');
 const { isInteger } = require('lodash');
 const db = require('ocore/db.js');
 const conf = require('ocore/conf.js');
@@ -8,13 +7,9 @@ const abbreviations = require('abbreviations');
 const marketDB = require('../../db');
 const { sportDataService } = require('../../SportData');
 const { getEstimatedAPY } = require('../../utils/getEstimatedAPY');
+const { getUSDRates } = require('../../utils/getUSDRates');
 
 const limit = conf.limitMarketsOnPage;
-
-let cacheRate = {
-	lastUpdate: 0,
-	data: {}
-}
 
 const filterByType = (type, championship) => {
 	let query = '';
@@ -91,34 +86,14 @@ module.exports = async (request, reply) => {
 		console.error('soccer info error', e)
 	}
 
-	if (Object.keys(cacheRate.data).length === 0 || cacheRate.lastUpdate < Date.now() - (1800 * 1000)) {
-		try {
-			const data = await axios.get(`https://min-api.cryptocompare.com/data/pricemulti?fsyms=${Object.values(conf.supportedReserveAssets).map(({ symbol }) => symbol).join(",")}&tsyms=USD`).then(({ data }) => {
-				const res = {};
-
-				Object.entries(data).forEach(([name, value]) => {
-					const assetBySymbol = Object.entries(conf.supportedReserveAssets).find(([_, { symbol }]) => symbol === name)[0];
-					res[assetBySymbol] = value.USD;
-				});
-
-				return res;
-			});
-
-			cacheRate = {
-				data,
-				lastUpdate: Date.now()
-			}
-		} catch (err) {
-			console.error(err)
-		}
-	}
+	const rates = await getUSDRates();
 
 	try {
 
 		const actualMarkets = [];
 		let oldMarkets = [];
 
-		const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
+		const sortedRows = rows.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * rates[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * rates[b.reserve_asset])
 
 		sortedRows.forEach(row => {
 			if (now >= row.event_date) {
@@ -141,7 +116,7 @@ module.exports = async (request, reply) => {
 			}
 		});
 
-		resumedTradingMarkets = resumedTradingMarkets.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * cacheRate.data[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * cacheRate.data[b.reserve_asset])
+		resumedTradingMarkets = resumedTradingMarkets.sort((b, a) => ((a.reserve || 0) / (10 ** a.reserve_decimals)) * rates[a.reserve_asset] - ((b.reserve || 0) / 10 ** b.reserve_decimals) * rates[b.reserve_asset])
 		
 		// add APY
 		let data = [...actualMarkets, ...resumedTradingMarkets, ...claimingProfitMarkets].slice(offset, offset + limit);
