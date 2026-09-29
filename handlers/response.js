@@ -65,9 +65,10 @@ exports.responseHandler = async function (objResponse) {
     if (!defMsg) return unlock('no def msg', responseVars.prediction_address)
 
     const base_aa = defMsg.payload.definition[1].base_aa;
+    const is_tokenless = !!defMsg.payload.definition[1].params.is_tokenless; // from the definition of the created AA, not from the request
 
     if (joint && joint.unit && joint.unit.messages) {
-      await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp, base_aa, getFactoryVersion(aa_address));
+      await marketDB.api.savePredictionMarket(responseVars.prediction_address, { ...payload, is_tokenless }, timestamp, base_aa, getFactoryVersion(aa_address));
 
       if (payload && payload.oracle === conf.sportOracleAddress) {
         await marketDB.api.saveMarketVenue(payload.feed_name, payload.event_date).catch(console.error);
@@ -75,7 +76,7 @@ exports.responseHandler = async function (objResponse) {
 
       await marketDB.api.saveReserveSymbol(responseVars.prediction_address, payload.reserve_asset);
 
-      if (conf.automaticSymbolsReg && timestamp > 1661955871) { // automatic registration start time
+      if (conf.automaticSymbolsReg && !is_tokenless && timestamp > 1661955871) { // automatic registration start time
         await tryRegSymbols(responseVars.prediction_address, payload);
       }
     }
