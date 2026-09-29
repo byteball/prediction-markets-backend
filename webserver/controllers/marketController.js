@@ -32,7 +32,7 @@ module.exports = async (request, reply) => {
 
             const marketUrl = `${conf.frontendUrl}/market/${seoText}-${address}`;
 
-            reply.send({ ...market, eventText, marketUrl });
+            reply.send({ ...market, is_tokenless: !!market.is_tokenless, eventText, marketUrl });
         } catch (e) {
             console.error('marketController error', e);
         }

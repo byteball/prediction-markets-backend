@@ -4,6 +4,7 @@ const mutex = require('ocore/mutex.js');
 
 const marketDB = require('../db');
 const { notifyAdmin } = require('../notifications');
+const { getFactoryVersion, isSupportedMarket } = require('../utils/marketVersion');
 
 const RETRY_TIMEOUT = 20 * 60 * 1000; // 20 min
 const MAX_RETRY_COUNT = 15;
@@ -55,7 +56,7 @@ exports.responseHandler = async function (objResponse) {
   }
 
   if (('prediction_address' in responseVars) && objResponse.objResponseUnit.messages) {
-    if ((timestamp > conf.factoryUpgradeFixQuietPeriodTimestamp && aa_address === conf.factoryAas[0]) || (timestamp > conf.factoryUpgradeRemoveIssueFeeForLiqTimestamp && aa_address === conf.factoryAas[1])) {
+    if (!isSupportedMarket({ factory: aa_address, created_at: timestamp })) {
       return unlock('ignored AA', responseVars.prediction_address);
     }
 
@@ -66,7 +67,7 @@ exports.responseHandler = async function (objResponse) {
     const base_aa = defMsg.payload.definition[1].base_aa;
 
     if (joint && joint.unit && joint.unit.messages) {
-      await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp, base_aa);
+      await marketDB.api.savePredictionMarket(responseVars.prediction_address, payload, timestamp, base_aa, getFactoryVersion(aa_address));
 
       if (payload && payload.oracle === conf.sportOracleAddress) {
         await marketDB.api.saveMarketVenue(payload.feed_name, payload.event_date).catch(console.error);
