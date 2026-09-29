@@ -20,6 +20,8 @@ exports.from_email = '';
 
 // custom
 exports.factoryAas = ["S6WVQ6JQCNQ27OQJM2IQDS6DYTKBM24G", "ZV3JPT2RDDQSEFTO7IDOZF3OWVUZF7NC", "HUJCVN2ZTG6CWUEKG4LQDAMBWSVCSP5L"];
+exports.factoryAasV2 = ["M56MS5K2YTDG2AFJJIWNTMHJWXO7BJPM"];
+
 exports.deviceName = 'Prediction markets';
 exports.enableCommitter = false;
 exports.automaticSymbolsReg = false;
