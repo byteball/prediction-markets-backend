@@ -34,7 +34,8 @@ const filterByType = (type, championship) => {
 	// include only allowed reserve assets
 	query += ` ${(type === 'currency' || type === 'soccer' || type === 'misc') ? 'AND' : "WHERE"} (${Object.keys(conf.supportedReserveAssets).map((asset, index) => `${index ? 'OR' : ''} markets.reserve_asset='${asset}'`).join(' ')})`;
 
-	query += ` AND market_assets.yes_symbol IS NOT NULL AND market_assets.no_symbol IS NOT NULL AND (markets.allow_draw == 0 OR market_assets.draw_symbol IS NOT NULL)`
+	// tokenless markets have no assets and no symbols
+	query += ` AND (markets.is_tokenless == 1 OR (market_assets.yes_symbol IS NOT NULL AND market_assets.no_symbol IS NOT NULL AND (markets.allow_draw == 0 OR market_assets.draw_symbol IS NOT NULL)))`
 
 	return query;
 }
